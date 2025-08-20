@@ -1,0 +1,1985 @@
+[
+  {
+    "id": "DZA",
+    "name": "Algeria",
+    "isoCode2": "DZ",
+    "isoCode3": "DZA",
+    "continent": "Africa",
+    "region": "Northern Africa"
+  },
+  {
+    "id": "EGY",
+    "name": "Egypt",
+    "isoCode2": "EG",
+    "isoCode3": "EGY",
+    "continent": "Africa",
+    "region": "Northern Africa"
+  },
+  {
+    "id": "LBY",
+    "name": "Libya",
+    "isoCode2": "LY",
+    "isoCode3": "LBY",
+    "continent": "Africa",
+    "region": "Northern Africa"
+  },
+  {
+    "id": "MAR",
+    "name": "Morocco",
+    "isoCode2": "MA",
+    "isoCode3": "MAR",
+    "continent": "Africa",
+    "region": "Northern Africa"
+  },
+  {
+    "id": "SDN",
+    "name": "Sudan",
+    "isoCode2": "SD",
+    "isoCode3": "SDN",
+    "continent": "Africa",
+    "region": "Northern Africa"
+  },
+  {
+    "id": "TUN",
+    "name": "Tunisia",
+    "isoCode2": "TN",
+    "isoCode3": "TUN",
+    "continent": "Africa",
+    "region": "Northern Africa"
+  },
+  {
+    "id": "ESH",
+    "name": "Western Sahara",
+    "isoCode2": "EH",
+    "isoCode3": "ESH",
+    "continent": "Africa",
+    "region": "Northern Africa"
+  },
+  {
+    "id": "IOT",
+    "name": "British Indian Ocean Territory",
+    "isoCode2": "IO",
+    "isoCode3": "IOT",
+    "continent": "Africa",
+    "region": "Sub-Saharan Africa"
+  },
+  {
+    "id": "BDI",
+    "name": "Burundi",
+    "isoCode2": "BI",
+    "isoCode3": "BDI",
+    "continent": "Africa",
+    "region": "Sub-Saharan Africa"
+  },
+  {
+    "id": "COM",
+    "name": "Comoros",
+    "isoCode2": "KM",
+    "isoCode3": "COM",
+    "continent": "Africa",
+    "region": "Sub-Saharan Africa"
+  },
+  {
+    "id": "DJI",
+    "name": "Djibouti",
+    "isoCode2": "DJ",
+    "isoCode3": "DJI",
+    "continent": "Africa",
+    "region": "Sub-Saharan Africa"
+  },
+  {
+    "id": "ERI",
+    "name": "Eritrea",
+    "isoCode2": "ER",
+    "isoCode3": "ERI",
+    "continent": "Africa",
+    "region": "Sub-Saharan Africa"
+  },
+  {
+    "id": "ETH",
+    "name": "Ethiopia",
+    "isoCode2": "ET",
+    "isoCode3": "ETH",
+    "continent": "Africa",
+    "region": "Sub-Saharan Africa"
+  },
+  {
+    "id": "ATF",
+    "name": "French Southern Territories",
+    "isoCode2": "TF",
+    "isoCode3": "ATF",
+    "continent": "Africa",
+    "region": "Sub-Saharan Africa"
+  },
+  {
+    "id": "KEN",
+    "name": "Kenya",
+    "isoCode2": "KE",
+    "isoCode3": "KEN",
+    "continent": "Africa",
+    "region": "Sub-Saharan Africa"
+  },
+  {
+    "id": "MDG",
+    "name": "Madagascar",
+    "isoCode2": "MG",
+    "isoCode3": "MDG",
+    "continent": "Africa",
+    "region": "Sub-Saharan Africa"
+  },
+  {
+    "id": "MWI",
+    "name": "Malawi",
+    "isoCode2": "MW",
+    "isoCode3": "MWI",
+    "continent": "Africa",
+    "region": "Sub-Saharan Africa"
+  },
+  {
+    "id": "MUS",
+    "name": "Mauritius",
+    "isoCode2": "MU",
+    "isoCode3": "MUS",
+    "continent": "Africa",
+    "region": "Sub-Saharan Africa"
+  },
+  {
+    "id": "MYT",
+    "name": "Mayotte",
+    "isoCode2": "YT",
+    "isoCode3": "MYT",
+    "continent": "Africa",
+    "region": "Sub-Saharan Africa"
+  },
+  {
+    "id": "MOZ",
+    "name": "Mozambique",
+    "isoCode2": "MZ",
+    "isoCode3": "MOZ",
+    "continent": "Africa",
+    "region": "Sub-Saharan Africa"
+  },
+  {
+    "id": "REU",
+    "name": "Réunion",
+    "isoCode2": "RE",
+    "isoCode3": "REU",
+    "continent": "Africa",
+    "region": "Sub-Saharan Africa"
+  },
+  {
+    "id": "RWA",
+    "name": "Rwanda",
+    "isoCode2": "RW",
+    "isoCode3": "RWA",
+    "continent": "Africa",
+    "region": "Sub-Saharan Africa"
+  },
+  {
+    "id": "SYC",
+    "name": "Seychelles",
+    "isoCode2": "SC",
+    "isoCode3": "SYC",
+    "continent": "Africa",
+    "region": "Sub-Saharan Africa"
+  },
+  {
+    "id": "SOM",
+    "name": "Somalia",
+    "isoCode2": "SO",
+    "isoCode3": "SOM",
+    "continent": "Africa",
+    "region": "Sub-Saharan Africa"
+  },
+  {
+    "id": "SSD",
+    "name": "South Sudan",
+    "isoCode2": "SS",
+    "isoCode3": "SSD",
+    "continent": "Africa",
+    "region": "Sub-Saharan Africa"
+  },
+  {
+    "id": "UGA",
+    "name": "Uganda",
+    "isoCode2": "UG",
+    "isoCode3": "UGA",
+    "continent": "Africa",
+    "region": "Sub-Saharan Africa"
+  },
+  {
+    "id": "TZA",
+    "name": "United Republic of Tanzania",
+    "isoCode2": "TZ",
+    "isoCode3": "TZA",
+    "continent": "Africa",
+    "region": "Sub-Saharan Africa"
+  },
+  {
+    "id": "ZMB",
+    "name": "Zambia",
+    "isoCode2": "ZM",
+    "isoCode3": "ZMB",
+    "continent": "Africa",
+    "region": "Sub-Saharan Africa"
+  },
+  {
+    "id": "ZWE",
+    "name": "Zimbabwe",
+    "isoCode2": "ZW",
+    "isoCode3": "ZWE",
+    "continent": "Africa",
+    "region": "Sub-Saharan Africa"
+  },
+  {
+    "id": "AGO",
+    "name": "Angola",
+    "isoCode2": "AO",
+    "isoCode3": "AGO",
+    "continent": "Africa",
+    "region": "Sub-Saharan Africa"
+  },
+  {
+    "id": "CMR",
+    "name": "Cameroon",
+    "isoCode2": "CM",
+    "isoCode3": "CMR",
+    "continent": "Africa",
+    "region": "Sub-Saharan Africa"
+  },
+  {
+    "id": "CAF",
+    "name": "Central African Republic",
+    "isoCode2": "CF",
+    "isoCode3": "CAF",
+    "continent": "Africa",
+    "region": "Sub-Saharan Africa"
+  },
+  {
+    "id": "TCD",
+    "name": "Chad",
+    "isoCode2": "TD",
+    "isoCode3": "TCD",
+    "continent": "Africa",
+    "region": "Sub-Saharan Africa"
+  },
+  {
+    "id": "COG",
+    "name": "Congo",
+    "isoCode2": "CG",
+    "isoCode3": "COG",
+    "continent": "Africa",
+    "region": "Sub-Saharan Africa"
+  },
+  {
+    "id": "COD",
+    "name": "Democratic Republic of the Congo",
+    "isoCode2": "CD",
+    "isoCode3": "COD",
+    "continent": "Africa",
+    "region": "Sub-Saharan Africa"
+  },
+  {
+    "id": "GNQ",
+    "name": "Equatorial Guinea",
+    "isoCode2": "GQ",
+    "isoCode3": "GNQ",
+    "continent": "Africa",
+    "region": "Sub-Saharan Africa"
+  },
+  {
+    "id": "GAB",
+    "name": "Gabon",
+    "isoCode2": "GA",
+    "isoCode3": "GAB",
+    "continent": "Africa",
+    "region": "Sub-Saharan Africa"
+  },
+  {
+    "id": "STP",
+    "name": "Sao Tome and Principe",
+    "isoCode2": "ST",
+    "isoCode3": "STP",
+    "continent": "Africa",
+    "region": "Sub-Saharan Africa"
+  },
+  {
+    "id": "BWA",
+    "name": "Botswana",
+    "isoCode2": "BW",
+    "isoCode3": "BWA",
+    "continent": "Africa",
+    "region": "Sub-Saharan Africa"
+  },
+  {
+    "id": "SWZ",
+    "name": "Eswatini",
+    "isoCode2": "SZ",
+    "isoCode3": "SWZ",
+    "continent": "Africa",
+    "region": "Sub-Saharan Africa"
+  },
+  {
+    "id": "LSO",
+    "name": "Lesotho",
+    "isoCode2": "LS",
+    "isoCode3": "LSO",
+    "continent": "Africa",
+    "region": "Sub-Saharan Africa"
+  },
+  {
+    "id": "NAM",
+    "name": "Namibia",
+    "isoCode2": "NA",
+    "isoCode3": "NAM",
+    "continent": "Africa",
+    "region": "Sub-Saharan Africa"
+  },
+  {
+    "id": "ZAF",
+    "name": "South Africa",
+    "isoCode2": "ZA",
+    "isoCode3": "ZAF",
+    "continent": "Africa",
+    "region": "Sub-Saharan Africa"
+  },
+  {
+    "id": "BEN",
+    "name": "Benin",
+    "isoCode2": "BJ",
+    "isoCode3": "BEN",
+    "continent": "Africa",
+    "region": "Sub-Saharan Africa"
+  },
+  {
+    "id": "BFA",
+    "name": "Burkina Faso",
+    "isoCode2": "BF",
+    "isoCode3": "BFA",
+    "continent": "Africa",
+    "region": "Sub-Saharan Africa"
+  },
+  {
+    "id": "CPV",
+    "name": "Cabo Verde",
+    "isoCode2": "CV",
+    "isoCode3": "CPV",
+    "continent": "Africa",
+    "region": "Sub-Saharan Africa"
+  },
+  {
+    "id": "CIV",
+    "name": "Côte d’Ivoire",
+    "isoCode2": "CI",
+    "isoCode3": "CIV",
+    "continent": "Africa",
+    "region": "Sub-Saharan Africa"
+  },
+  {
+    "id": "GMB",
+    "name": "Gambia",
+    "isoCode2": "GM",
+    "isoCode3": "GMB",
+    "continent": "Africa",
+    "region": "Sub-Saharan Africa"
+  },
+  {
+    "id": "GHA",
+    "name": "Ghana",
+    "isoCode2": "GH",
+    "isoCode3": "GHA",
+    "continent": "Africa",
+    "region": "Sub-Saharan Africa"
+  },
+  {
+    "id": "GIN",
+    "name": "Guinea",
+    "isoCode2": "GN",
+    "isoCode3": "GIN",
+    "continent": "Africa",
+    "region": "Sub-Saharan Africa"
+  },
+  {
+    "id": "GNB",
+    "name": "Guinea-Bissau",
+    "isoCode2": "GW",
+    "isoCode3": "GNB",
+    "continent": "Africa",
+    "region": "Sub-Saharan Africa"
+  },
+  {
+    "id": "LBR",
+    "name": "Liberia",
+    "isoCode2": "LR",
+    "isoCode3": "LBR",
+    "continent": "Africa",
+    "region": "Sub-Saharan Africa"
+  },
+  {
+    "id": "MLI",
+    "name": "Mali",
+    "isoCode2": "ML",
+    "isoCode3": "MLI",
+    "continent": "Africa",
+    "region": "Sub-Saharan Africa"
+  },
+  {
+    "id": "MRT",
+    "name": "Mauritania",
+    "isoCode2": "MR",
+    "isoCode3": "MRT",
+    "continent": "Africa",
+    "region": "Sub-Saharan Africa"
+  },
+  {
+    "id": "NER",
+    "name": "Niger",
+    "isoCode2": "NE",
+    "isoCode3": "NER",
+    "continent": "Africa",
+    "region": "Sub-Saharan Africa"
+  },
+  {
+    "id": "NGA",
+    "name": "Nigeria",
+    "isoCode2": "NG",
+    "isoCode3": "NGA",
+    "continent": "Africa",
+    "region": "Sub-Saharan Africa"
+  },
+  {
+    "id": "SHN",
+    "name": "Saint Helena",
+    "isoCode2": "SH",
+    "isoCode3": "SHN",
+    "continent": "Africa",
+    "region": "Sub-Saharan Africa"
+  },
+  {
+    "id": "SEN",
+    "name": "Senegal",
+    "isoCode2": "SN",
+    "isoCode3": "SEN",
+    "continent": "Africa",
+    "region": "Sub-Saharan Africa"
+  },
+  {
+    "id": "SLE",
+    "name": "Sierra Leone",
+    "isoCode2": "SL",
+    "isoCode3": "SLE",
+    "continent": "Africa",
+    "region": "Sub-Saharan Africa"
+  },
+  {
+    "id": "TGO",
+    "name": "Togo",
+    "isoCode2": "TG",
+    "isoCode3": "TGO",
+    "continent": "Africa",
+    "region": "Sub-Saharan Africa"
+  },
+  {
+    "id": "AIA",
+    "name": "Anguilla",
+    "isoCode2": "AI",
+    "isoCode3": "AIA",
+    "continent": "Americas",
+    "region": "Latin America and the Caribbean"
+  },
+  {
+    "id": "ATG",
+    "name": "Antigua and Barbuda",
+    "isoCode2": "AG",
+    "isoCode3": "ATG",
+    "continent": "Americas",
+    "region": "Latin America and the Caribbean"
+  },
+  {
+    "id": "ABW",
+    "name": "Aruba",
+    "isoCode2": "AW",
+    "isoCode3": "ABW",
+    "continent": "Americas",
+    "region": "Latin America and the Caribbean"
+  },
+  {
+    "id": "BHS",
+    "name": "Bahamas",
+    "isoCode2": "BS",
+    "isoCode3": "BHS",
+    "continent": "Americas",
+    "region": "Latin America and the Caribbean"
+  },
+  {
+    "id": "BRB",
+    "name": "Barbados",
+    "isoCode2": "BB",
+    "isoCode3": "BRB",
+    "continent": "Americas",
+    "region": "Latin America and the Caribbean"
+  },
+  {
+    "id": "BES",
+    "name": "Bonaire, Sint Eustatius and Saba",
+    "isoCode2": "BQ",
+    "isoCode3": "BES",
+    "continent": "Americas",
+    "region": "Latin America and the Caribbean"
+  },
+  {
+    "id": "VGB",
+    "name": "British Virgin Islands",
+    "isoCode2": "VG",
+    "isoCode3": "VGB",
+    "continent": "Americas",
+    "region": "Latin America and the Caribbean"
+  },
+  {
+    "id": "CYM",
+    "name": "Cayman Islands",
+    "isoCode2": "KY",
+    "isoCode3": "CYM",
+    "continent": "Americas",
+    "region": "Latin America and the Caribbean"
+  },
+  {
+    "id": "CUB",
+    "name": "Cuba",
+    "isoCode2": "CU",
+    "isoCode3": "CUB",
+    "continent": "Americas",
+    "region": "Latin America and the Caribbean"
+  },
+  {
+    "id": "CUW",
+    "name": "Curaçao",
+    "isoCode2": "CW",
+    "isoCode3": "CUW",
+    "continent": "Americas",
+    "region": "Latin America and the Caribbean"
+  },
+  {
+    "id": "DMA",
+    "name": "Dominica",
+    "isoCode2": "DM",
+    "isoCode3": "DMA",
+    "continent": "Americas",
+    "region": "Latin America and the Caribbean"
+  },
+  {
+    "id": "DOM",
+    "name": "Dominican Republic",
+    "isoCode2": "DO",
+    "isoCode3": "DOM",
+    "continent": "Americas",
+    "region": "Latin America and the Caribbean"
+  },
+  {
+    "id": "GRD",
+    "name": "Grenada",
+    "isoCode2": "GD",
+    "isoCode3": "GRD",
+    "continent": "Americas",
+    "region": "Latin America and the Caribbean"
+  },
+  {
+    "id": "GLP",
+    "name": "Guadeloupe",
+    "isoCode2": "GP",
+    "isoCode3": "GLP",
+    "continent": "Americas",
+    "region": "Latin America and the Caribbean"
+  },
+  {
+    "id": "HTI",
+    "name": "Haiti",
+    "isoCode2": "HT",
+    "isoCode3": "HTI",
+    "continent": "Americas",
+    "region": "Latin America and the Caribbean"
+  },
+  {
+    "id": "JAM",
+    "name": "Jamaica",
+    "isoCode2": "JM",
+    "isoCode3": "JAM",
+    "continent": "Americas",
+    "region": "Latin America and the Caribbean"
+  },
+  {
+    "id": "MTQ",
+    "name": "Martinique",
+    "isoCode2": "MQ",
+    "isoCode3": "MTQ",
+    "continent": "Americas",
+    "region": "Latin America and the Caribbean"
+  },
+  {
+    "id": "MSR",
+    "name": "Montserrat",
+    "isoCode2": "MS",
+    "isoCode3": "MSR",
+    "continent": "Americas",
+    "region": "Latin America and the Caribbean"
+  },
+  {
+    "id": "PRI",
+    "name": "Puerto Rico",
+    "isoCode2": "PR",
+    "isoCode3": "PRI",
+    "continent": "Americas",
+    "region": "Latin America and the Caribbean"
+  },
+  {
+    "id": "BLM",
+    "name": "Saint Barthélemy",
+    "isoCode2": "BL",
+    "isoCode3": "BLM",
+    "continent": "Americas",
+    "region": "Latin America and the Caribbean"
+  },
+  {
+    "id": "KNA",
+    "name": "Saint Kitts and Nevis",
+    "isoCode2": "KN",
+    "isoCode3": "KNA",
+    "continent": "Americas",
+    "region": "Latin America and the Caribbean"
+  },
+  {
+    "id": "LCA",
+    "name": "Saint Lucia",
+    "isoCode2": "LC",
+    "isoCode3": "LCA",
+    "continent": "Americas",
+    "region": "Latin America and the Caribbean"
+  },
+  {
+    "id": "MAF",
+    "name": "Saint Martin (French Part)",
+    "isoCode2": "MF",
+    "isoCode3": "MAF",
+    "continent": "Americas",
+    "region": "Latin America and the Caribbean"
+  },
+  {
+    "id": "VCT",
+    "name": "Saint Vincent and the Grenadines",
+    "isoCode2": "VC",
+    "isoCode3": "VCT",
+    "continent": "Americas",
+    "region": "Latin America and the Caribbean"
+  },
+  {
+    "id": "SXM",
+    "name": "Sint Maarten (Dutch part)",
+    "isoCode2": "SX",
+    "isoCode3": "SXM",
+    "continent": "Americas",
+    "region": "Latin America and the Caribbean"
+  },
+  {
+    "id": "TTO",
+    "name": "Trinidad and Tobago",
+    "isoCode2": "TT",
+    "isoCode3": "TTO",
+    "continent": "Americas",
+    "region": "Latin America and the Caribbean"
+  },
+  {
+    "id": "TCA",
+    "name": "Turks and Caicos Islands",
+    "isoCode2": "TC",
+    "isoCode3": "TCA",
+    "continent": "Americas",
+    "region": "Latin America and the Caribbean"
+  },
+  {
+    "id": "VIR",
+    "name": "United States Virgin Islands",
+    "isoCode2": "VI",
+    "isoCode3": "VIR",
+    "continent": "Americas",
+    "region": "Latin America and the Caribbean"
+  },
+  {
+    "id": "BLZ",
+    "name": "Belize",
+    "isoCode2": "BZ",
+    "isoCode3": "BLZ",
+    "continent": "Americas",
+    "region": "Latin America and the Caribbean"
+  },
+  {
+    "id": "CRI",
+    "name": "Costa Rica",
+    "isoCode2": "CR",
+    "isoCode3": "CRI",
+    "continent": "Americas",
+    "region": "Latin America and the Caribbean"
+  },
+  {
+    "id": "SLV",
+    "name": "El Salvador",
+    "isoCode2": "SV",
+    "isoCode3": "SLV",
+    "continent": "Americas",
+    "region": "Latin America and the Caribbean"
+  },
+  {
+    "id": "GTM",
+    "name": "Guatemala",
+    "isoCode2": "GT",
+    "isoCode3": "GTM",
+    "continent": "Americas",
+    "region": "Latin America and the Caribbean"
+  },
+  {
+    "id": "HND",
+    "name": "Honduras",
+    "isoCode2": "HN",
+    "isoCode3": "HND",
+    "continent": "Americas",
+    "region": "Latin America and the Caribbean"
+  },
+  {
+    "id": "MEX",
+    "name": "Mexico",
+    "isoCode2": "MX",
+    "isoCode3": "MEX",
+    "continent": "Americas",
+    "region": "Latin America and the Caribbean"
+  },
+  {
+    "id": "NIC",
+    "name": "Nicaragua",
+    "isoCode2": "NI",
+    "isoCode3": "NIC",
+    "continent": "Americas",
+    "region": "Latin America and the Caribbean"
+  },
+  {
+    "id": "PAN",
+    "name": "Panama",
+    "isoCode2": "PA",
+    "isoCode3": "PAN",
+    "continent": "Americas",
+    "region": "Latin America and the Caribbean"
+  },
+  {
+    "id": "ARG",
+    "name": "Argentina",
+    "isoCode2": "AR",
+    "isoCode3": "ARG",
+    "continent": "Americas",
+    "region": "Latin America and the Caribbean"
+  },
+  {
+    "id": "BOL",
+    "name": "Bolivia (Plurinational State of)",
+    "isoCode2": "BO",
+    "isoCode3": "BOL",
+    "continent": "Americas",
+    "region": "Latin America and the Caribbean"
+  },
+  {
+    "id": "BVT",
+    "name": "Bouvet Island",
+    "isoCode2": "BV",
+    "isoCode3": "BVT",
+    "continent": "Americas",
+    "region": "Latin America and the Caribbean"
+  },
+  {
+    "id": "BRA",
+    "name": "Brazil",
+    "isoCode2": "BR",
+    "isoCode3": "BRA",
+    "continent": "Americas",
+    "region": "Latin America and the Caribbean"
+  },
+  {
+    "id": "CHL",
+    "name": "Chile",
+    "isoCode2": "CL",
+    "isoCode3": "CHL",
+    "continent": "Americas",
+    "region": "Latin America and the Caribbean"
+  },
+  {
+    "id": "COL",
+    "name": "Colombia",
+    "isoCode2": "CO",
+    "isoCode3": "COL",
+    "continent": "Americas",
+    "region": "Latin America and the Caribbean"
+  },
+  {
+    "id": "ECU",
+    "name": "Ecuador",
+    "isoCode2": "EC",
+    "isoCode3": "ECU",
+    "continent": "Americas",
+    "region": "Latin America and the Caribbean"
+  },
+  {
+    "id": "FLK",
+    "name": "Falkland Islands (Malvinas)",
+    "isoCode2": "FK",
+    "isoCode3": "FLK",
+    "continent": "Americas",
+    "region": "Latin America and the Caribbean"
+  },
+  {
+    "id": "GUF",
+    "name": "French Guiana",
+    "isoCode2": "GF",
+    "isoCode3": "GUF",
+    "continent": "Americas",
+    "region": "Latin America and the Caribbean"
+  },
+  {
+    "id": "GUY",
+    "name": "Guyana",
+    "isoCode2": "GY",
+    "isoCode3": "GUY",
+    "continent": "Americas",
+    "region": "Latin America and the Caribbean"
+  },
+  {
+    "id": "PRY",
+    "name": "Paraguay",
+    "isoCode2": "PY",
+    "isoCode3": "PRY",
+    "continent": "Americas",
+    "region": "Latin America and the Caribbean"
+  },
+  {
+    "id": "PER",
+    "name": "Peru",
+    "isoCode2": "PE",
+    "isoCode3": "PER",
+    "continent": "Americas",
+    "region": "Latin America and the Caribbean"
+  },
+  {
+    "id": "SGS",
+    "name": "South Georgia and the South Sandwich Islands",
+    "isoCode2": "GS",
+    "isoCode3": "SGS",
+    "continent": "Americas",
+    "region": "Latin America and the Caribbean"
+  },
+  {
+    "id": "SUR",
+    "name": "Suriname",
+    "isoCode2": "SR",
+    "isoCode3": "SUR",
+    "continent": "Americas",
+    "region": "Latin America and the Caribbean"
+  },
+  {
+    "id": "URY",
+    "name": "Uruguay",
+    "isoCode2": "UY",
+    "isoCode3": "URY",
+    "continent": "Americas",
+    "region": "Latin America and the Caribbean"
+  },
+  {
+    "id": "VEN",
+    "name": "Venezuela (Bolivarian Republic of)",
+    "isoCode2": "VE",
+    "isoCode3": "VEN",
+    "continent": "Americas",
+    "region": "Latin America and the Caribbean"
+  },
+  {
+    "id": "BMU",
+    "name": "Bermuda",
+    "isoCode2": "BM",
+    "isoCode3": "BMU",
+    "continent": "Americas",
+    "region": "Northern America"
+  },
+  {
+    "id": "CAN",
+    "name": "Canada",
+    "isoCode2": "CA",
+    "isoCode3": "CAN",
+    "continent": "Americas",
+    "region": "Northern America"
+  },
+  {
+    "id": "GRL",
+    "name": "Greenland",
+    "isoCode2": "GL",
+    "isoCode3": "GRL",
+    "continent": "Americas",
+    "region": "Northern America"
+  },
+  {
+    "id": "SPM",
+    "name": "Saint Pierre and Miquelon",
+    "isoCode2": "PM",
+    "isoCode3": "SPM",
+    "continent": "Americas",
+    "region": "Northern America"
+  },
+  {
+    "id": "USA",
+    "name": "United States of America",
+    "isoCode2": "US",
+    "isoCode3": "USA",
+    "continent": "Americas",
+    "region": "Northern America"
+  },
+  {
+    "id": "ATA",
+    "name": "Antarctica",
+    "isoCode2": "AQ",
+    "isoCode3": "ATA",
+    "continent": ""
+  },
+  {
+    "id": "KAZ",
+    "name": "Kazakhstan",
+    "isoCode2": "KZ",
+    "isoCode3": "KAZ",
+    "continent": "Asia",
+    "region": "Central Asia"
+  },
+  {
+    "id": "KGZ",
+    "name": "Kyrgyzstan",
+    "isoCode2": "KG",
+    "isoCode3": "KGZ",
+    "continent": "Asia",
+    "region": "Central Asia"
+  },
+  {
+    "id": "TJK",
+    "name": "Tajikistan",
+    "isoCode2": "TJ",
+    "isoCode3": "TJK",
+    "continent": "Asia",
+    "region": "Central Asia"
+  },
+  {
+    "id": "TKM",
+    "name": "Turkmenistan",
+    "isoCode2": "TM",
+    "isoCode3": "TKM",
+    "continent": "Asia",
+    "region": "Central Asia"
+  },
+  {
+    "id": "UZB",
+    "name": "Uzbekistan",
+    "isoCode2": "UZ",
+    "isoCode3": "UZB",
+    "continent": "Asia",
+    "region": "Central Asia"
+  },
+  {
+    "id": "CHN",
+    "name": "China",
+    "isoCode2": "CN",
+    "isoCode3": "CHN",
+    "continent": "Asia",
+    "region": "Eastern Asia"
+  },
+  {
+    "id": "HKG",
+    "name": "China, Hong Kong Special Administrative Region",
+    "isoCode2": "HK",
+    "isoCode3": "HKG",
+    "continent": "Asia",
+    "region": "Eastern Asia"
+  },
+  {
+    "id": "MAC",
+    "name": "China, Macao Special Administrative Region",
+    "isoCode2": "MO",
+    "isoCode3": "MAC",
+    "continent": "Asia",
+    "region": "Eastern Asia"
+  },
+  {
+    "id": "PRK",
+    "name": "Democratic People's Republic of Korea",
+    "isoCode2": "KP",
+    "isoCode3": "PRK",
+    "continent": "Asia",
+    "region": "Eastern Asia"
+  },
+  {
+    "id": "JPN",
+    "name": "Japan",
+    "isoCode2": "JP",
+    "isoCode3": "JPN",
+    "continent": "Asia",
+    "region": "Eastern Asia"
+  },
+  {
+    "id": "MNG",
+    "name": "Mongolia",
+    "isoCode2": "MN",
+    "isoCode3": "MNG",
+    "continent": "Asia",
+    "region": "Eastern Asia"
+  },
+  {
+    "id": "KOR",
+    "name": "Republic of Korea",
+    "isoCode2": "KR",
+    "isoCode3": "KOR",
+    "continent": "Asia",
+    "region": "Eastern Asia"
+  },
+  {
+    "id": "BRN",
+    "name": "Brunei Darussalam",
+    "isoCode2": "BN",
+    "isoCode3": "BRN",
+    "continent": "Asia",
+    "region": "South-eastern Asia"
+  },
+  {
+    "id": "KHM",
+    "name": "Cambodia",
+    "isoCode2": "KH",
+    "isoCode3": "KHM",
+    "continent": "Asia",
+    "region": "South-eastern Asia"
+  },
+  {
+    "id": "IDN",
+    "name": "Indonesia",
+    "isoCode2": "ID",
+    "isoCode3": "IDN",
+    "continent": "Asia",
+    "region": "South-eastern Asia"
+  },
+  {
+    "id": "LAO",
+    "name": "Lao People's Democratic Republic",
+    "isoCode2": "LA",
+    "isoCode3": "LAO",
+    "continent": "Asia",
+    "region": "South-eastern Asia"
+  },
+  {
+    "id": "MYS",
+    "name": "Malaysia",
+    "isoCode2": "MY",
+    "isoCode3": "MYS",
+    "continent": "Asia",
+    "region": "South-eastern Asia"
+  },
+  {
+    "id": "MMR",
+    "name": "Myanmar",
+    "isoCode2": "MM",
+    "isoCode3": "MMR",
+    "continent": "Asia",
+    "region": "South-eastern Asia"
+  },
+  {
+    "id": "PHL",
+    "name": "Philippines",
+    "isoCode2": "PH",
+    "isoCode3": "PHL",
+    "continent": "Asia",
+    "region": "South-eastern Asia"
+  },
+  {
+    "id": "SGP",
+    "name": "Singapore",
+    "isoCode2": "SG",
+    "isoCode3": "SGP",
+    "continent": "Asia",
+    "region": "South-eastern Asia"
+  },
+  {
+    "id": "THA",
+    "name": "Thailand",
+    "isoCode2": "TH",
+    "isoCode3": "THA",
+    "continent": "Asia",
+    "region": "South-eastern Asia"
+  },
+  {
+    "id": "TLS",
+    "name": "Timor-Leste",
+    "isoCode2": "TL",
+    "isoCode3": "TLS",
+    "continent": "Asia",
+    "region": "South-eastern Asia"
+  },
+  {
+    "id": "VNM",
+    "name": "Viet Nam",
+    "isoCode2": "VN",
+    "isoCode3": "VNM",
+    "continent": "Asia",
+    "region": "South-eastern Asia"
+  },
+  {
+    "id": "AFG",
+    "name": "Afghanistan",
+    "isoCode2": "AF",
+    "isoCode3": "AFG",
+    "continent": "Asia",
+    "region": "Southern Asia"
+  },
+  {
+    "id": "BGD",
+    "name": "Bangladesh",
+    "isoCode2": "BD",
+    "isoCode3": "BGD",
+    "continent": "Asia",
+    "region": "Southern Asia"
+  },
+  {
+    "id": "BTN",
+    "name": "Bhutan",
+    "isoCode2": "BT",
+    "isoCode3": "BTN",
+    "continent": "Asia",
+    "region": "Southern Asia"
+  },
+  {
+    "id": "IND",
+    "name": "India",
+    "isoCode2": "IN",
+    "isoCode3": "IND",
+    "continent": "Asia",
+    "region": "Southern Asia"
+  },
+  {
+    "id": "IRN",
+    "name": "Iran (Islamic Republic of)",
+    "isoCode2": "IR",
+    "isoCode3": "IRN",
+    "continent": "Asia",
+    "region": "Southern Asia"
+  },
+  {
+    "id": "MDV",
+    "name": "Maldives",
+    "isoCode2": "MV",
+    "isoCode3": "MDV",
+    "continent": "Asia",
+    "region": "Southern Asia"
+  },
+  {
+    "id": "NPL",
+    "name": "Nepal",
+    "isoCode2": "NP",
+    "isoCode3": "NPL",
+    "continent": "Asia",
+    "region": "Southern Asia"
+  },
+  {
+    "id": "PAK",
+    "name": "Pakistan",
+    "isoCode2": "PK",
+    "isoCode3": "PAK",
+    "continent": "Asia",
+    "region": "Southern Asia"
+  },
+  {
+    "id": "LKA",
+    "name": "Sri Lanka",
+    "isoCode2": "LK",
+    "isoCode3": "LKA",
+    "continent": "Asia",
+    "region": "Southern Asia"
+  },
+  {
+    "id": "ARM",
+    "name": "Armenia",
+    "isoCode2": "AM",
+    "isoCode3": "ARM",
+    "continent": "Asia",
+    "region": "Western Asia"
+  },
+  {
+    "id": "AZE",
+    "name": "Azerbaijan",
+    "isoCode2": "AZ",
+    "isoCode3": "AZE",
+    "continent": "Asia",
+    "region": "Western Asia"
+  },
+  {
+    "id": "BHR",
+    "name": "Bahrain",
+    "isoCode2": "BH",
+    "isoCode3": "BHR",
+    "continent": "Asia",
+    "region": "Western Asia"
+  },
+  {
+    "id": "CYP",
+    "name": "Cyprus",
+    "isoCode2": "CY",
+    "isoCode3": "CYP",
+    "continent": "Asia",
+    "region": "Western Asia"
+  },
+  {
+    "id": "GEO",
+    "name": "Georgia",
+    "isoCode2": "GE",
+    "isoCode3": "GEO",
+    "continent": "Asia",
+    "region": "Western Asia"
+  },
+  {
+    "id": "IRQ",
+    "name": "Iraq",
+    "isoCode2": "IQ",
+    "isoCode3": "IRQ",
+    "continent": "Asia",
+    "region": "Western Asia"
+  },
+  {
+    "id": "ISR",
+    "name": "Israel",
+    "isoCode2": "IL",
+    "isoCode3": "ISR",
+    "continent": "Asia",
+    "region": "Western Asia"
+  },
+  {
+    "id": "JOR",
+    "name": "Jordan",
+    "isoCode2": "JO",
+    "isoCode3": "JOR",
+    "continent": "Asia",
+    "region": "Western Asia"
+  },
+  {
+    "id": "KWT",
+    "name": "Kuwait",
+    "isoCode2": "KW",
+    "isoCode3": "KWT",
+    "continent": "Asia",
+    "region": "Western Asia"
+  },
+  {
+    "id": "LBN",
+    "name": "Lebanon",
+    "isoCode2": "LB",
+    "isoCode3": "LBN",
+    "continent": "Asia",
+    "region": "Western Asia"
+  },
+  {
+    "id": "OMN",
+    "name": "Oman",
+    "isoCode2": "OM",
+    "isoCode3": "OMN",
+    "continent": "Asia",
+    "region": "Western Asia"
+  },
+  {
+    "id": "QAT",
+    "name": "Qatar",
+    "isoCode2": "QA",
+    "isoCode3": "QAT",
+    "continent": "Asia",
+    "region": "Western Asia"
+  },
+  {
+    "id": "SAU",
+    "name": "Saudi Arabia",
+    "isoCode2": "SA",
+    "isoCode3": "SAU",
+    "continent": "Asia",
+    "region": "Western Asia"
+  },
+  {
+    "id": "PSE",
+    "name": "State of Palestine",
+    "isoCode2": "PS",
+    "isoCode3": "PSE",
+    "continent": "Asia",
+    "region": "Western Asia"
+  },
+  {
+    "id": "SYR",
+    "name": "Syrian Arab Republic",
+    "isoCode2": "SY",
+    "isoCode3": "SYR",
+    "continent": "Asia",
+    "region": "Western Asia"
+  },
+  {
+    "id": "TUR",
+    "name": "Türkiye",
+    "isoCode2": "TR",
+    "isoCode3": "TUR",
+    "continent": "Asia",
+    "region": "Western Asia"
+  },
+  {
+    "id": "ARE",
+    "name": "United Arab Emirates",
+    "isoCode2": "AE",
+    "isoCode3": "ARE",
+    "continent": "Asia",
+    "region": "Western Asia"
+  },
+  {
+    "id": "YEM",
+    "name": "Yemen",
+    "isoCode2": "YE",
+    "isoCode3": "YEM",
+    "continent": "Asia",
+    "region": "Western Asia"
+  },
+  {
+    "id": "BLR",
+    "name": "Belarus",
+    "isoCode2": "BY",
+    "isoCode3": "BLR",
+    "continent": "Europe",
+    "region": "Eastern Europe"
+  },
+  {
+    "id": "BGR",
+    "name": "Bulgaria",
+    "isoCode2": "BG",
+    "isoCode3": "BGR",
+    "continent": "Europe",
+    "region": "Eastern Europe"
+  },
+  {
+    "id": "CZE",
+    "name": "Czechia",
+    "isoCode2": "CZ",
+    "isoCode3": "CZE",
+    "continent": "Europe",
+    "region": "Eastern Europe"
+  },
+  {
+    "id": "HUN",
+    "name": "Hungary",
+    "isoCode2": "HU",
+    "isoCode3": "HUN",
+    "continent": "Europe",
+    "region": "Eastern Europe"
+  },
+  {
+    "id": "POL",
+    "name": "Poland",
+    "isoCode2": "PL",
+    "isoCode3": "POL",
+    "continent": "Europe",
+    "region": "Eastern Europe"
+  },
+  {
+    "id": "MDA",
+    "name": "Republic of Moldova",
+    "isoCode2": "MD",
+    "isoCode3": "MDA",
+    "continent": "Europe",
+    "region": "Eastern Europe"
+  },
+  {
+    "id": "ROU",
+    "name": "Romania",
+    "isoCode2": "RO",
+    "isoCode3": "ROU",
+    "continent": "Europe",
+    "region": "Eastern Europe"
+  },
+  {
+    "id": "RUS",
+    "name": "Russian Federation",
+    "isoCode2": "RU",
+    "isoCode3": "RUS",
+    "continent": "Europe",
+    "region": "Eastern Europe"
+  },
+  {
+    "id": "SVK",
+    "name": "Slovakia",
+    "isoCode2": "SK",
+    "isoCode3": "SVK",
+    "continent": "Europe",
+    "region": "Eastern Europe"
+  },
+  {
+    "id": "UKR",
+    "name": "Ukraine",
+    "isoCode2": "UA",
+    "isoCode3": "UKR",
+    "continent": "Europe",
+    "region": "Eastern Europe"
+  },
+  {
+    "id": "ALA",
+    "name": "Åland Islands",
+    "isoCode2": "AX",
+    "isoCode3": "ALA",
+    "continent": "Europe",
+    "region": "Northern Europe"
+  },
+  {
+    "id": "DNK",
+    "name": "Denmark",
+    "isoCode2": "DK",
+    "isoCode3": "DNK",
+    "continent": "Europe",
+    "region": "Northern Europe"
+  },
+  {
+    "id": "EST",
+    "name": "Estonia",
+    "isoCode2": "EE",
+    "isoCode3": "EST",
+    "continent": "Europe",
+    "region": "Northern Europe"
+  },
+  {
+    "id": "FRO",
+    "name": "Faroe Islands",
+    "isoCode2": "FO",
+    "isoCode3": "FRO",
+    "continent": "Europe",
+    "region": "Northern Europe"
+  },
+  {
+    "id": "FIN",
+    "name": "Finland",
+    "isoCode2": "FI",
+    "isoCode3": "FIN",
+    "continent": "Europe",
+    "region": "Northern Europe"
+  },
+  {
+    "id": "GGY",
+    "name": "Guernsey",
+    "isoCode2": "GG",
+    "isoCode3": "GGY",
+    "continent": "Europe",
+    "region": "Northern Europe"
+  },
+  {
+    "id": "ISL",
+    "name": "Iceland",
+    "isoCode2": "IS",
+    "isoCode3": "ISL",
+    "continent": "Europe",
+    "region": "Northern Europe"
+  },
+  {
+    "id": "IRL",
+    "name": "Ireland",
+    "isoCode2": "IE",
+    "isoCode3": "IRL",
+    "continent": "Europe",
+    "region": "Northern Europe"
+  },
+  {
+    "id": "IMN",
+    "name": "Isle of Man",
+    "isoCode2": "IM",
+    "isoCode3": "IMN",
+    "continent": "Europe",
+    "region": "Northern Europe"
+  },
+  {
+    "id": "JEY",
+    "name": "Jersey",
+    "isoCode2": "JE",
+    "isoCode3": "JEY",
+    "continent": "Europe",
+    "region": "Northern Europe"
+  },
+  {
+    "id": "LVA",
+    "name": "Latvia",
+    "isoCode2": "LV",
+    "isoCode3": "LVA",
+    "continent": "Europe",
+    "region": "Northern Europe"
+  },
+  {
+    "id": "LTU",
+    "name": "Lithuania",
+    "isoCode2": "LT",
+    "isoCode3": "LTU",
+    "continent": "Europe",
+    "region": "Northern Europe"
+  },
+  {
+    "id": "NOR",
+    "name": "Norway",
+    "isoCode2": "NO",
+    "isoCode3": "NOR",
+    "continent": "Europe",
+    "region": "Northern Europe"
+  },
+  {
+    "id": "SJM",
+    "name": "Svalbard and Jan Mayen Islands",
+    "isoCode2": "SJ",
+    "isoCode3": "SJM",
+    "continent": "Europe",
+    "region": "Northern Europe"
+  },
+  {
+    "id": "SWE",
+    "name": "Sweden",
+    "isoCode2": "SE",
+    "isoCode3": "SWE",
+    "continent": "Europe",
+    "region": "Northern Europe"
+  },
+  {
+    "id": "GBR",
+    "name": "United Kingdom of Great Britain and Northern Ireland",
+    "isoCode2": "GB",
+    "isoCode3": "GBR",
+    "continent": "Europe",
+    "region": "Northern Europe"
+  },
+  {
+    "id": "ALB",
+    "name": "Albania",
+    "isoCode2": "AL",
+    "isoCode3": "ALB",
+    "continent": "Europe",
+    "region": "Southern Europe"
+  },
+  {
+    "id": "AND",
+    "name": "Andorra",
+    "isoCode2": "AD",
+    "isoCode3": "AND",
+    "continent": "Europe",
+    "region": "Southern Europe"
+  },
+  {
+    "id": "BIH",
+    "name": "Bosnia and Herzegovina",
+    "isoCode2": "BA",
+    "isoCode3": "BIH",
+    "continent": "Europe",
+    "region": "Southern Europe"
+  },
+  {
+    "id": "HRV",
+    "name": "Croatia",
+    "isoCode2": "HR",
+    "isoCode3": "HRV",
+    "continent": "Europe",
+    "region": "Southern Europe"
+  },
+  {
+    "id": "GIB",
+    "name": "Gibraltar",
+    "isoCode2": "GI",
+    "isoCode3": "GIB",
+    "continent": "Europe",
+    "region": "Southern Europe"
+  },
+  {
+    "id": "GRC",
+    "name": "Greece",
+    "isoCode2": "GR",
+    "isoCode3": "GRC",
+    "continent": "Europe",
+    "region": "Southern Europe"
+  },
+  {
+    "id": "VAT",
+    "name": "Holy See",
+    "isoCode2": "VA",
+    "isoCode3": "VAT",
+    "continent": "Europe",
+    "region": "Southern Europe"
+  },
+  {
+    "id": "ITA",
+    "name": "Italy",
+    "isoCode2": "IT",
+    "isoCode3": "ITA",
+    "continent": "Europe",
+    "region": "Southern Europe"
+  },
+  {
+    "id": "MLT",
+    "name": "Malta",
+    "isoCode2": "MT",
+    "isoCode3": "MLT",
+    "continent": "Europe",
+    "region": "Southern Europe"
+  },
+  {
+    "id": "MNE",
+    "name": "Montenegro",
+    "isoCode2": "ME",
+    "isoCode3": "MNE",
+    "continent": "Europe",
+    "region": "Southern Europe"
+  },
+  {
+    "id": "MKD",
+    "name": "North Macedonia",
+    "isoCode2": "MK",
+    "isoCode3": "MKD",
+    "continent": "Europe",
+    "region": "Southern Europe"
+  },
+  {
+    "id": "PRT",
+    "name": "Portugal",
+    "isoCode2": "PT",
+    "isoCode3": "PRT",
+    "continent": "Europe",
+    "region": "Southern Europe"
+  },
+  {
+    "id": "SMR",
+    "name": "San Marino",
+    "isoCode2": "SM",
+    "isoCode3": "SMR",
+    "continent": "Europe",
+    "region": "Southern Europe"
+  },
+  {
+    "id": "SRB",
+    "name": "Serbia",
+    "isoCode2": "RS",
+    "isoCode3": "SRB",
+    "continent": "Europe",
+    "region": "Southern Europe"
+  },
+  {
+    "id": "SVN",
+    "name": "Slovenia",
+    "isoCode2": "SI",
+    "isoCode3": "SVN",
+    "continent": "Europe",
+    "region": "Southern Europe"
+  },
+  {
+    "id": "ESP",
+    "name": "Spain",
+    "isoCode2": "ES",
+    "isoCode3": "ESP",
+    "continent": "Europe",
+    "region": "Southern Europe"
+  },
+  {
+    "id": "AUT",
+    "name": "Austria",
+    "isoCode2": "AT",
+    "isoCode3": "AUT",
+    "continent": "Europe",
+    "region": "Western Europe"
+  },
+  {
+    "id": "BEL",
+    "name": "Belgium",
+    "isoCode2": "BE",
+    "isoCode3": "BEL",
+    "continent": "Europe",
+    "region": "Western Europe"
+  },
+  {
+    "id": "FRA",
+    "name": "France",
+    "isoCode2": "FR",
+    "isoCode3": "FRA",
+    "continent": "Europe",
+    "region": "Western Europe"
+  },
+  {
+    "id": "DEU",
+    "name": "Germany",
+    "isoCode2": "DE",
+    "isoCode3": "DEU",
+    "continent": "Europe",
+    "region": "Western Europe"
+  },
+  {
+    "id": "LIE",
+    "name": "Liechtenstein",
+    "isoCode2": "LI",
+    "isoCode3": "LIE",
+    "continent": "Europe",
+    "region": "Western Europe"
+  },
+  {
+    "id": "LUX",
+    "name": "Luxembourg",
+    "isoCode2": "LU",
+    "isoCode3": "LUX",
+    "continent": "Europe",
+    "region": "Western Europe"
+  },
+  {
+    "id": "MCO",
+    "name": "Monaco",
+    "isoCode2": "MC",
+    "isoCode3": "MCO",
+    "continent": "Europe",
+    "region": "Western Europe"
+  },
+  {
+    "id": "NLD",
+    "name": "Netherlands (Kingdom of the)",
+    "isoCode2": "NL",
+    "isoCode3": "NLD",
+    "continent": "Europe",
+    "region": "Western Europe"
+  },
+  {
+    "id": "CHE",
+    "name": "Switzerland",
+    "isoCode2": "CH",
+    "isoCode3": "CHE",
+    "continent": "Europe",
+    "region": "Western Europe"
+  },
+  {
+    "id": "AUS",
+    "name": "Australia",
+    "isoCode2": "AU",
+    "isoCode3": "AUS",
+    "continent": "Oceania",
+    "region": "Australia and New Zealand"
+  },
+  {
+    "id": "CXR",
+    "name": "Christmas Island",
+    "isoCode2": "CX",
+    "isoCode3": "CXR",
+    "continent": "Oceania",
+    "region": "Australia and New Zealand"
+  },
+  {
+    "id": "CCK",
+    "name": "Cocos (Keeling) Islands",
+    "isoCode2": "CC",
+    "isoCode3": "CCK",
+    "continent": "Oceania",
+    "region": "Australia and New Zealand"
+  },
+  {
+    "id": "HMD",
+    "name": "Heard Island and McDonald Islands",
+    "isoCode2": "HM",
+    "isoCode3": "HMD",
+    "continent": "Oceania",
+    "region": "Australia and New Zealand"
+  },
+  {
+    "id": "NZL",
+    "name": "New Zealand",
+    "isoCode2": "NZ",
+    "isoCode3": "NZL",
+    "continent": "Oceania",
+    "region": "Australia and New Zealand"
+  },
+  {
+    "id": "NFK",
+    "name": "Norfolk Island",
+    "isoCode2": "NF",
+    "isoCode3": "NFK",
+    "continent": "Oceania",
+    "region": "Australia and New Zealand"
+  },
+  {
+    "id": "FJI",
+    "name": "Fiji",
+    "isoCode2": "FJ",
+    "isoCode3": "FJI",
+    "continent": "Oceania",
+    "region": "Melanesia"
+  },
+  {
+    "id": "NCL",
+    "name": "New Caledonia",
+    "isoCode2": "NC",
+    "isoCode3": "NCL",
+    "continent": "Oceania",
+    "region": "Melanesia"
+  },
+  {
+    "id": "PNG",
+    "name": "Papua New Guinea",
+    "isoCode2": "PG",
+    "isoCode3": "PNG",
+    "continent": "Oceania",
+    "region": "Melanesia"
+  },
+  {
+    "id": "SLB",
+    "name": "Solomon Islands",
+    "isoCode2": "SB",
+    "isoCode3": "SLB",
+    "continent": "Oceania",
+    "region": "Melanesia"
+  },
+  {
+    "id": "VUT",
+    "name": "Vanuatu",
+    "isoCode2": "VU",
+    "isoCode3": "VUT",
+    "continent": "Oceania",
+    "region": "Melanesia"
+  },
+  {
+    "id": "GUM",
+    "name": "Guam",
+    "isoCode2": "GU",
+    "isoCode3": "GUM",
+    "continent": "Oceania",
+    "region": "Micronesia"
+  },
+  {
+    "id": "KIR",
+    "name": "Kiribati",
+    "isoCode2": "KI",
+    "isoCode3": "KIR",
+    "continent": "Oceania",
+    "region": "Micronesia"
+  },
+  {
+    "id": "MHL",
+    "name": "Marshall Islands",
+    "isoCode2": "MH",
+    "isoCode3": "MHL",
+    "continent": "Oceania",
+    "region": "Micronesia"
+  },
+  {
+    "id": "FSM",
+    "name": "Micronesia (Federated States of)",
+    "isoCode2": "FM",
+    "isoCode3": "FSM",
+    "continent": "Oceania",
+    "region": "Micronesia"
+  },
+  {
+    "id": "NRU",
+    "name": "Nauru",
+    "isoCode2": "NR",
+    "isoCode3": "NRU",
+    "continent": "Oceania",
+    "region": "Micronesia"
+  },
+  {
+    "id": "MNP",
+    "name": "Northern Mariana Islands",
+    "isoCode2": "MP",
+    "isoCode3": "MNP",
+    "continent": "Oceania",
+    "region": "Micronesia"
+  },
+  {
+    "id": "PLW",
+    "name": "Palau",
+    "isoCode2": "PW",
+    "isoCode3": "PLW",
+    "continent": "Oceania",
+    "region": "Micronesia"
+  },
+  {
+    "id": "UMI",
+    "name": "United States Minor Outlying Islands",
+    "isoCode2": "UM",
+    "isoCode3": "UMI",
+    "continent": "Oceania",
+    "region": "Micronesia"
+  },
+  {
+    "id": "ASM",
+    "name": "American Samoa",
+    "isoCode2": "AS",
+    "isoCode3": "ASM",
+    "continent": "Oceania",
+    "region": "Polynesia"
+  },
+  {
+    "id": "COK",
+    "name": "Cook Islands",
+    "isoCode2": "CK",
+    "isoCode3": "COK",
+    "continent": "Oceania",
+    "region": "Polynesia"
+  },
+  {
+    "id": "PYF",
+    "name": "French Polynesia",
+    "isoCode2": "PF",
+    "isoCode3": "PYF",
+    "continent": "Oceania",
+    "region": "Polynesia"
+  },
+  {
+    "id": "NIU",
+    "name": "Niue",
+    "isoCode2": "NU",
+    "isoCode3": "NIU",
+    "continent": "Oceania",
+    "region": "Polynesia"
+  },
+  {
+    "id": "PCN",
+    "name": "Pitcairn",
+    "isoCode2": "PN",
+    "isoCode3": "PCN",
+    "continent": "Oceania",
+    "region": "Polynesia"
+  },
+  {
+    "id": "WSM",
+    "name": "Samoa",
+    "isoCode2": "WS",
+    "isoCode3": "WSM",
+    "continent": "Oceania",
+    "region": "Polynesia"
+  },
+  {
+    "id": "TKL",
+    "name": "Tokelau",
+    "isoCode2": "TK",
+    "isoCode3": "TKL",
+    "continent": "Oceania",
+    "region": "Polynesia"
+  },
+  {
+    "id": "TON",
+    "name": "Tonga",
+    "isoCode2": "TO",
+    "isoCode3": "TON",
+    "continent": "Oceania",
+    "region": "Polynesia"
+  },
+  {
+    "id": "TUV",
+    "name": "Tuvalu",
+    "isoCode2": "TV",
+    "isoCode3": "TUV",
+    "continent": "Oceania",
+    "region": "Polynesia"
+  },
+  {
+    "id": "WLF",
+    "name": "Wallis and Futuna Islands",
+    "isoCode2": "WF",
+    "isoCode3": "WLF",
+    "continent": "Oceania",
+    "region": "Polynesia"
+  }
+]
