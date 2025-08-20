@@ -1,13 +1,10 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useStore } from '../../store/useStore';
-import { ClearCacheButton } from '../common/ClearCacheButton';
-import { applyThemeFromJson, saveTheme } from '../../utils/theme';
 import ExcelJS from 'exceljs';
 import { ProgressOverlay } from '../common/ProgressOverlay';
 export function ExportButtons() {
     const { filtered, countries } = useStore();
-    const fileInputRef = useRef(null);
     const [isCorsRefreshing, setIsCorsRefreshing] = useState(false);
     const [corsProgress, setCorsProgress] = useState(0);
     const [nodeProgress, setNodeProgress] = useState(0);
@@ -34,17 +31,6 @@ export function ExportButtons() {
         }
         return () => timer && clearInterval(timer);
     }, [nodeVisible]);
-    function download(filename, content, type) {
-        const blob = new Blob([content], { type });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-    }
     async function toExcel() {
         const workbook = new ExcelJS.Workbook();
         const sheet = workbook.addWorksheet('Countries');
@@ -167,7 +153,7 @@ export function ExportButtons() {
             setIsCorsRefreshing(false);
         }
     }
-    return (_jsxs("div", { className: "row", style: { gap: 8 }, children: [_jsx("button", { onClick: toExcel, children: "Export Excel" }), _jsx(ClearCacheButton, {}), _jsx("button", { onClick: async () => {
+    return (_jsxs("div", { className: "row", style: { gap: 8 }, children: [_jsx("button", { onClick: toExcel, children: "Export Excel" }), _jsx("button", { onClick: async () => {
                     try {
                         setOverlayMessage('Searching for updates, please wait (server)...');
                         await fetch('http://localhost:4321/refresh-web', { method: 'POST' });
@@ -193,23 +179,5 @@ export function ExportButtons() {
                     catch {
                         alert('Please start the local API once: npm run api');
                     }
-                }, children: "Refresh details" }), _jsx("input", { type: "file", accept: "application/json,.json", ref: fileInputRef, style: { display: 'none' }, onChange: async (e) => {
-                    const file = e.target.files?.[0];
-                    if (!file)
-                        return;
-                    try {
-                        const text = await file.text();
-                        const json = JSON.parse(text);
-                        applyThemeFromJson(json);
-                        saveTheme(json);
-                    }
-                    catch (err) {
-                        alert('Invalid theme JSON. Please select a valid design file.');
-                        console.error(err);
-                    }
-                    finally {
-                        // Allow picking the same file again by resetting the input value
-                        e.target.value = '';
-                    }
-                } }), _jsx("button", { onClick: () => fileInputRef.current?.click(), children: "Apply Design" }), _jsx(ProgressOverlay, { visible: nodeVisible || isCorsRefreshing, message: overlayMessage, progress: nodeVisible ? nodeProgress : corsProgress })] }));
+                }, children: "Refresh details" }), _jsx(ProgressOverlay, { visible: nodeVisible || isCorsRefreshing, message: overlayMessage, progress: nodeVisible ? nodeProgress : corsProgress })] }));
 }

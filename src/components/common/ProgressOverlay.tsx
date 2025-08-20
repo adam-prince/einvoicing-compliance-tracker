@@ -12,7 +12,7 @@ export function ProgressOverlay({ visible, message, progress = 0, onClose }: Pro
   return (
     <div className="modal-backdrop" role="dialog" aria-modal="true" aria-label="Progress">
       <div className="modal" style={{ maxWidth: 480 }}>
-        <header>
+        <header style={{ padding: 16, borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <strong>Update in progress</strong>
           {onClose && <button onClick={onClose}>Close</button>}
         </header>

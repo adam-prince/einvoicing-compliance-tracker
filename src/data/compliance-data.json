@@ -621,11 +621,6 @@
         "implementationDate": "2027-01-01",
         "formats": [
           {
-            "name": "Factur-X",
-            "type": "Factur-X",
-            "isHybrid": true
-          },
-          {
             "name": "UBL",
             "type": "UBL",
             "isHybrid": false
