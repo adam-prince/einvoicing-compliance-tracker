@@ -32,4 +32,10 @@ npm run dev
 - `npm run build` — typecheck and build for production.
 - `npm run preview` — preview production build.
 
+## Licensing
+
+This project is licensed under the MIT License. See `LICENSE` for details.
+
+Third-party licenses are listed in `THIRD-PARTY-NOTICES.md`. When redistributing, include both files and preserve license headers embedded in built artifacts.
+
 

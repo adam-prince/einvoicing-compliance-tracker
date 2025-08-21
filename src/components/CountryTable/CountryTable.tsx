@@ -4,6 +4,7 @@ import type { Country } from '@types';
 import { Badge } from '../common/Badge';
 import { useStore } from '../../store/useStore';
 import { format } from 'date-fns';
+import { useI18n } from '../../i18n';
 
 const columnHelper = createColumnHelper<Country>();
 
@@ -114,6 +115,7 @@ DetailsButton.displayName = 'DetailsButton';
 
 export function CountryTable() {
 	const { filtered, setSelected } = useStore();
+	const { t, displayRegionName } = useI18n();
 	const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
 	// Optimized modal handler with proper event handling
@@ -132,10 +134,11 @@ export function CountryTable() {
 	// Memoized columns to prevent recreation on every render
 	const columns = useMemo(() => [
 		columnHelper.accessor('name', { 
-			header: 'Country', 
+			header: t('table_country') || 'Country', 
 			cell: ({ row, getValue }) => {
 				const country = row.original;
 				const isExpanded = expanded[country.id];
+				const localizedName = displayRegionName(country.isoCode2, getValue<string>());
 				
 				return (
 					<div className="country-name-cell">
@@ -147,9 +150,9 @@ export function CountryTable() {
 							/>
 							<span 
 								className="country-name"
-								title={getValue<string>()}
+								title={localizedName}
 							>
-								{getValue<string>()}
+								{localizedName}
 							</span>
 						</div>
 						<DetailsButton
@@ -161,7 +164,7 @@ export function CountryTable() {
 			}
 		}),
 		columnHelper.accessor('continent', { 
-			header: 'Continent', 
+			header: t('table_continent') || 'Continent', 
 			cell: info => (
 				<span className="continent-cell" title={info.getValue()}>
 					{info.getValue()}
@@ -203,7 +206,7 @@ export function CountryTable() {
 		}),
 		columnHelper.display({ 
 			id: 'periodic', 
-			header: 'Periodic E-reporting', 
+			header: t('table_periodic') || 'Periodic E-reporting', 
 			cell: ({ row }) => {
 				const status = row.original.eInvoicing.periodic?.status || 'N/A';
 				return (
@@ -216,7 +219,7 @@ export function CountryTable() {
 				);
 			}
 		}),
-	], [expanded, handleOpenModal, toggleExpanded]);
+	], [expanded, handleOpenModal, toggleExpanded, t, displayRegionName]);
 
 	// Memoized table instance
 	const table = useReactTable({
@@ -259,6 +262,14 @@ export function CountryTable() {
 		<div className="card">
 			<div className="table-container" role="region" aria-label="E-invoicing compliance data">
 				<table role="table" aria-label="Countries and their e-invoicing compliance status">
+					<colgroup>
+						<col className="col-country" />
+						<col className="col-continent" />
+						<col className="col-b2g" />
+						<col className="col-b2b" />
+						<col className="col-b2c" />
+						<col className="col-periodic" />
+					</colgroup>
 					<thead>
 						{table.getHeaderGroups().map(hg => (
 							<tr key={hg.id} role="row">

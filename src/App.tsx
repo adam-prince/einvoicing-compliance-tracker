@@ -10,6 +10,8 @@ import { ExportButtons } from './components/CountryTable/ExportButtons';
 import { LoadingSpinner } from './components/common/LoadingSpinner';
 import { ErrorMessage } from './components/common/ErrorBoundary';
 import { loadSavedTheme } from './utils/theme';
+import { ComplianceDataService } from './services/complianceDataService';
+import { useI18n } from './i18n';
 
 interface ComplianceData {
 	isoCode3: string;
@@ -35,8 +37,11 @@ export function App() {
 		selected, 
 		setSelected, 
 		loading, 
-		error 
+		error,
+		language,
+		setLanguage,
 	} = useStore();
+	const { t } = useI18n();
 
 	// Memoize data processing functions for better performance
 	const mergeCountriesWithCompliance = useCallback((basics: BasicCountry[], compliance: ComplianceData[]): Country[] => {
@@ -197,6 +202,34 @@ export function App() {
 		loadData();
 	}, [loadData]);
 
+	// Selective refresh: block only for filtered countries; refresh others in background
+	const refreshVisibleThenBackground = useCallback(async () => {
+		const service = ComplianceDataService.getInstance();
+		try {
+			setLoading(true);
+			// Foreground refresh for filtered (visible) countries
+			const visibleIds = new Set<string>((useStore.getState().filtered || []).map((c: Country) => c.isoCode3));
+			for (const id of visibleIds) {
+				await service.refreshComplianceData(id);
+			}
+			// Merge by reloading data (from service cache)
+			await loadData();
+		} finally {
+			setLoading(false);
+			// Background refresh for remaining countries
+			setTimeout(async () => {
+				const all = service.getAllAvailableCountries();
+				for (const id of all) {
+					if (! (useStore.getState().filtered || []).find((c: Country) => c.isoCode3 === id)) {
+						await service.refreshComplianceData(id);
+					}
+				}
+				// After background completes, silently refresh list if user hasn't navigated away
+				try { await loadData(); } catch {}
+			}, 0);
+		}
+	}, [loadData, setLoading]);
+
 	// Show error state
 	if (error && !loading) {
 		return (
@@ -213,28 +246,46 @@ export function App() {
 		<div className="container">
 			<div className="row" style={{ justifyContent: 'space-between', alignItems: 'center' }}>
 				<div>
-					<h1 style={{ marginTop: 0 }}>E-Invoicing Compliance Tracker</h1>
+					<h1 style={{ marginTop: 0 }}>{t('app_title')}</h1>
 					<p style={{ color: '#9aa4b2', marginTop: -8 }}>
-						Track global mandates and formats across B2G / B2B / B2C.
+						{t('app_subtitle')}
 					</p>
+				</div>
+				<div className="row" aria-label="Language selector" style={{ gap: 8 }}>
+					<label htmlFor="language-select" style={{ fontSize: 12, color: '#6b7280' }}>{t('label_language')}</label>
+					<select
+						id="language-select"
+						value={language}
+						onChange={(e) => setLanguage(e.target.value)}
+						aria-label="Select application language"
+					>
+						<option value="en-GB">English (UK)</option>
+						<option value="en-US">English (US)</option>
+						<option value="fr-FR">Français</option>
+						<option value="de-DE">Deutsch</option>
+						<option value="es-ES">Español</option>
+					</select>
+					{/* Main refresh button removed as requested; use existing 'Refresh details' controls */}
 				</div>
 			</div>
 
 			{loading ? (
-				<LoadingSpinner message="Loading compliance data..." />
+				<LoadingSpinner message={t('loading_compliance')} />
 			) : (
 				<>
-					<QuickStats />
-					<div className="spacer" />
-					<Filters />
-					<div className="spacer" />
-					<div className="row" style={{ justifyContent: 'space-between', marginBottom: 8 }}>
-						<div style={{ color: '#9aa4b2' }} aria-live="polite">
-							{countries.length} total countries
+					<main id="main" role="main" tabIndex={-1}>
+						<QuickStats />
+						<div className="spacer" />
+						<Filters />
+						<div className="spacer" />
+						<div className="row" style={{ justifyContent: 'space-between', marginBottom: 8 }}>
+							<div style={{ color: '#9aa4b2' }} aria-live="polite">
+								{t('filters_total_countries', { count: countries.length })}
+							</div>
+							<ExportButtons />
 						</div>
-						<ExportButtons />
-					</div>
-					<CountryTable />
+						<CountryTable />
+					</main>
 				</>
 			)}
 

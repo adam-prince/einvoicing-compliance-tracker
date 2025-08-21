@@ -4,6 +4,7 @@ import { createColumnHelper, flexRender, getCoreRowModel, getSortedRowModel, use
 import { Badge } from '../common/Badge';
 import { useStore } from '../../store/useStore';
 import { format } from 'date-fns';
+import { useI18n } from '../../i18n';
 const columnHelper = createColumnHelper();
 // Memoized components for better performance
 const StatusCell = React.memo(({ country, type, onOpenModal }) => {
@@ -45,6 +46,7 @@ const DetailsButton = React.memo(({ country, onOpenModal }) => {
 DetailsButton.displayName = 'DetailsButton';
 export function CountryTable() {
     const { filtered, setSelected } = useStore();
+    const { t, displayRegionName } = useI18n();
     const [expanded, setExpanded] = useState({});
     // Optimized modal handler with proper event handling
     const handleOpenModal = useCallback((country, e) => {
@@ -60,15 +62,16 @@ export function CountryTable() {
     // Memoized columns to prevent recreation on every render
     const columns = useMemo(() => [
         columnHelper.accessor('name', {
-            header: 'Country',
+            header: t('table_country') || 'Country',
             cell: ({ row, getValue }) => {
                 const country = row.original;
                 const isExpanded = expanded[country.id];
-                return (_jsxs("div", { className: "country-name-cell", children: [_jsxs("div", { className: "country-name-content", children: [_jsx(ExpandButton, { isExpanded: isExpanded, onToggle: () => toggleExpanded(country.id), countryName: country.name }), _jsx("span", { className: "country-name", title: getValue(), children: getValue() })] }), _jsx(DetailsButton, { country: country, onOpenModal: handleOpenModal })] }));
+                const localizedName = displayRegionName(country.isoCode2, getValue());
+                return (_jsxs("div", { className: "country-name-cell", children: [_jsxs("div", { className: "country-name-content", children: [_jsx(ExpandButton, { isExpanded: isExpanded, onToggle: () => toggleExpanded(country.id), countryName: country.name }), _jsx("span", { className: "country-name", title: localizedName, children: localizedName })] }), _jsx(DetailsButton, { country: country, onOpenModal: handleOpenModal })] }));
             }
         }),
         columnHelper.accessor('continent', {
-            header: 'Continent',
+            header: t('table_continent') || 'Continent',
             cell: info => (_jsx("span", { className: "continent-cell", title: info.getValue(), children: info.getValue() }))
         }),
         columnHelper.display({
@@ -88,13 +91,13 @@ export function CountryTable() {
         }),
         columnHelper.display({
             id: 'periodic',
-            header: 'Periodic E-reporting',
+            header: t('table_periodic') || 'Periodic E-reporting',
             cell: ({ row }) => {
                 const status = row.original.eInvoicing.periodic?.status || 'N/A';
                 return (_jsx("span", { className: "periodic-status", title: `Periodic e-reporting status: ${status}`, children: status }));
             }
         }),
-    ], [expanded, handleOpenModal, toggleExpanded]);
+    ], [expanded, handleOpenModal, toggleExpanded, t, displayRegionName]);
     // Memoized table instance
     const table = useReactTable({
         data: filtered,
@@ -115,7 +118,7 @@ export function CountryTable() {
     if (filtered.length === 0) {
         return (_jsx("div", { className: "card", children: _jsx("div", { className: "table-loading", children: _jsx("div", { className: "skeleton-table", children: Array.from({ length: 5 }).map((_, i) => (_jsx("div", { className: "skeleton-row", children: _jsx("div", { className: "skeleton", style: { height: 48 } }) }, i))) }) }) }));
     }
-    return (_jsx("div", { className: "card", children: _jsx("div", { className: "table-container", role: "region", "aria-label": "E-invoicing compliance data", children: _jsxs("table", { role: "table", "aria-label": "Countries and their e-invoicing compliance status", children: [_jsx("thead", { children: table.getHeaderGroups().map(hg => (_jsx("tr", { role: "row", children: hg.headers.map(h => (_jsxs("th", { onClick: h.column.getToggleSortingHandler(), className: "sortable-header", role: "columnheader", "aria-sort": h.column.getIsSorted() === 'asc' ? 'ascending' :
+    return (_jsx("div", { className: "card", children: _jsx("div", { className: "table-container", role: "region", "aria-label": "E-invoicing compliance data", children: _jsxs("table", { role: "table", "aria-label": "Countries and their e-invoicing compliance status", children: [_jsxs("colgroup", { children: [_jsx("col", { className: "col-country" }), _jsx("col", { className: "col-continent" }), _jsx("col", { className: "col-b2g" }), _jsx("col", { className: "col-b2b" }), _jsx("col", { className: "col-b2c" }), _jsx("col", { className: "col-periodic" })] }), _jsx("thead", { children: table.getHeaderGroups().map(hg => (_jsx("tr", { role: "row", children: hg.headers.map(h => (_jsxs("th", { onClick: h.column.getToggleSortingHandler(), className: "sortable-header", role: "columnheader", "aria-sort": h.column.getIsSorted() === 'asc' ? 'ascending' :
                                     h.column.getIsSorted() === 'desc' ? 'descending' :
                                         'none', tabIndex: 0, onKeyDown: (e) => {
                                     if (e.key === 'Enter' || e.key === ' ') {

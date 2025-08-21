@@ -368,7 +368,7 @@ export const legislationDocuments: Record<string, LegislationDocument[]> = {
 	'Ley 18/2022 Crea y Crece': [
 		{
 			name: 'Ley 18/2022 de creación y crecimiento de empresas (Spanish)',
-			url: 'https://www.boe.es/eli/es/l/2022/09/29/18',
+			url: 'https://www.boe.es/eli/es/l/2022/09/29/18/con',
 			language: 'Spanish',
 			jurisdiction: 'Spain',
 			type: 'law'
@@ -377,7 +377,7 @@ export const legislationDocuments: Record<string, LegislationDocument[]> = {
 	'Ley Crea y Crece': [
 		{
 			name: 'Ley Crea y Crece - B2B E-invoicing Provisions',
-			url: 'https://www.boe.es/eli/es/l/2022/09/29/18',
+			url: 'https://www.boe.es/eli/es/l/2022/09/29/18/con',
 			language: 'Spanish',
 			jurisdiction: 'Spain',
 			type: 'law'
@@ -386,7 +386,7 @@ export const legislationDocuments: Record<string, LegislationDocument[]> = {
 	'Real Decreto 1007/2023': [
 		{
 			name: 'Real Decreto 1007/2023 - VERIFACTU (Spanish)',
-			url: 'https://www.boe.es/eli/es/rd/2023/12/05/1007',
+			url: 'https://www.boe.es/eli/es/rd/2023/12/05/1007/con',
 			language: 'Spanish',
 			jurisdiction: 'Spain',
 			type: 'decree'
@@ -395,7 +395,7 @@ export const legislationDocuments: Record<string, LegislationDocument[]> = {
 	'Anti-Fraud Law 11/2021': [
 		{
 			name: 'Ley 11/2021 de medidas de prevención y lucha contra el fraude fiscal (Spanish)',
-			url: 'https://www.boe.es/eli/es/l/2021/07/09/11',
+			url: 'https://www.boe.es/eli/es/l/2021/07/09/11/con',
 			language: 'Spanish',
 			jurisdiction: 'Spain',
 			type: 'law'

@@ -10,8 +10,11 @@ import { ExportButtons } from './components/CountryTable/ExportButtons';
 import { LoadingSpinner } from './components/common/LoadingSpinner';
 import { ErrorMessage } from './components/common/ErrorBoundary';
 import { loadSavedTheme } from './utils/theme';
+import { ComplianceDataService } from './services/complianceDataService';
+import { useI18n } from './i18n';
 export function App() {
-    const { setCountries, setLoading, setError, countries, selected, setSelected, loading, error } = useStore();
+    const { setCountries, setLoading, setError, countries, selected, setSelected, loading, error, language, setLanguage, } = useStore();
+    const { t } = useI18n();
     // Memoize data processing functions for better performance
     const mergeCountriesWithCompliance = useCallback((basics, compliance) => {
         const complianceByIso3 = new Map(compliance.map(c => [c.isoCode3 || c.name, c]));
@@ -146,9 +149,40 @@ export function App() {
     const retryLoad = useCallback(() => {
         loadData();
     }, [loadData]);
+    // Selective refresh: block only for filtered countries; refresh others in background
+    const refreshVisibleThenBackground = useCallback(async () => {
+        const service = ComplianceDataService.getInstance();
+        try {
+            setLoading(true);
+            // Foreground refresh for filtered (visible) countries
+            const visibleIds = new Set((useStore.getState().filtered || []).map((c) => c.isoCode3));
+            for (const id of visibleIds) {
+                await service.refreshComplianceData(id);
+            }
+            // Merge by reloading data (from service cache)
+            await loadData();
+        }
+        finally {
+            setLoading(false);
+            // Background refresh for remaining countries
+            setTimeout(async () => {
+                const all = service.getAllAvailableCountries();
+                for (const id of all) {
+                    if (!(useStore.getState().filtered || []).find((c) => c.isoCode3 === id)) {
+                        await service.refreshComplianceData(id);
+                    }
+                }
+                // After background completes, silently refresh list if user hasn't navigated away
+                try {
+                    await loadData();
+                }
+                catch { }
+            }, 0);
+        }
+    }, [loadData, setLoading]);
     // Show error state
     if (error && !loading) {
         return (_jsx("div", { className: "container", children: _jsx(ErrorMessage, { message: error, onRetry: retryLoad }) }));
     }
-    return (_jsxs("div", { className: "container", children: [_jsx("div", { className: "row", style: { justifyContent: 'space-between', alignItems: 'center' }, children: _jsxs("div", { children: [_jsx("h1", { style: { marginTop: 0 }, children: "E-Invoicing Compliance Tracker" }), _jsx("p", { style: { color: '#9aa4b2', marginTop: -8 }, children: "Track global mandates and formats across B2G / B2B / B2C." })] }) }), loading ? (_jsx(LoadingSpinner, { message: "Loading compliance data..." })) : (_jsxs(_Fragment, { children: [_jsx(QuickStats, {}), _jsx("div", { className: "spacer" }), _jsx(Filters, {}), _jsx("div", { className: "spacer" }), _jsxs("div", { className: "row", style: { justifyContent: 'space-between', marginBottom: 8 }, children: [_jsxs("div", { style: { color: '#9aa4b2' }, "aria-live": "polite", children: [countries.length, " total countries"] }), _jsx(ExportButtons, {})] }), _jsx(CountryTable, {})] })), selected && (_jsx(CountryDetail, { country: selected, onClose: closeModal }))] }));
+    return (_jsxs("div", { className: "container", children: [_jsxs("div", { className: "row", style: { justifyContent: 'space-between', alignItems: 'center' }, children: [_jsxs("div", { children: [_jsx("h1", { style: { marginTop: 0 }, children: t('app_title') }), _jsx("p", { style: { color: '#9aa4b2', marginTop: -8 }, children: t('app_subtitle') })] }), _jsxs("div", { className: "row", "aria-label": "Language selector", style: { gap: 8 }, children: [_jsx("label", { htmlFor: "language-select", style: { fontSize: 12, color: '#6b7280' }, children: t('label_language') }), _jsxs("select", { id: "language-select", value: language, onChange: (e) => setLanguage(e.target.value), "aria-label": "Select application language", children: [_jsx("option", { value: "en-GB", children: "English (UK)" }), _jsx("option", { value: "en-US", children: "English (US)" }), _jsx("option", { value: "fr-FR", children: "Fran\u00E7ais" }), _jsx("option", { value: "de-DE", children: "Deutsch" }), _jsx("option", { value: "es-ES", children: "Espa\u00F1ol" })] })] })] }), loading ? (_jsx(LoadingSpinner, { message: t('loading_compliance') })) : (_jsx(_Fragment, { children: _jsxs("main", { id: "main", role: "main", tabIndex: -1, children: [_jsx(QuickStats, {}), _jsx("div", { className: "spacer" }), _jsx(Filters, {}), _jsx("div", { className: "spacer" }), _jsxs("div", { className: "row", style: { justifyContent: 'space-between', marginBottom: 8 }, children: [_jsx("div", { style: { color: '#9aa4b2' }, "aria-live": "polite", children: t('filters_total_countries', { count: countries.length }) }), _jsx(ExportButtons, {})] }), _jsx(CountryTable, {})] }) })), selected && (_jsx(CountryDetail, { country: selected, onClose: closeModal }))] }));
 }

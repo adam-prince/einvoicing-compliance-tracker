@@ -1,9 +1,15 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ComplianceDataService } from '../../services/complianceDataService';
 import { LoadingSpinner } from '../common/LoadingSpinner';
 import { getFormatSpecifications, getLegislationDocuments } from '../../data/formatSpecifications';
+import { ProgressOverlay } from '../common/ProgressOverlay';
+import { SearchRedirect } from '../common/SearchRedirect';
+import { useI18n } from '../../i18n';
+import { Toast } from '../common/Toast';
+import { useStore } from '../../store/useStore';
 export function CountryDetail({ country, onClose }) {
+    const { t, formatDate } = useI18n();
     const [activeTab, setActiveTab] = useState('overview');
     const [timelineData, setTimelineData] = useState(null);
     const [isRefreshing, setIsRefreshing] = useState(false);
@@ -11,6 +17,13 @@ export function CountryDetail({ country, onClose }) {
     const [progress, setProgress] = useState({ percentage: 0, message: '', stage: '' });
     const [newsItems, setNewsItems] = useState([]);
     const [loadingNews, setLoadingNews] = useState(false);
+    const [linkStatuses, setLinkStatuses] = useState({});
+    const [searchQuery, setSearchQuery] = useState('');
+    const [showSearchRedirect, setShowSearchRedirect] = useState(false);
+    const [toast, setToast] = useState({ visible: false, message: '' });
+    // Focus management & trap within modal
+    const modalRef = useRef(null);
+    const previouslyFocusedRef = useRef(null);
     const complianceService = ComplianceDataService.getInstance();
     // Load timeline data on mount
     useEffect(() => {
@@ -21,6 +34,10 @@ export function CountryDetail({ country, onClose }) {
                 data = complianceService.generateSampleTimeline(country.name, country.isoCode3);
             }
             setTimelineData(data);
+            // After loading, proactively check all detail links
+            queueMicrotask(() => {
+                checkAllDetailLinks();
+            });
         };
         loadTimeline();
     }, [country.isoCode3, country.name]);
@@ -30,6 +47,46 @@ export function CountryDetail({ country, onClose }) {
             loadNewsData();
         }
     }, [activeTab, country.isoCode3]);
+    // Trap focus within modal and return focus to opener on unmount
+    useEffect(() => {
+        previouslyFocusedRef.current = document.activeElement || null;
+        const container = modalRef.current;
+        const focusFirst = () => {
+            if (!container)
+                return;
+            const first = container.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+            first?.focus();
+        };
+        const handleKeyDown = (e) => {
+            if (!container || e.key !== 'Tab')
+                return;
+            const focusable = Array.from(container.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'))
+                .filter(el => !el.hasAttribute('disabled'));
+            if (focusable.length === 0)
+                return;
+            const firstEl = focusable[0];
+            const lastEl = focusable[focusable.length - 1];
+            const active = document.activeElement;
+            if (e.shiftKey) {
+                if (active === firstEl) {
+                    e.preventDefault();
+                    lastEl.focus();
+                }
+            }
+            else {
+                if (active === lastEl) {
+                    e.preventDefault();
+                    firstEl.focus();
+                }
+            }
+        };
+        focusFirst();
+        document.addEventListener('keydown', handleKeyDown);
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown);
+            previouslyFocusedRef.current?.focus();
+        };
+    }, []);
     // Enhanced news loading with 6 months of data
     const loadNewsData = async () => {
         setLoadingNews(true);
@@ -46,6 +103,123 @@ export function CountryDetail({ country, onClose }) {
         finally {
             setLoadingNews(false);
         }
+    };
+    // Normalize known public sources to more stable, canonical URLs
+    const normalizeUrl = (inputUrl) => {
+        if (!inputUrl)
+            return inputUrl;
+        try {
+            let url = inputUrl.trim();
+            // Force https
+            url = url.replace(/^http:\/\//i, 'https://');
+            // Spanish BOE canonical content pages often require trailing /con
+            if (/^https:\/\/www\.boe\.es\/eli\/es\//.test(url) && !/\/con$/.test(url)) {
+                url = url.replace(/(\/\d+)(\/con)?$/, '$1/con');
+            }
+            // EUR-Lex CELEX normalization: prefer CELEX param when present
+            if (/eur-lex\.europa\.eu/i.test(url)) {
+                if (!/CELEX:/.test(url) && /legal-content\//.test(url)) {
+                    // leave as-is; server will redirect based on Accept-Language
+                }
+            }
+            // Legifrance: ensure base host
+            if (/legifrance\.gouv\.fr/i.test(url)) {
+                url = url.replace(/^https:\/\/legifrance\.gouv\.fr/i, 'https://www.legifrance.gouv.fr');
+            }
+            // Gesetze im Internet: ensure www
+            if (/gesetze-im-internet\.de/i.test(url)) {
+                url = url.replace(/^https:\/\/gesetze-im-internet\.de/i, 'https://www.gesetze-im-internet.de');
+            }
+            // UK Legislation and GOV.UK - ensure www
+            if (/legislation\.gov\.uk/i.test(url)) {
+                url = url.replace(/^https:\/\/legislation\.gov\.uk/i, 'https://www.legislation.gov.uk');
+            }
+            if (/\.gov\.uk/i.test(url)) {
+                url = url.replace(/^https:\/\/(?!www\.)/i, 'https://www.');
+            }
+            // AU ATO
+            if (/ato\.gov\.au/i.test(url)) {
+                url = url.replace(/^https:\/\/(?!www\.)/i, 'https://www.');
+            }
+            // NZ IRD
+            if (/ird\.gov\.nz/i.test(url)) {
+                url = url.replace(/^https:\/\/(?!www\.)/i, 'https://www.');
+            }
+            // SG IMDA
+            if (/imda\.gov\.sg/i.test(url)) {
+                url = url.replace(/^https:\/\/(?!www\.)/i, 'https://www.');
+            }
+            // Generic cleanup – strip redundant trailing query mark
+            url = url.replace(/\?$|\?\s*$/, '');
+            return url;
+        }
+        catch {
+            return inputUrl;
+        }
+    };
+    // URL reachability checker (best-effort within browser constraints)
+    const checkUrl = async (url) => {
+        if (!url)
+            return 'unknown';
+        url = normalizeUrl(url);
+        try {
+            const headResp = await fetch(url, { method: 'HEAD', mode: 'cors', redirect: 'follow' });
+            if (headResp.ok)
+                return 'ok';
+            if (headResp.status === 404)
+                return 'not-found';
+            return 'unknown';
+        }
+        catch (_) {
+            try {
+                await fetch(url, { method: 'GET', mode: 'no-cors' });
+                return 'unknown';
+            }
+            catch {
+                return 'unknown';
+            }
+        }
+    };
+    const collectDetailLinks = () => {
+        const links = new Set();
+        try {
+            ['b2g', 'b2b', 'b2c'].forEach((key) => {
+                const formats = country.eInvoicing?.[key]?.formats || [];
+                formats.forEach((f) => {
+                    const name = typeof f === 'string' ? f : (f?.name || f?.format);
+                    if (!name)
+                        return;
+                    const specs = getFormatSpecifications(name);
+                    specs.forEach(s => s.url && links.add(s.url));
+                });
+            });
+            ['b2g', 'b2b', 'b2c'].forEach((key) => {
+                const legislation = country.eInvoicing?.[key]?.legislation;
+                if (!legislation)
+                    return;
+                const docs = legislation?.name ? getLegislationDocuments(legislation.name) : [];
+                docs.forEach((d) => d.url && links.add(d.url));
+                ['officialLink', 'specificationLink', 'url', 'link'].forEach((prop) => {
+                    if (legislation?.[prop])
+                        links.add(String(legislation[prop]));
+                });
+            });
+        }
+        catch (e) {
+            console.warn('Failed to collect links for checking:', e);
+        }
+        return Array.from(links);
+    };
+    const checkAllDetailLinks = async () => {
+        const urls = collectDetailLinks();
+        if (urls.length === 0)
+            return;
+        const results = {};
+        await Promise.all(urls.map(async (u) => {
+            const status = await checkUrl(u);
+            results[u] = status;
+        }));
+        setLinkStatuses(prev => ({ ...prev, ...results }));
     };
     // Generate 6 months of realistic news data
     const generateSixMonthsNewsData = (countryName, countryCode) => {
@@ -230,7 +404,8 @@ export function CountryDetail({ country, onClose }) {
                 summary: 'DGFiP begins certification process for private platforms to complement Chorus Pro for B2B transactions. Factur-X format strongly recommended.',
                 source: 'DGFiP (French Tax Authority)',
                 sourceType: 'Official',
-                relevance: 'high'
+                relevance: 'high',
+                url: 'https://www.impots.gouv.fr/e-facturation-2026'
             }, {
                 id: (newsId++).toString(),
                 date: getDaysAgo(21),
@@ -238,7 +413,8 @@ export function CountryDetail({ country, onClose }) {
                 summary: 'Updated Factur-X specifications include enhanced compliance checks and improved PDF/A-3 integration for better system compatibility.',
                 source: 'FNFE-MPE',
                 sourceType: 'Industry',
-                relevance: 'medium'
+                relevance: 'medium',
+                url: 'https://fnfe-mpe.org/factur-x/'
             }, {
                 id: (newsId++).toString(),
                 date: getDaysAgo(38),
@@ -246,7 +422,8 @@ export function CountryDetail({ country, onClose }) {
                 summary: 'Survey of large French enterprises shows 78% have initiated e-invoicing preparations for 2026 reception mandate.',
                 source: 'Ernst & Young France',
                 sourceType: 'Consulting',
-                relevance: 'medium'
+                relevance: 'medium',
+                url: 'https://www.ey.com/'
             }, {
                 id: (newsId++).toString(),
                 date: getDaysAgo(55),
@@ -254,7 +431,8 @@ export function CountryDetail({ country, onClose }) {
                 summary: 'Government announces major infrastructure expansion for Chorus Pro platform to handle anticipated B2B transaction volumes.',
                 source: 'AIFE (Public Procurement Agency)',
                 sourceType: 'Official',
-                relevance: 'medium'
+                relevance: 'medium',
+                url: 'https://chorus-pro.gouv.fr/'
             }, {
                 id: (newsId++).toString(),
                 date: getDaysAgo(72),
@@ -302,7 +480,8 @@ export function CountryDetail({ country, onClose }) {
                 summary: 'Implementation decree for B2B e-invoicing mandate published, providing detailed technical and timeline requirements.',
                 source: 'Journal Officiel',
                 sourceType: 'Official',
-                relevance: 'high'
+                relevance: 'high',
+                url: 'https://www.legifrance.gouv.fr/jorf'
             });
         }
         // Add some generic EU-wide news for European countries
@@ -363,34 +542,45 @@ export function CountryDetail({ country, onClose }) {
     const handleRefreshTimeline = async () => {
         setIsRefreshing(true);
         setRefreshError('');
-        setProgress({ percentage: 0, message: 'Starting refresh...', stage: 'init' });
+        setProgress({ percentage: 0, message: 'Starting refresh...', stage: 'visible' });
         try {
-            const refreshedData = await complianceService.refreshComplianceData(country.isoCode3, (progressUpdate) => {
-                setProgress(progressUpdate);
-            });
-            if (refreshedData.length > 0) {
-                setTimelineData(refreshedData[0]);
+            // Foreground: refresh currently filtered countries first
+            const filteredList = (useStore.getState().filtered || []);
+            const visibleIds = filteredList.map((c) => c.isoCode3);
+            const total = Math.max(visibleIds.length, 1);
+            let done = 0;
+            for (const id of visibleIds) {
+                await complianceService.refreshComplianceData(id);
+                done += 1;
+                setProgress({ percentage: Math.round((done / total) * 100), message: `Refreshing ${done} of ${total}…`, stage: 'visible' });
             }
-            else {
-                // Generate updated sample data
-                const sampleData = complianceService.generateSampleTimeline(country.name, country.isoCode3);
-                setTimelineData(sampleData);
-            }
-            // Also refresh news when refreshing data
-            if (activeTab === 'news') {
+            // Update this country's data immediately
+            const updated = complianceService.getComplianceTimeline(country.isoCode3);
+            if (updated)
+                setTimelineData(updated);
+            // If on news, refresh news list too
+            if (activeTab === 'news')
                 await loadNewsData();
-            }
+            await checkAllDetailLinks();
+            // Background: refresh remaining countries without blocking modal
+            const all = complianceService.getAllAvailableCountries();
+            const remaining = all.filter((id) => !visibleIds.includes(id));
+            (async () => {
+                for (const id of remaining) {
+                    await complianceService.refreshComplianceData(id);
+                }
+                setToast({ visible: true, message: t('bg_updates_completed', { count: remaining.length }) });
+            })();
         }
         catch (error) {
             setRefreshError('Failed to refresh compliance data. Please try again.');
             console.error('Refresh error:', error);
         }
         finally {
-            setIsRefreshing(false);
-            // Clear progress after a short delay to show completion
             setTimeout(() => {
+                setIsRefreshing(false);
                 setProgress({ percentage: 0, message: '', stage: '' });
-            }, 1000);
+            }, 400);
         }
     };
     // Group timeline events by category
@@ -412,19 +602,7 @@ export function CountryDetail({ country, onClose }) {
         });
         return groups;
     }, [timelineData]);
-    const formatDate = (dateString) => {
-        try {
-            const date = new Date(dateString);
-            return date.toLocaleDateString('en-GB', {
-                day: '2-digit',
-                month: 'short',
-                year: 'numeric'
-            });
-        }
-        catch {
-            return dateString;
-        }
-    };
+    // removed local formatDate helper; using useI18n().formatDate instead
     const getStatusBadgeClass = (status) => {
         switch (status) {
             case 'mandated': return 'timeline-status mandated';
@@ -476,7 +654,21 @@ export function CountryDetail({ country, onClose }) {
                 // Create buttons for each specification version
                 specifications.forEach((spec, specIndex) => {
                     const buttonKey = `${index}-${specIndex}`;
-                    formatButtons.push(_jsxs("button", { onClick: () => window.open(spec.url, '_blank', 'noopener,noreferrer'), className: "format-spec-button", title: `${spec.description || spec.name} - Click to view official specification`, children: [_jsx("span", { className: "format-name", children: spec.name }), spec.version && _jsxs("span", { className: "format-version", children: ["v", spec.version] }), _jsx("span", { className: "format-authority", children: spec.authority }), _jsx("span", { className: "external-link-icon", children: "\u2197" })] }, buttonKey));
+                    const status = linkStatuses[spec.url] || 'unknown';
+                    const isDead = status === 'not-found';
+                    const handleClick = () => {
+                        if (isDead) {
+                            const q = `${spec.name} ${spec.version ? 'v' + spec.version : ''} ${spec.authority || ''} ${country.name} e-invoicing`.trim();
+                            setSearchQuery(q);
+                            setShowSearchRedirect(true);
+                        }
+                        else {
+                            const win = window.open(spec.url, '_blank', 'noopener,noreferrer');
+                            if (!win)
+                                setToast({ visible: true, message: 'Popup blocked. Opening search instead…' });
+                        }
+                    };
+                    formatButtons.push(_jsxs("button", { onClick: handleClick, className: `format-spec-button ${isDead ? 'button-amber' : ''}`, title: `${isDead ? 'Unavailable link' : (status === 'ok' ? 'Validated link' : 'Status unknown')} — ${(spec.description || spec.name)}${isDead ? '' : ' - Click to view official specification'}`, "aria-describedby": isDead ? `dead-link-hint-${buttonKey}` : undefined, children: [_jsx("span", { className: `status-dot ${isDead ? 'dot-dead' : (status === 'ok' ? 'dot-ok' : 'dot-unknown')}`, "aria-hidden": "true" }), _jsx("span", { className: "sr-only", children: `Link status: ${isDead ? 'unavailable' : (status === 'ok' ? 'validated' : 'unknown')}` }), _jsx("span", { className: "format-name", children: spec.name }), spec.version && _jsxs("span", { className: "format-version", children: ["v", spec.version] }), _jsx("span", { className: "format-authority", children: spec.authority }), _jsx("span", { className: "external-link-icon", children: "\u2197" }), isDead && (_jsx("span", { id: `dead-link-hint-${buttonKey}`, style: { position: 'absolute', left: -9999, top: 'auto', width: 1, height: 1, overflow: 'hidden' }, children: "Original link not available. Opens a web search in a new tab." }))] }, buttonKey));
                 });
             }
             else {
@@ -494,7 +686,23 @@ export function CountryDetail({ country, onClose }) {
         const legislationName = legislation.name;
         const documents = getLegislationDocuments(legislationName);
         if (documents.length > 0) {
-            return (_jsx("div", { className: "legislation-buttons-container", children: documents.map((doc, index) => (_jsxs("button", { onClick: () => window.open(doc.url, '_blank', 'noopener,noreferrer'), className: "legislation-button", title: `${doc.name} - Click to view official document`, children: [_jsx("span", { className: "legislation-name", children: doc.name }), doc.language && doc.language !== 'Multi-language' && (_jsx("span", { className: "legislation-language", children: doc.language })), doc.language === 'Multi-language' && (_jsx("span", { className: "legislation-language", children: "All Languages" })), _jsx("span", { className: "legislation-type", children: doc.type }), _jsx("span", { className: "external-link-icon", children: "\u2197" })] }, index))) }));
+            return (_jsx("div", { className: "legislation-buttons-container", children: documents.map((doc, index) => {
+                    const status = linkStatuses[doc.url] || 'unknown';
+                    const isDead = status === 'not-found';
+                    const handleClick = () => {
+                        if (isDead) {
+                            const q = `${doc.name} ${country.name} ${doc.type || ''} legislation`.trim();
+                            setSearchQuery(q);
+                            setShowSearchRedirect(true);
+                        }
+                        else {
+                            const win = window.open(doc.url, '_blank', 'noopener,noreferrer');
+                            if (!win)
+                                setToast({ visible: true, message: 'Popup blocked. Opening search instead…' });
+                        }
+                    };
+                    return (_jsxs("button", { onClick: handleClick, className: `legislation-button ${isDead ? 'button-amber' : ''}`, title: `${isDead ? 'Unavailable link' : (status === 'ok' ? 'Validated link' : 'Status unknown')} — ${doc.name}`, children: [_jsx("span", { className: `status-dot ${isDead ? 'dot-dead' : (status === 'ok' ? 'dot-ok' : 'dot-unknown')}`, "aria-hidden": "true" }), _jsx("span", { className: "sr-only", children: `Link status: ${isDead ? 'unavailable' : (status === 'ok' ? 'validated' : 'unknown')}` }), _jsx("span", { className: "legislation-name", children: doc.name }), doc.language && doc.language !== 'Multi-language' && (_jsx("span", { className: "legislation-language", children: doc.language })), doc.language === 'Multi-language' && (_jsx("span", { className: "legislation-language", children: "All Languages" })), _jsx("span", { className: "legislation-type", children: doc.type }), _jsx("span", { className: "external-link-icon", children: "\u2197" })] }, index));
+                }) }));
         }
         else {
             // No mapped documents found; fall back to specific links on the legislation object
@@ -508,77 +716,136 @@ export function CountryDetail({ country, onClose }) {
             if (legislation.link)
                 candidateLinks.push({ url: legislation.link, label: 'Link' });
             if (candidateLinks.length > 0) {
-                return (_jsx("div", { className: "legislation-buttons-container", children: candidateLinks.map((l, idx) => (_jsxs("button", { onClick: () => window.open(l.url, '_blank', 'noopener,noreferrer'), className: "legislation-button", title: "Click to view legislation", children: [_jsx("span", { className: "legislation-name", children: legislationName }), _jsx("span", { className: "legislation-type", children: l.label }), _jsx("span", { className: "external-link-icon", children: "\u2197" })] }, idx))) }));
+                return (_jsx("div", { className: "legislation-buttons-container", children: candidateLinks.map((l, idx) => {
+                        const status = linkStatuses[l.url] || 'unknown';
+                        const isDead = status === 'not-found';
+                        const handleClick = () => {
+                            if (isDead) {
+                                const q = `${legislationName} ${country.name} ${l.label} e-invoicing`.trim();
+                                setSearchQuery(q);
+                                setShowSearchRedirect(true);
+                            }
+                            else {
+                                const win = window.open(l.url, '_blank', 'noopener,noreferrer');
+                                if (!win)
+                                    setToast({ visible: true, message: 'Popup blocked. Opening search instead…' });
+                            }
+                        };
+                        return (_jsxs("button", { onClick: handleClick, className: `legislation-button ${isDead ? 'button-amber' : ''}`, title: `${isDead ? 'Unavailable link' : (status === 'ok' ? 'Validated link' : 'Status unknown')} — ${legislationName} (${l.label})`, children: [_jsx("span", { className: `status-dot ${isDead ? 'dot-dead' : (status === 'ok' ? 'dot-ok' : 'dot-unknown')}`, "aria-hidden": "true" }), _jsx("span", { className: "sr-only", children: `Link status: ${isDead ? 'unavailable' : (status === 'ok' ? 'validated' : 'unknown')}` }), _jsx("span", { className: "legislation-name", children: legislationName }), _jsx("span", { className: "legislation-type", children: l.label }), _jsx("span", { className: "external-link-icon", children: "\u2197" })] }, idx));
+                    }) }));
             }
-            return (_jsxs("span", { className: "legislation-tag-no-link", title: "No official document link available", children: [legislationName, _jsx("span", { className: "no-link-indicator", children: "?" })] }));
+            // As a last resort, offer a search link
+            return (_jsxs("button", { onClick: () => window.open(`https://www.google.com/search?q=${encodeURIComponent(legislationName + ' ' + country.name + ' e-invoicing')}`, '_blank', 'noopener,noreferrer'), className: "legislation-button", title: "Search for this legislation", children: [_jsx("span", { className: "legislation-name", children: legislationName }), _jsx("span", { className: "legislation-type", children: "Search" }), _jsx("span", { className: "external-link-icon", children: "\u2197" })] }));
         }
     };
-    return (_jsx("div", { className: "modal-backdrop", onClick: onClose, children: _jsxs("div", { className: "modal", onClick: (e) => e.stopPropagation(), children: [_jsxs("header", { className: "modal-header-sticky", children: [_jsxs("div", { children: [_jsx("h2", { style: { margin: 0 }, children: country.name }), _jsxs("p", { style: { margin: '4px 0 0 0', color: 'var(--muted)', fontSize: 14 }, children: [country.continent, " \u2022 ", country.isoCode3] })] }), _jsx("button", { onClick: onClose, className: "modal-close-button", "aria-label": `Close details for ${country.name}`, children: "\u2715" })] }), _jsxs("div", { className: "tabs tabs-sticky", children: [_jsx("div", { className: `tab ${activeTab === 'overview' ? 'active' : ''}`, onClick: () => setActiveTab('overview'), role: "tab", tabIndex: 0, onKeyDown: (e) => {
-                                if (e.key === 'Enter' || e.key === ' ') {
-                                    e.preventDefault();
-                                    setActiveTab('overview');
-                                }
-                            }, children: "Overview" }), _jsx("div", { className: `tab ${activeTab === 'timeline' ? 'active' : ''}`, onClick: () => setActiveTab('timeline'), role: "tab", tabIndex: 0, onKeyDown: (e) => {
-                                if (e.key === 'Enter' || e.key === ' ') {
-                                    e.preventDefault();
-                                    setActiveTab('timeline');
-                                }
-                            }, children: "Implementation Timeline" }), _jsx("div", { className: `tab ${activeTab === 'news' ? 'active' : ''}`, onClick: () => setActiveTab('news'), role: "tab", tabIndex: 0, onKeyDown: (e) => {
-                                if (e.key === 'Enter' || e.key === ' ') {
-                                    e.preventDefault();
-                                    setActiveTab('news');
-                                }
-                            }, children: "Latest News" })] }), isRefreshing && (_jsx("div", { className: "progress-modal-container", children: _jsxs("div", { className: "progress-modal-content", children: [_jsx("h3", { style: { margin: '0 0 16px 0', fontSize: '16px', fontWeight: '600' }, children: "Updating Compliance Data" }), _jsx("div", { className: "progress-bar", children: _jsx("div", { className: "progress-fill", style: { width: `${progress.percentage}%` } }) }), _jsxs("div", { className: "progress-text", children: [_jsxs("span", { className: "progress-percentage", children: [progress.percentage, "%"] }), _jsx("span", { className: "progress-message", children: progress.message })] })] }) })), _jsxs("div", { className: "modal-content", children: [activeTab === 'overview' && (_jsxs("div", { children: [_jsx("h3", { children: "Current E-Invoicing Status" }), _jsxs("div", { style: { display: 'grid', gap: 16, marginBottom: 24 }, children: [_jsxs("div", { className: "card", children: [_jsx("h4", { style: { margin: '0 0 12px 0', color: 'var(--primary)' }, children: "Business-to-Government (B2G)" }), _jsxs("div", { style: { marginBottom: 12 }, children: [_jsx("strong", { children: "Status:" }), _jsx("span", { style: { marginLeft: 8 }, children: _jsx("span", { className: `badge ${country.eInvoicing.b2g.status === 'mandated' ? 'green' :
-                                                                    country.eInvoicing.b2g.status === 'planned' ? 'yellow' :
-                                                                        country.eInvoicing.b2g.status === 'permitted' ? 'yellow' : 'gray'}`, children: country.eInvoicing.b2g.status.charAt(0).toUpperCase() + country.eInvoicing.b2g.status.slice(1) }) })] }), country.eInvoicing.b2g.implementationDate && (_jsxs("div", { style: { marginBottom: 12 }, children: [_jsx("strong", { children: "Implementation Date:" }), " ", formatDate(country.eInvoicing.b2g.implementationDate)] })), _jsxs("div", { style: { marginBottom: 12 }, children: [_jsx("strong", { children: "Supported Formats:" }), _jsx("div", { style: { marginTop: 8 }, children: renderFormats(country.eInvoicing.b2g.formats) })] }), _jsxs("div", { children: [_jsx("strong", { children: "Legislation:" }), _jsx("div", { style: { marginTop: 8 }, children: renderLegislation(country.eInvoicing.b2g.legislation) })] })] }), _jsxs("div", { className: "card", children: [_jsx("h4", { style: { margin: '0 0 12px 0', color: 'var(--primary)' }, children: "Business-to-Business (B2B)" }), _jsxs("div", { style: { marginBottom: 12 }, children: [_jsx("strong", { children: "Status:" }), _jsx("span", { style: { marginLeft: 8 }, children: _jsx("span", { className: `badge ${country.eInvoicing.b2b.status === 'mandated' ? 'green' :
-                                                                    country.eInvoicing.b2b.status === 'planned' ? 'yellow' :
-                                                                        country.eInvoicing.b2b.status === 'permitted' ? 'yellow' : 'gray'}`, children: country.eInvoicing.b2b.status.charAt(0).toUpperCase() + country.eInvoicing.b2b.status.slice(1) }) })] }), country.eInvoicing.b2b.implementationDate && (_jsxs("div", { style: { marginBottom: 12 }, children: [_jsx("strong", { children: "Implementation Date:" }), " ", formatDate(country.eInvoicing.b2b.implementationDate)] })), _jsxs("div", { style: { marginBottom: 12 }, children: [_jsx("strong", { children: "Supported Formats:" }), _jsx("div", { style: { marginTop: 8 }, children: renderFormats(country.eInvoicing.b2b.formats) })] }), _jsxs("div", { children: [_jsx("strong", { children: "Legislation:" }), _jsx("div", { style: { marginTop: 8 }, children: renderLegislation(country.eInvoicing.b2b.legislation) })] })] }), _jsxs("div", { className: "card", children: [_jsx("h4", { style: { margin: '0 0 12px 0', color: 'var(--primary)' }, children: "Business-to-Consumer (B2C)" }), _jsxs("div", { style: { marginBottom: 12 }, children: [_jsx("strong", { children: "Status:" }), _jsx("span", { style: { marginLeft: 8 }, children: _jsx("span", { className: `badge ${country.eInvoicing.b2c.status === 'mandated' ? 'green' :
-                                                                    country.eInvoicing.b2c.status === 'planned' ? 'yellow' :
-                                                                        country.eInvoicing.b2c.status === 'permitted' ? 'yellow' : 'gray'}`, children: country.eInvoicing.b2c.status.charAt(0).toUpperCase() + country.eInvoicing.b2c.status.slice(1) }) })] }), country.eInvoicing.b2c.implementationDate && (_jsxs("div", { style: { marginBottom: 12 }, children: [_jsx("strong", { children: "Implementation Date:" }), " ", formatDate(country.eInvoicing.b2c.implementationDate)] })), _jsxs("div", { style: { marginBottom: 12 }, children: [_jsx("strong", { children: "Supported Formats:" }), _jsx("div", { style: { marginTop: 8 }, children: renderFormats(country.eInvoicing.b2c.formats) })] }), _jsxs("div", { children: [_jsx("strong", { children: "Legislation:" }), _jsx("div", { style: { marginTop: 8 }, children: renderLegislation(country.eInvoicing.b2c.legislation) })] })] })] }), _jsxs("div", { style: { fontSize: 12, color: 'var(--muted)', padding: 12, background: 'var(--panel-2)', borderRadius: 8 }, children: [_jsx("strong", { children: "Data Last Updated:" }), " ", formatDate(country.eInvoicing.lastUpdated)] })] })), activeTab === 'timeline' && (_jsxs("div", { children: [_jsxs("div", { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }, children: [_jsx("h3", { style: { margin: 0 }, children: "Implementation Timeline" }), _jsx("button", { onClick: handleRefreshTimeline, disabled: isRefreshing, className: "refresh-button", "aria-label": "Refresh compliance data", children: isRefreshing ? 'Refreshing...' : 'Refresh Data' })] }), refreshError && (_jsx("div", { style: {
-                                        padding: 12,
-                                        background: '#fecaca',
-                                        border: '1px solid #ef4444',
-                                        borderRadius: 8,
-                                        marginBottom: 16,
-                                        color: '#7f1d1d'
-                                    }, children: refreshError })), isRefreshing ? (_jsx(LoadingSpinner, { message: "Refreshing compliance data..." })) : timelineData ? (_jsxs("div", { className: "timeline", children: [timelineData.sources && (_jsxs("div", { style: {
-                                                marginBottom: 24,
-                                                padding: 12,
-                                                background: 'var(--panel-2)',
-                                                borderRadius: 8,
-                                                fontSize: 12
-                                            }, children: [_jsx("strong", { children: "Data Sources:" }), " ", timelineData.sources.join(', '), _jsx("br", {}), _jsx("strong", { children: "Last Updated:" }), " ", formatDate(timelineData.lastUpdated)] })), renderTimelineSection('B2G', groupedTimeline.B2G), renderTimelineSection('B2B', groupedTimeline.B2B), renderTimelineSection('B2C', groupedTimeline.B2C), renderTimelineSection('reporting', groupedTimeline.reporting), Object.values(groupedTimeline).every(events => events.length === 0) && (_jsxs("div", { className: "no-timeline", children: [_jsx("p", { children: "No detailed timeline information available for this country." }), _jsx("p", { children: "Click \"Refresh Data\" to check for updates." })] }))] })) : (_jsx("div", { className: "no-timeline", children: _jsx("p", { children: "Loading timeline data..." }) }))] })), activeTab === 'news' && (_jsxs("div", { children: [_jsxs("div", { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }, children: [_jsx("h3", { style: { margin: 0 }, children: "Latest News & Updates" }), _jsx("button", { onClick: loadNewsData, disabled: loadingNews, className: "refresh-button", "aria-label": "Refresh news data", children: loadingNews ? 'Loading...' : 'Refresh News' })] }), loadingNews ? (_jsx(LoadingSpinner, { message: "Loading latest news..." })) : (_jsx("div", { className: "news-container", style: { maxHeight: '600px', overflowY: 'auto', paddingRight: '8px' }, children: newsItems.length > 0 ? (newsItems.map((item) => (_jsxs("div", { className: `news-item ${item.relevance}-relevance`, style: {
-                                            background: 'var(--panel-2)',
-                                            border: '1px solid var(--border)',
+    return (_jsxs("div", { className: "modal-backdrop", role: "dialog", "aria-modal": "true", "aria-labelledby": "country-detail-title", "aria-describedby": "country-detail-desc", onClick: onClose, children: [_jsxs("div", { className: "modal", onClick: (e) => e.stopPropagation(), ref: modalRef, children: [_jsxs("header", { className: "modal-header-sticky", children: [_jsxs("div", { children: [_jsx("h2", { id: "country-detail-title", style: { margin: 0 }, children: country.name }), _jsxs("p", { id: "country-detail-desc", style: { margin: '4px 0 0 0', color: 'var(--muted)', fontSize: 14 }, children: [country.continent, " \u2022 ", country.isoCode3] })] }), _jsx("button", { onClick: onClose, className: "modal-close-button", "aria-label": `Close details for ${country.name}`, children: "\u2715" })] }), _jsxs("div", { className: "tabs tabs-sticky", role: "tablist", "aria-label": "Country details tabs", children: [_jsx("div", { className: `tab ${activeTab === 'overview' ? 'active' : ''}`, onClick: () => setActiveTab('overview'), role: "tab", id: "tab-overview", "aria-selected": activeTab === 'overview', "aria-controls": "panel-overview", tabIndex: activeTab === 'overview' ? 0 : -1, onKeyDown: (e) => {
+                                    const order = ['overview', 'timeline', 'news'];
+                                    if (e.key === 'Enter' || e.key === ' ') {
+                                        e.preventDefault();
+                                        setActiveTab('overview');
+                                    }
+                                    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft' || e.key === 'Home' || e.key === 'End') {
+                                        e.preventDefault();
+                                        const idx = order.indexOf(activeTab);
+                                        let next = idx;
+                                        if (e.key === 'ArrowRight')
+                                            next = (idx + 1) % order.length;
+                                        if (e.key === 'ArrowLeft')
+                                            next = (idx - 1 + order.length) % order.length;
+                                        if (e.key === 'Home')
+                                            next = 0;
+                                        if (e.key === 'End')
+                                            next = order.length - 1;
+                                        setActiveTab(order[next]);
+                                        const nextId = `tab-${order[next]}`;
+                                        document.getElementById(nextId)?.focus();
+                                    }
+                                }, children: t('tabs_overview') }), _jsx("div", { className: `tab ${activeTab === 'timeline' ? 'active' : ''}`, onClick: () => setActiveTab('timeline'), role: "tab", id: "tab-timeline", "aria-selected": activeTab === 'timeline', "aria-controls": "panel-timeline", tabIndex: activeTab === 'timeline' ? 0 : -1, onKeyDown: (e) => {
+                                    const order = ['overview', 'timeline', 'news'];
+                                    if (e.key === 'Enter' || e.key === ' ') {
+                                        e.preventDefault();
+                                        setActiveTab('timeline');
+                                    }
+                                    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft' || e.key === 'Home' || e.key === 'End') {
+                                        e.preventDefault();
+                                        const idx = order.indexOf(activeTab);
+                                        let next = idx;
+                                        if (e.key === 'ArrowRight')
+                                            next = (idx + 1) % order.length;
+                                        if (e.key === 'ArrowLeft')
+                                            next = (idx - 1 + order.length) % order.length;
+                                        if (e.key === 'Home')
+                                            next = 0;
+                                        if (e.key === 'End')
+                                            next = order.length - 1;
+                                        setActiveTab(order[next]);
+                                        const nextId = `tab-${order[next]}`;
+                                        document.getElementById(nextId)?.focus();
+                                    }
+                                }, children: t('timeline_title') }), _jsx("div", { className: `tab ${activeTab === 'news' ? 'active' : ''}`, onClick: () => setActiveTab('news'), role: "tab", id: "tab-news", "aria-selected": activeTab === 'news', "aria-controls": "panel-news", tabIndex: activeTab === 'news' ? 0 : -1, onKeyDown: (e) => {
+                                    const order = ['overview', 'timeline', 'news'];
+                                    if (e.key === 'Enter' || e.key === ' ') {
+                                        e.preventDefault();
+                                        setActiveTab('news');
+                                    }
+                                    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft' || e.key === 'Home' || e.key === 'End') {
+                                        e.preventDefault();
+                                        const idx = order.indexOf(activeTab);
+                                        let next = idx;
+                                        if (e.key === 'ArrowRight')
+                                            next = (idx + 1) % order.length;
+                                        if (e.key === 'ArrowLeft')
+                                            next = (idx - 1 + order.length) % order.length;
+                                        if (e.key === 'Home')
+                                            next = 0;
+                                        if (e.key === 'End')
+                                            next = order.length - 1;
+                                        setActiveTab(order[next]);
+                                        const nextId = `tab-${order[next]}`;
+                                        document.getElementById(nextId)?.focus();
+                                    }
+                                }, children: t('news_title') })] }), isRefreshing && (_jsx("div", { className: "progress-modal-container", children: _jsxs("div", { className: "progress-modal-content", children: [_jsx("h3", { style: { margin: '0 0 16px 0', fontSize: '16px', fontWeight: '600' }, children: t('progress_updating') }), _jsx("div", { className: "progress-bar", children: _jsx("div", { className: "progress-fill", style: { width: `${progress.percentage}%` } }) }), _jsxs("div", { className: "progress-text", children: [_jsxs("span", { className: "progress-percentage", children: [progress.percentage, "%"] }), _jsx("span", { className: "progress-message", children: progress.message })] })] }) })), _jsxs("div", { className: "modal-content", children: [activeTab === 'overview' && (_jsxs("div", { id: "panel-overview", role: "tabpanel", "aria-labelledby": "tab-overview", children: [_jsx("h3", { children: t('tabs_overview') }), _jsxs("div", { style: { display: 'grid', gap: 16, marginBottom: 24 }, children: [_jsxs("div", { className: "card", children: [_jsx("h4", { style: { margin: '0 0 12px 0', color: 'var(--primary)' }, children: t('b2g_title') || 'Business-to-Government (B2G)' }), _jsxs("div", { style: { marginBottom: 12 }, children: [_jsx("strong", { children: t('overview_status') }), _jsx("span", { style: { marginLeft: 8 }, children: _jsx("span", { className: `badge ${country.eInvoicing.b2g.status === 'mandated' ? 'green' :
+                                                                        country.eInvoicing.b2g.status === 'planned' ? 'yellow' :
+                                                                            country.eInvoicing.b2g.status === 'permitted' ? 'yellow' : 'gray'}`, children: country.eInvoicing.b2g.status.charAt(0).toUpperCase() + country.eInvoicing.b2g.status.slice(1) }) })] }), country.eInvoicing.b2g.implementationDate && (_jsxs("div", { style: { marginBottom: 12 }, children: [_jsx("strong", { children: t('overview_impl_date') }), " ", formatDate(country.eInvoicing.b2g.implementationDate)] })), _jsxs("div", { style: { marginBottom: 12 }, children: [_jsx("strong", { children: t('overview_supported_formats') }), _jsx("div", { style: { marginTop: 8 }, children: renderFormats(country.eInvoicing.b2g.formats) })] }), _jsxs("div", { children: [_jsx("strong", { children: t('overview_legislation') }), _jsx("div", { style: { marginTop: 8 }, children: renderLegislation(country.eInvoicing.b2g.legislation) })] })] }), _jsxs("div", { className: "card", children: [_jsx("h4", { style: { margin: '0 0 12px 0', color: 'var(--primary)' }, children: t('b2b_title') || 'Business-to-Business (B2B)' }), _jsxs("div", { style: { marginBottom: 12 }, children: [_jsxs("strong", { children: [t('overview_status'), ":"] }), _jsx("span", { style: { marginLeft: 8 }, children: _jsx("span", { className: `badge ${country.eInvoicing.b2b.status === 'mandated' ? 'green' :
+                                                                        country.eInvoicing.b2b.status === 'planned' ? 'yellow' :
+                                                                            country.eInvoicing.b2b.status === 'permitted' ? 'yellow' : 'gray'}`, children: country.eInvoicing.b2b.status.charAt(0).toUpperCase() + country.eInvoicing.b2b.status.slice(1) }) })] }), country.eInvoicing.b2b.implementationDate && (_jsxs("div", { style: { marginBottom: 12 }, children: [_jsxs("strong", { children: [t('overview_implementation_date'), ":"] }), " ", formatDate(country.eInvoicing.b2b.implementationDate)] })), _jsxs("div", { style: { marginBottom: 12 }, children: [_jsxs("strong", { children: [t('overview_supported_formats'), ":"] }), _jsx("div", { style: { marginTop: 8 }, children: renderFormats(country.eInvoicing.b2b.formats) })] }), _jsxs("div", { children: [_jsxs("strong", { children: [t('overview_legislation'), ":"] }), _jsx("div", { style: { marginTop: 8 }, children: renderLegislation(country.eInvoicing.b2b.legislation) })] })] }), _jsxs("div", { className: "card", children: [_jsx("h4", { style: { margin: '0 0 12px 0', color: 'var(--primary)' }, children: t('b2c_title') || 'Business-to-Consumer (B2C)' }), _jsxs("div", { style: { marginBottom: 12 }, children: [_jsxs("strong", { children: [t('overview_status'), ":"] }), _jsx("span", { style: { marginLeft: 8 }, children: _jsx("span", { className: `badge ${country.eInvoicing.b2c.status === 'mandated' ? 'green' :
+                                                                        country.eInvoicing.b2c.status === 'planned' ? 'yellow' :
+                                                                            country.eInvoicing.b2c.status === 'permitted' ? 'yellow' : 'gray'}`, children: country.eInvoicing.b2c.status.charAt(0).toUpperCase() + country.eInvoicing.b2c.status.slice(1) }) })] }), country.eInvoicing.b2c.implementationDate && (_jsxs("div", { style: { marginBottom: 12 }, children: [_jsxs("strong", { children: [t('overview_implementation_date'), ":"] }), " ", formatDate(country.eInvoicing.b2c.implementationDate)] })), _jsxs("div", { style: { marginBottom: 12 }, children: [_jsxs("strong", { children: [t('overview_supported_formats'), ":"] }), _jsx("div", { style: { marginTop: 8 }, children: renderFormats(country.eInvoicing.b2c.formats) })] }), _jsxs("div", { children: [_jsxs("strong", { children: [t('overview_legislation'), ":"] }), _jsx("div", { style: { marginTop: 8 }, children: renderLegislation(country.eInvoicing.b2c.legislation) })] })] })] }), _jsxs("div", { style: { fontSize: 12, color: 'var(--muted)', padding: 12, background: 'var(--panel-2)', borderRadius: 8 }, children: [_jsx("strong", { children: t('overview_last_updated') }), " ", formatDate(country.eInvoicing.lastUpdated)] })] })), activeTab === 'timeline' && (_jsxs("div", { children: [_jsxs("div", { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }, children: [_jsx("h3", { style: { margin: 0 }, children: t('timeline_title') }), _jsx("button", { onClick: handleRefreshTimeline, disabled: isRefreshing, className: "refresh-button", "aria-label": "Refresh compliance data", children: isRefreshing ? (t('button_refreshing') || 'Refreshing...') : (t('button_refresh_data') || 'Refresh Data') })] }), refreshError && (_jsx("div", { style: {
+                                            padding: 12,
+                                            background: '#fecaca',
+                                            border: '1px solid #ef4444',
                                             borderRadius: 8,
-                                            padding: 16,
-                                            marginBottom: 12,
-                                            position: 'relative',
-                                            transition: 'all 0.2s ease'
-                                        }, children: [_jsxs("div", { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }, children: [_jsx("h4", { style: {
-                                                            margin: 0,
-                                                            color: 'var(--text)',
-                                                            fontSize: 14,
-                                                            lineHeight: 1.4,
-                                                            fontWeight: '600',
-                                                            paddingRight: '80px'
-                                                        }, children: item.title }), _jsx("span", { className: "badge news-source-badge", style: {
-                                                            background: getSourceTypeColor(item.sourceType),
-                                                            color: 'white',
-                                                            fontSize: 10,
-                                                            padding: '3px 8px',
-                                                            position: 'absolute',
-                                                            top: 16,
-                                                            right: 16,
-                                                            flexShrink: 0
-                                                        }, children: item.sourceType })] }), _jsx("p", { style: { color: 'var(--text)', fontSize: 13, lineHeight: 1.4, margin: '8px 0' }, children: item.summary }), _jsxs("div", { className: "news-meta", style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 11, color: 'var(--muted)', marginTop: 12 }, children: [_jsxs("div", { className: "news-source", children: [_jsx("strong", { children: "Source:" }), " ", item.source] }), _jsx("div", { className: "news-date", children: formatDate(item.date) })] }), item.url && (_jsx("div", { style: { marginTop: 8 }, children: _jsx("button", { onClick: () => window.open(item.url || `https://www.google.com/search?q=${encodeURIComponent(item.title + ' ' + country.name)}`, '_blank', 'noopener,noreferrer'), className: "news-read-more", style: {
-                                                        background: 'var(--primary)',
-                                                        color: 'white',
-                                                        border: 'none',
-                                                        borderRadius: 4,
-                                                        padding: '4px 8px',
-                                                        fontSize: 11,
-                                                        cursor: 'pointer',
-                                                        fontWeight: '500'
-                                                    }, children: "more info" }) }))] }, item.id)))) : (_jsxs("div", { className: "no-news", style: { textAlign: 'center', padding: 48, color: 'var(--muted)' }, children: [_jsxs("p", { style: { margin: '8px 0', fontSize: 14 }, children: ["No recent news available for ", country.name, "."] }), _jsx("p", { style: { fontSize: 12, color: 'var(--muted)' }, children: "Check back later for updates from official sources, GENA members, and industry publications." })] })) }))] }))] })] }) }));
+                                            marginBottom: 16,
+                                            color: '#7f1d1d'
+                                        }, children: refreshError })), isRefreshing ? (_jsx(LoadingSpinner, { message: "Refreshing compliance data..." })) : timelineData ? (_jsxs("div", { className: "timeline", children: [timelineData.sources && (_jsxs("div", { style: {
+                                                    marginBottom: 24,
+                                                    padding: 12,
+                                                    background: 'var(--panel-2)',
+                                                    borderRadius: 8,
+                                                    fontSize: 12
+                                                }, children: [_jsx("strong", { children: "Data Sources:" }), " ", timelineData.sources.join(', '), _jsx("br", {}), _jsx("strong", { children: "Last Updated:" }), " ", formatDate(timelineData.lastUpdated)] })), renderTimelineSection('B2G', groupedTimeline.B2G), renderTimelineSection('B2B', groupedTimeline.B2B), renderTimelineSection('B2C', groupedTimeline.B2C), renderTimelineSection('reporting', groupedTimeline.reporting), Object.values(groupedTimeline).every(events => events.length === 0) && (_jsxs("div", { className: "no-timeline", children: [_jsx("p", { children: "No detailed timeline information available for this country." }), _jsx("p", { children: "Click \"Refresh Data\" to check for updates." })] }))] })) : (_jsx("div", { className: "no-timeline", children: _jsx("p", { children: "Loading timeline data..." }) }))] })), activeTab === 'news' && (_jsxs("div", { id: "panel-news", role: "tabpanel", "aria-labelledby": "tab-news", children: [_jsxs("div", { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }, children: [_jsx("h3", { style: { margin: 0 }, children: t('news_title') }), _jsx("button", { onClick: loadNewsData, disabled: loadingNews, className: "refresh-button", "aria-label": "Refresh news data", children: loadingNews ? (t('button_refreshing') || 'Loading...') : (t('button_refresh_news') || 'Refresh News') })] }), loadingNews ? (_jsx(LoadingSpinner, { message: t('loading_news') })) : (_jsx("div", { className: "news-container", style: { maxHeight: '600px', overflowY: 'auto', paddingRight: '8px' }, children: newsItems.length > 0 ? (newsItems.map((item) => (_jsxs("div", { className: `news-item ${item.relevance}-relevance`, style: {
+                                                background: 'var(--panel-2)',
+                                                border: '1px solid var(--border)',
+                                                borderRadius: 8,
+                                                padding: 16,
+                                                marginBottom: 12,
+                                                position: 'relative',
+                                                transition: 'all 0.2s ease'
+                                            }, children: [_jsxs("div", { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }, children: [_jsx("h4", { style: {
+                                                                margin: 0,
+                                                                color: 'var(--text)',
+                                                                fontSize: 14,
+                                                                lineHeight: 1.4,
+                                                                fontWeight: '600',
+                                                                paddingRight: '80px'
+                                                            }, children: item.title }), _jsx("span", { className: "badge news-source-badge", style: {
+                                                                background: getSourceTypeColor(item.sourceType),
+                                                                color: 'white',
+                                                                fontSize: 10,
+                                                                padding: '3px 8px',
+                                                                position: 'absolute',
+                                                                top: 16,
+                                                                right: 16,
+                                                                flexShrink: 0
+                                                            }, children: item.sourceType })] }), _jsx("p", { style: { color: 'var(--text)', fontSize: 13, lineHeight: 1.4, margin: '8px 0' }, children: item.summary }), _jsxs("div", { className: "news-meta", style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 11, color: 'var(--muted)', marginTop: 12 }, children: [_jsxs("div", { className: "news-source", children: [_jsx("strong", { children: t('news_source') }), " ", item.source] }), _jsx("div", { className: "news-date", children: formatDate(item.date) })] }), _jsx("div", { style: { marginTop: 8 }, children: _jsx("a", { href: item.url || `https://www.google.com/search?q=${encodeURIComponent(item.title + ' ' + country.name)}`, target: "_blank", rel: "noopener noreferrer", className: "news-read-more", "aria-label": `More info about: ${item.title}. Opens ${item.url ? 'source ' + item.source : 'a web search'} in a new tab.`, children: t('news_more_info') }) })] }, item.id)))) : (_jsxs("div", { className: "no-news", style: { textAlign: 'center', padding: 48, color: 'var(--muted)' }, children: [_jsx("p", { style: { margin: '8px 0', fontSize: 14 }, children: t('no_news_available') }), _jsx("p", { style: { fontSize: 12, color: 'var(--muted)' }, children: t('check_back_later') })] })) }))] }))] })] }), _jsx(ProgressOverlay, { visible: loadingNews, message: t('progress_news_searching') }), showSearchRedirect && (_jsx(SearchRedirect, { query: searchQuery, onClose: () => setShowSearchRedirect(false) })), _jsx(Toast, { visible: toast.visible, message: toast.message, onClose: () => setToast({ visible: false, message: '' }) })] }));
 }

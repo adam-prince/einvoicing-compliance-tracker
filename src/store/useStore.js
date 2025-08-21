@@ -85,6 +85,7 @@ export const useStore = create((set, get) => ({
     countries: [],
     filtered: [],
     selected: undefined,
+    language: (typeof localStorage !== 'undefined' && localStorage.getItem('einvoicing-lang')) || 'en-GB',
     loading: false,
     error: '',
     filters: initialFilters,
@@ -100,6 +101,16 @@ export const useStore = create((set, get) => ({
     },
     setSelected: (selected) => {
         set({ selected });
+    },
+    setLanguage: (language) => {
+        try {
+            localStorage.setItem('einvoicing-lang', language);
+            if (typeof document !== 'undefined') {
+                document.documentElement.lang = language.split('-')[0] || language;
+            }
+        }
+        catch { }
+        set({ language });
     },
     setLoading: (loading) => {
         set({ loading });

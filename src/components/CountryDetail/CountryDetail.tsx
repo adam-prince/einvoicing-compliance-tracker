@@ -1,8 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import type { Country } from '@types';
 import { ComplianceDataService, type EnhancedComplianceData, type TimelineEvent, type ProgressUpdate } from '../../services/complianceDataService';
 import { LoadingSpinner } from '../common/LoadingSpinner';
 import { getFormatSpecifications, getLegislationDocuments, type FormatSpecification, type LegislationDocument } from '../../data/formatSpecifications';
+import { ProgressOverlay } from '../common/ProgressOverlay';
+import { SearchRedirect } from '../common/SearchRedirect';
+import { useI18n } from '../../i18n';
+import { Toast } from '../common/Toast';
+import { useStore } from '../../store/useStore';
 
 interface CountryDetailProps {
 	country: Country;
@@ -21,6 +26,7 @@ interface NewsItem {
 }
 
 export function CountryDetail({ country, onClose }: CountryDetailProps) {
+	const { t, formatDate } = useI18n();
 	const [activeTab, setActiveTab] = useState('overview');
 	const [timelineData, setTimelineData] = useState<EnhancedComplianceData | null>(null);
 	const [isRefreshing, setIsRefreshing] = useState(false);
@@ -28,6 +34,14 @@ export function CountryDetail({ country, onClose }: CountryDetailProps) {
 	const [progress, setProgress] = useState<ProgressUpdate>({ percentage: 0, message: '', stage: '' });
 	const [newsItems, setNewsItems] = useState<NewsItem[]>([]);
 	const [loadingNews, setLoadingNews] = useState(false);
+	const [linkStatuses, setLinkStatuses] = useState<Record<string, 'ok' | 'not-found' | 'unknown'>>({});
+	const [searchQuery, setSearchQuery] = useState<string>('');
+	const [showSearchRedirect, setShowSearchRedirect] = useState<boolean>(false);
+	const [toast, setToast] = useState<{ visible: boolean; message: string }>({ visible: false, message: '' });
+
+	// Focus management & trap within modal
+	const modalRef = useRef<HTMLDivElement | null>(null);
+	const previouslyFocusedRef = useRef<HTMLElement | null>(null);
 
 	const complianceService = ComplianceDataService.getInstance();
 
@@ -42,6 +56,10 @@ export function CountryDetail({ country, onClose }: CountryDetailProps) {
 			}
 			
 			setTimelineData(data);
+			// After loading, proactively check all detail links
+			queueMicrotask(() => {
+				checkAllDetailLinks();
+			});
 		};
 
 		loadTimeline();
@@ -53,6 +71,43 @@ export function CountryDetail({ country, onClose }: CountryDetailProps) {
 			loadNewsData();
 		}
 	}, [activeTab, country.isoCode3]);
+
+	// Trap focus within modal and return focus to opener on unmount
+	useEffect(() => {
+		previouslyFocusedRef.current = (document.activeElement as HTMLElement) || null;
+		const container = modalRef.current;
+		const focusFirst = () => {
+			if (!container) return;
+			const first = container.querySelector<HTMLElement>('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+			first?.focus();
+		};
+		const handleKeyDown = (e: KeyboardEvent) => {
+			if (!container || e.key !== 'Tab') return;
+			const focusable = Array.from(container.querySelectorAll<HTMLElement>('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'))
+				.filter(el => !el.hasAttribute('disabled'));
+			if (focusable.length === 0) return;
+			const firstEl = focusable[0];
+			const lastEl = focusable[focusable.length - 1];
+			const active = document.activeElement as HTMLElement;
+			if (e.shiftKey) {
+				if (active === firstEl) {
+					e.preventDefault();
+					lastEl.focus();
+				}
+			} else {
+				if (active === lastEl) {
+					e.preventDefault();
+					firstEl.focus();
+				}
+			}
+		};
+		focusFirst();
+		document.addEventListener('keydown', handleKeyDown);
+		return () => {
+			document.removeEventListener('keydown', handleKeyDown);
+			previouslyFocusedRef.current?.focus();
+		};
+	}, []);
 
 	// Enhanced news loading with 6 months of data
 	const loadNewsData = async () => {
@@ -70,6 +125,115 @@ export function CountryDetail({ country, onClose }: CountryDetailProps) {
 		} finally {
 			setLoadingNews(false);
 		}
+	};
+
+	// Normalize known public sources to more stable, canonical URLs
+	const normalizeUrl = (inputUrl: string): string => {
+		if (!inputUrl) return inputUrl;
+		try {
+			let url = inputUrl.trim();
+			// Force https
+			url = url.replace(/^http:\/\//i, 'https://');
+			// Spanish BOE canonical content pages often require trailing /con
+			if (/^https:\/\/www\.boe\.es\/eli\/es\//.test(url) && !/\/con$/.test(url)) {
+				url = url.replace(/(\/\d+)(\/con)?$/, '$1/con');
+			}
+			// EUR-Lex CELEX normalization: prefer CELEX param when present
+			if (/eur-lex\.europa\.eu/i.test(url)) {
+				if (!/CELEX:/.test(url) && /legal-content\//.test(url)) {
+					// leave as-is; server will redirect based on Accept-Language
+				}
+			}
+			// Legifrance: ensure base host
+			if (/legifrance\.gouv\.fr/i.test(url)) {
+				url = url.replace(/^https:\/\/legifrance\.gouv\.fr/i, 'https://www.legifrance.gouv.fr');
+			}
+			// Gesetze im Internet: ensure www
+			if (/gesetze-im-internet\.de/i.test(url)) {
+				url = url.replace(/^https:\/\/gesetze-im-internet\.de/i, 'https://www.gesetze-im-internet.de');
+			}
+			// UK Legislation and GOV.UK - ensure www
+			if (/legislation\.gov\.uk/i.test(url)) {
+				url = url.replace(/^https:\/\/legislation\.gov\.uk/i, 'https://www.legislation.gov.uk');
+			}
+			if (/\.gov\.uk/i.test(url)) {
+				url = url.replace(/^https:\/\/(?!www\.)/i, 'https://www.');
+			}
+			// AU ATO
+			if (/ato\.gov\.au/i.test(url)) {
+				url = url.replace(/^https:\/\/(?!www\.)/i, 'https://www.');
+			}
+			// NZ IRD
+			if (/ird\.gov\.nz/i.test(url)) {
+				url = url.replace(/^https:\/\/(?!www\.)/i, 'https://www.');
+			}
+			// SG IMDA
+			if (/imda\.gov\.sg/i.test(url)) {
+				url = url.replace(/^https:\/\/(?!www\.)/i, 'https://www.');
+			}
+			// Generic cleanup – strip redundant trailing query mark
+			url = url.replace(/\?$|\?\s*$/,'');
+			return url;
+		} catch {
+			return inputUrl;
+		}
+	};
+
+	// URL reachability checker (best-effort within browser constraints)
+	const checkUrl = async (url: string): Promise<'ok' | 'not-found' | 'unknown'> => {
+		if (!url) return 'unknown';
+		url = normalizeUrl(url);
+		try {
+			const headResp = await fetch(url, { method: 'HEAD', mode: 'cors', redirect: 'follow' });
+			if (headResp.ok) return 'ok';
+			if (headResp.status === 404) return 'not-found';
+			return 'unknown';
+		} catch (_) {
+			try {
+				await fetch(url, { method: 'GET', mode: 'no-cors' });
+				return 'unknown';
+			} catch {
+				return 'unknown';
+			}
+		}
+	};
+
+	const collectDetailLinks = (): string[] => {
+		const links = new Set<string>();
+		try {
+			['b2g','b2b','b2c'].forEach((key) => {
+				const formats = (country as any).eInvoicing?.[key]?.formats || [];
+				formats.forEach((f: any) => {
+					const name = typeof f === 'string' ? f : (f?.name || f?.format);
+					if (!name) return;
+					const specs = getFormatSpecifications(name);
+					specs.forEach(s => s.url && links.add(s.url));
+				});
+			});
+			['b2g','b2b','b2c'].forEach((key) => {
+				const legislation = (country as any).eInvoicing?.[key]?.legislation;
+				if (!legislation) return;
+				const docs = legislation?.name ? getLegislationDocuments(legislation.name) : [];
+				docs.forEach((d) => d.url && links.add(d.url));
+				['officialLink','specificationLink','url','link'].forEach((prop) => {
+					if (legislation?.[prop]) links.add(String(legislation[prop]));
+				});
+			});
+		} catch (e) {
+			console.warn('Failed to collect links for checking:', e);
+		}
+		return Array.from(links);
+	};
+
+	const checkAllDetailLinks = async () => {
+		const urls = collectDetailLinks();
+		if (urls.length === 0) return;
+		const results: Record<string, 'ok' | 'not-found' | 'unknown'> = {};
+		await Promise.all(urls.map(async (u) => {
+			const status = await checkUrl(u);
+			results[u] = status;
+		}));
+		setLinkStatuses(prev => ({ ...prev, ...results }));
 	};
 
 	// Generate 6 months of realistic news data
@@ -436,37 +600,46 @@ export function CountryDetail({ country, onClose }: CountryDetailProps) {
 	const handleRefreshTimeline = async () => {
 		setIsRefreshing(true);
 		setRefreshError('');
-		setProgress({ percentage: 0, message: 'Starting refresh...', stage: 'init' });
+		setProgress({ percentage: 0, message: 'Starting refresh...', stage: 'visible' });
 
 		try {
-			const refreshedData = await complianceService.refreshComplianceData(
-				country.isoCode3,
-				(progressUpdate: ProgressUpdate) => {
-					setProgress(progressUpdate);
-				}
-			);
-			
-			if (refreshedData.length > 0) {
-				setTimelineData(refreshedData[0]);
-			} else {
-				// Generate updated sample data
-				const sampleData = complianceService.generateSampleTimeline(country.name, country.isoCode3);
-				setTimelineData(sampleData);
+			// Foreground: refresh currently filtered countries first
+			const filteredList = (useStore.getState().filtered || []) as any[];
+			const visibleIds: string[] = filteredList.map((c: any) => c.isoCode3);
+			const total = Math.max(visibleIds.length, 1);
+			let done = 0;
+			for (const id of visibleIds) {
+				await complianceService.refreshComplianceData(id);
+				done += 1;
+				setProgress({ percentage: Math.round((done / total) * 100), message: `Refreshing ${done} of ${total}…`, stage: 'visible' });
 			}
 
-			// Also refresh news when refreshing data
-			if (activeTab === 'news') {
-				await loadNewsData();
-			}
+			// Update this country's data immediately
+			const updated = complianceService.getComplianceTimeline(country.isoCode3);
+			if (updated) setTimelineData(updated);
+
+			// If on news, refresh news list too
+			if (activeTab === 'news') await loadNewsData();
+
+			await checkAllDetailLinks();
+
+			// Background: refresh remaining countries without blocking modal
+			const all = complianceService.getAllAvailableCountries();
+			const remaining = all.filter((id) => !visibleIds.includes(id));
+			(async () => {
+				for (const id of remaining) {
+					await complianceService.refreshComplianceData(id);
+				}
+				setToast({ visible: true, message: t('bg_updates_completed', { count: remaining.length }) });
+			})();
 		} catch (error) {
 			setRefreshError('Failed to refresh compliance data. Please try again.');
 			console.error('Refresh error:', error);
 		} finally {
-			setIsRefreshing(false);
-			// Clear progress after a short delay to show completion
 			setTimeout(() => {
+				setIsRefreshing(false);
 				setProgress({ percentage: 0, message: '', stage: '' });
-			}, 1000);
+			}, 400);
 		}
 	};
 
@@ -493,18 +666,7 @@ export function CountryDetail({ country, onClose }: CountryDetailProps) {
 		return groups;
 	}, [timelineData]);
 
-	const formatDate = (dateString: string) => {
-		try {
-			const date = new Date(dateString);
-			return date.toLocaleDateString('en-GB', {
-				day: '2-digit',
-				month: 'short',
-				year: 'numeric'
-			});
-		} catch {
-			return dateString;
-		}
-	};
+	// removed local formatDate helper; using useI18n().formatDate instead
 
 	const getStatusBadgeClass = (status: string) => {
 		switch (status) {
@@ -588,17 +750,38 @@ export function CountryDetail({ country, onClose }: CountryDetailProps) {
 				// Create buttons for each specification version
 				specifications.forEach((spec, specIndex) => {
 					const buttonKey = `${index}-${specIndex}`;
+					const status = linkStatuses[spec.url] || 'unknown';
+					const isDead = status === 'not-found';
+					const handleClick = () => {
+						if (isDead) {
+							const q = `${spec.name} ${spec.version ? 'v' + spec.version : ''} ${spec.authority || ''} ${country.name} e-invoicing`.trim();
+							setSearchQuery(q);
+							setShowSearchRedirect(true);
+						} else {
+							const win = window.open(spec.url, '_blank', 'noopener,noreferrer');
+							if (!win) setToast({ visible: true, message: 'Popup blocked. Opening search instead…' });
+						}
+					};
+
 					formatButtons.push(
 						<button
 							key={buttonKey}
-							onClick={() => window.open(spec.url, '_blank', 'noopener,noreferrer')}
-							className="format-spec-button"
-							title={`${spec.description || spec.name} - Click to view official specification`}
+							onClick={handleClick}
+							className={`format-spec-button ${isDead ? 'button-amber' : ''}`}
+							title={`${isDead ? 'Unavailable link' : (status === 'ok' ? 'Validated link' : 'Status unknown')} — ${(spec.description || spec.name)}${isDead ? '' : ' - Click to view official specification'}`}
+							aria-describedby={isDead ? `dead-link-hint-${buttonKey}` : undefined}
 						>
+							<span className={`status-dot ${isDead ? 'dot-dead' : (status === 'ok' ? 'dot-ok' : 'dot-unknown')}`} aria-hidden="true"></span>
+							<span className="sr-only">{`Link status: ${isDead ? 'unavailable' : (status === 'ok' ? 'validated' : 'unknown')}`}</span>
 							<span className="format-name">{spec.name}</span>
 							{spec.version && <span className="format-version">v{spec.version}</span>}
 							<span className="format-authority">{spec.authority}</span>
 							<span className="external-link-icon">↗</span>
+							{isDead && (
+								<span id={`dead-link-hint-${buttonKey}`} style={{ position: 'absolute', left: -9999, top: 'auto', width: 1, height: 1, overflow: 'hidden' }}>
+									Original link not available. Opens a web search in a new tab.
+								</span>
+							)}
 						</button>
 					);
 				});
@@ -632,24 +815,40 @@ export function CountryDetail({ country, onClose }: CountryDetailProps) {
 		if (documents.length > 0) {
 			return (
 				<div className="legislation-buttons-container">
-					{documents.map((doc, index) => (
-						<button
-							key={index}
-							onClick={() => window.open(doc.url, '_blank', 'noopener,noreferrer')}
-							className="legislation-button"
-							title={`${doc.name} - Click to view official document`}
-						>
-							<span className="legislation-name">{doc.name}</span>
-							{doc.language && doc.language !== 'Multi-language' && (
-								<span className="legislation-language">{doc.language}</span>
-							)}
-							{doc.language === 'Multi-language' && (
-								<span className="legislation-language">All Languages</span>
-							)}
-							<span className="legislation-type">{doc.type}</span>
-							<span className="external-link-icon">↗</span>
-						</button>
-					))}
+					{documents.map((doc, index) => {
+						const status = linkStatuses[doc.url] || 'unknown';
+						const isDead = status === 'not-found';
+						const handleClick = () => {
+							if (isDead) {
+								const q = `${doc.name} ${country.name} ${doc.type || ''} legislation`.trim();
+								setSearchQuery(q);
+								setShowSearchRedirect(true);
+							} else {
+								const win = window.open(doc.url, '_blank', 'noopener,noreferrer');
+								if (!win) setToast({ visible: true, message: 'Popup blocked. Opening search instead…' });
+							}
+						};
+						return (
+							<button
+								key={index}
+								onClick={handleClick}
+								className={`legislation-button ${isDead ? 'button-amber' : ''}`}
+								title={`${isDead ? 'Unavailable link' : (status === 'ok' ? 'Validated link' : 'Status unknown')} — ${doc.name}`}
+							>
+								<span className={`status-dot ${isDead ? 'dot-dead' : (status === 'ok' ? 'dot-ok' : 'dot-unknown')}`} aria-hidden="true"></span>
+								<span className="sr-only">{`Link status: ${isDead ? 'unavailable' : (status === 'ok' ? 'validated' : 'unknown')}`}</span>
+								<span className="legislation-name">{doc.name}</span>
+								{doc.language && doc.language !== 'Multi-language' && (
+									<span className="legislation-language">{doc.language}</span>
+								)}
+								{doc.language === 'Multi-language' && (
+									<span className="legislation-language">All Languages</span>
+								)}
+								<span className="legislation-type">{doc.type}</span>
+								<span className="external-link-icon">↗</span>
+							</button>
+						);
+					})}
 				</div>
 			);
 		} else {
@@ -663,18 +862,34 @@ export function CountryDetail({ country, onClose }: CountryDetailProps) {
 			if (candidateLinks.length > 0) {
 				return (
 					<div className="legislation-buttons-container">
-						{candidateLinks.map((l, idx) => (
-							<button
-								key={idx}
-								onClick={() => window.open(l.url, '_blank', 'noopener,noreferrer')}
-								className="legislation-button"
-								title="Click to view legislation"
-							>
-								<span className="legislation-name">{legislationName}</span>
-								<span className="legislation-type">{l.label}</span>
-								<span className="external-link-icon">↗</span>
-							</button>
-						))}
+						{candidateLinks.map((l, idx) => {
+							const status = linkStatuses[l.url] || 'unknown';
+							const isDead = status === 'not-found';
+							const handleClick = () => {
+								if (isDead) {
+									const q = `${legislationName} ${country.name} ${l.label} e-invoicing`.trim();
+									setSearchQuery(q);
+									setShowSearchRedirect(true);
+								} else {
+									const win = window.open(l.url, '_blank', 'noopener,noreferrer');
+									if (!win) setToast({ visible: true, message: 'Popup blocked. Opening search instead…' });
+								}
+							};
+							return (
+								<button
+									key={idx}
+									onClick={handleClick}
+									className={`legislation-button ${isDead ? 'button-amber' : ''}`}
+									title={`${isDead ? 'Unavailable link' : (status === 'ok' ? 'Validated link' : 'Status unknown')} — ${legislationName} (${l.label})`}
+								>
+									<span className={`status-dot ${isDead ? 'dot-dead' : (status === 'ok' ? 'dot-ok' : 'dot-unknown')}`} aria-hidden="true"></span>
+									<span className="sr-only">{`Link status: ${isDead ? 'unavailable' : (status === 'ok' ? 'validated' : 'unknown')}`}</span>
+									<span className="legislation-name">{legislationName}</span>
+									<span className="legislation-type">{l.label}</span>
+									<span className="external-link-icon">↗</span>
+								</button>
+							);
+						})}
 					</div>
 				);
 			}
@@ -695,12 +910,12 @@ export function CountryDetail({ country, onClose }: CountryDetailProps) {
 	};
 
 	return (
-		<div className="modal-backdrop" onClick={onClose}>
-			<div className="modal" onClick={(e) => e.stopPropagation()}>
+		<div className="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="country-detail-title" aria-describedby="country-detail-desc" onClick={onClose}>
+			<div className="modal" onClick={(e) => e.stopPropagation()} ref={modalRef}>
 				<header className="modal-header-sticky">
 					<div>
-						<h2 style={{ margin: 0 }}>{country.name}</h2>
-						<p style={{ margin: '4px 0 0 0', color: 'var(--muted)', fontSize: 14 }}>
+						<h2 id="country-detail-title" style={{ margin: 0 }}>{country.name}</h2>
+						<p id="country-detail-desc" style={{ margin: '4px 0 0 0', color: 'var(--muted)', fontSize: 14 }}>
 							{country.continent} • {country.isoCode3}
 						</p>
 					</div>
@@ -713,48 +928,96 @@ export function CountryDetail({ country, onClose }: CountryDetailProps) {
 					</button>
 				</header>
 
-				<div className="tabs tabs-sticky">
+				<div className="tabs tabs-sticky" role="tablist" aria-label="Country details tabs">
 					<div 
 						className={`tab ${activeTab === 'overview' ? 'active' : ''}`}
 						onClick={() => setActiveTab('overview')}
 						role="tab"
-						tabIndex={0}
+						id="tab-overview"
+						aria-selected={activeTab === 'overview'}
+						aria-controls="panel-overview"
+						tabIndex={activeTab === 'overview' ? 0 : -1}
 						onKeyDown={(e) => {
+							const order = ['overview','timeline','news'];
 							if (e.key === 'Enter' || e.key === ' ') {
 								e.preventDefault();
 								setActiveTab('overview');
 							}
+							if (e.key === 'ArrowRight' || e.key === 'ArrowLeft' || e.key === 'Home' || e.key === 'End') {
+								e.preventDefault();
+								const idx = order.indexOf(activeTab);
+								let next = idx;
+								if (e.key === 'ArrowRight') next = (idx + 1) % order.length;
+								if (e.key === 'ArrowLeft') next = (idx - 1 + order.length) % order.length;
+								if (e.key === 'Home') next = 0;
+								if (e.key === 'End') next = order.length - 1;
+								setActiveTab(order[next]);
+								const nextId = `tab-${order[next]}`;
+								document.getElementById(nextId)?.focus();
+							}
 						}}
 					>
-						Overview
+						{t('tabs_overview')}
 					</div>
 					<div 
 						className={`tab ${activeTab === 'timeline' ? 'active' : ''}`}
 						onClick={() => setActiveTab('timeline')}
 						role="tab"
-						tabIndex={0}
+						id="tab-timeline"
+						aria-selected={activeTab === 'timeline'}
+						aria-controls="panel-timeline"
+						tabIndex={activeTab === 'timeline' ? 0 : -1}
 						onKeyDown={(e) => {
+							const order = ['overview','timeline','news'];
 							if (e.key === 'Enter' || e.key === ' ') {
 								e.preventDefault();
 								setActiveTab('timeline');
 							}
+							if (e.key === 'ArrowRight' || e.key === 'ArrowLeft' || e.key === 'Home' || e.key === 'End') {
+								e.preventDefault();
+								const idx = order.indexOf(activeTab);
+								let next = idx;
+								if (e.key === 'ArrowRight') next = (idx + 1) % order.length;
+								if (e.key === 'ArrowLeft') next = (idx - 1 + order.length) % order.length;
+								if (e.key === 'Home') next = 0;
+								if (e.key === 'End') next = order.length - 1;
+								setActiveTab(order[next]);
+								const nextId = `tab-${order[next]}`;
+								document.getElementById(nextId)?.focus();
+							}
 						}}
 					>
-						Implementation Timeline
+						{t('timeline_title')}
 					</div>
 					<div 
 						className={`tab ${activeTab === 'news' ? 'active' : ''}`}
 						onClick={() => setActiveTab('news')}
 						role="tab"
-						tabIndex={0}
+						id="tab-news"
+						aria-selected={activeTab === 'news'}
+						aria-controls="panel-news"
+						tabIndex={activeTab === 'news' ? 0 : -1}
 						onKeyDown={(e) => {
+							const order = ['overview','timeline','news'];
 							if (e.key === 'Enter' || e.key === ' ') {
 								e.preventDefault();
 								setActiveTab('news');
 							}
+							if (e.key === 'ArrowRight' || e.key === 'ArrowLeft' || e.key === 'Home' || e.key === 'End') {
+								e.preventDefault();
+								const idx = order.indexOf(activeTab);
+								let next = idx;
+								if (e.key === 'ArrowRight') next = (idx + 1) % order.length;
+								if (e.key === 'ArrowLeft') next = (idx - 1 + order.length) % order.length;
+								if (e.key === 'Home') next = 0;
+								if (e.key === 'End') next = order.length - 1;
+								setActiveTab(order[next]);
+								const nextId = `tab-${order[next]}`;
+								document.getElementById(nextId)?.focus();
+							}
 						}}
 					>
-						Latest News
+						{t('news_title')}
 					</div>
 				</div>
 
@@ -763,7 +1026,7 @@ export function CountryDetail({ country, onClose }: CountryDetailProps) {
 					<div className="progress-modal-container">
 						<div className="progress-modal-content">
 							<h3 style={{ margin: '0 0 16px 0', fontSize: '16px', fontWeight: '600' }}>
-								Updating Compliance Data
+								{t('progress_updating')}
 							</h3>
 							<div className="progress-bar">
 								<div 
@@ -781,15 +1044,15 @@ export function CountryDetail({ country, onClose }: CountryDetailProps) {
 
 				<div className="modal-content">
 					{activeTab === 'overview' && (
-						<div>
-							<h3>Current E-Invoicing Status</h3>
+						<div id="panel-overview" role="tabpanel" aria-labelledby="tab-overview">
+							<h3>{t('tabs_overview')}</h3>
 							
 							<div style={{ display: 'grid', gap: 16, marginBottom: 24 }}>
 								<div className="card">
-									<h4 style={{ margin: '0 0 12px 0', color: 'var(--primary)' }}>Business-to-Government (B2G)</h4>
+									<h4 style={{ margin: '0 0 12px 0', color: 'var(--primary)' }}>{t('b2g_title') || 'Business-to-Government (B2G)'}</h4>
 									
 									<div style={{ marginBottom: 12 }}>
-										<strong>Status:</strong> 
+										<strong>{t('overview_status')}</strong> 
 										<span style={{ marginLeft: 8 }}>
 											<span className={`badge ${country.eInvoicing.b2g.status === 'mandated' ? 'green' : 
 												country.eInvoicing.b2g.status === 'planned' ? 'yellow' : 
@@ -801,19 +1064,19 @@ export function CountryDetail({ country, onClose }: CountryDetailProps) {
 
 									{country.eInvoicing.b2g.implementationDate && (
 										<div style={{ marginBottom: 12 }}>
-											<strong>Implementation Date:</strong> {formatDate(country.eInvoicing.b2g.implementationDate)}
+											<strong>{t('overview_impl_date')}</strong> {formatDate(country.eInvoicing.b2g.implementationDate)}
 										</div>
 									)}
 
 									<div style={{ marginBottom: 12 }}>
-										<strong>Supported Formats:</strong>
+										<strong>{t('overview_supported_formats')}</strong>
 										<div style={{ marginTop: 8 }}>
 											{renderFormats(country.eInvoicing.b2g.formats)}
 										</div>
 									</div>
 
 									<div>
-										<strong>Legislation:</strong>
+										<strong>{t('overview_legislation')}</strong>
 										<div style={{ marginTop: 8 }}>
 											{renderLegislation(country.eInvoicing.b2g.legislation)}
 										</div>
@@ -821,10 +1084,10 @@ export function CountryDetail({ country, onClose }: CountryDetailProps) {
 								</div>
 
 								<div className="card">
-									<h4 style={{ margin: '0 0 12px 0', color: 'var(--primary)' }}>Business-to-Business (B2B)</h4>
+									<h4 style={{ margin: '0 0 12px 0', color: 'var(--primary)' }}>{t('b2b_title') || 'Business-to-Business (B2B)'}</h4>
 									
 									<div style={{ marginBottom: 12 }}>
-										<strong>Status:</strong> 
+										<strong>{t('overview_status')}:</strong> 
 										<span style={{ marginLeft: 8 }}>
 											<span className={`badge ${country.eInvoicing.b2b.status === 'mandated' ? 'green' : 
 												country.eInvoicing.b2b.status === 'planned' ? 'yellow' : 
@@ -836,19 +1099,19 @@ export function CountryDetail({ country, onClose }: CountryDetailProps) {
 
 									{country.eInvoicing.b2b.implementationDate && (
 										<div style={{ marginBottom: 12 }}>
-											<strong>Implementation Date:</strong> {formatDate(country.eInvoicing.b2b.implementationDate)}
+											<strong>{t('overview_implementation_date')}:</strong> {formatDate(country.eInvoicing.b2b.implementationDate)}
 										</div>
 									)}
 
 									<div style={{ marginBottom: 12 }}>
-										<strong>Supported Formats:</strong>
+										<strong>{t('overview_supported_formats')}:</strong>
 										<div style={{ marginTop: 8 }}>
 											{renderFormats(country.eInvoicing.b2b.formats)}
 										</div>
 									</div>
 
 									<div>
-										<strong>Legislation:</strong>
+										<strong>{t('overview_legislation')}:</strong>
 										<div style={{ marginTop: 8 }}>
 											{renderLegislation(country.eInvoicing.b2b.legislation)}
 										</div>
@@ -856,10 +1119,10 @@ export function CountryDetail({ country, onClose }: CountryDetailProps) {
 								</div>
 
 								<div className="card">
-									<h4 style={{ margin: '0 0 12px 0', color: 'var(--primary)' }}>Business-to-Consumer (B2C)</h4>
+									<h4 style={{ margin: '0 0 12px 0', color: 'var(--primary)' }}>{t('b2c_title') || 'Business-to-Consumer (B2C)'}</h4>
 									
 									<div style={{ marginBottom: 12 }}>
-										<strong>Status:</strong> 
+										<strong>{t('overview_status')}:</strong> 
 										<span style={{ marginLeft: 8 }}>
 											<span className={`badge ${country.eInvoicing.b2c.status === 'mandated' ? 'green' : 
 												country.eInvoicing.b2c.status === 'planned' ? 'yellow' : 
@@ -871,19 +1134,19 @@ export function CountryDetail({ country, onClose }: CountryDetailProps) {
 
 									{country.eInvoicing.b2c.implementationDate && (
 										<div style={{ marginBottom: 12 }}>
-											<strong>Implementation Date:</strong> {formatDate(country.eInvoicing.b2c.implementationDate)}
+											<strong>{t('overview_implementation_date')}:</strong> {formatDate(country.eInvoicing.b2c.implementationDate)}
 										</div>
 									)}
 
 									<div style={{ marginBottom: 12 }}>
-										<strong>Supported Formats:</strong>
+										<strong>{t('overview_supported_formats')}:</strong>
 										<div style={{ marginTop: 8 }}>
 											{renderFormats(country.eInvoicing.b2c.formats)}
 										</div>
 									</div>
 
 									<div>
-										<strong>Legislation:</strong>
+										<strong>{t('overview_legislation')}:</strong>
 										<div style={{ marginTop: 8 }}>
 											{renderLegislation(country.eInvoicing.b2c.legislation)}
 										</div>
@@ -892,7 +1155,7 @@ export function CountryDetail({ country, onClose }: CountryDetailProps) {
 							</div>
 
 							<div style={{ fontSize: 12, color: 'var(--muted)', padding: 12, background: 'var(--panel-2)', borderRadius: 8 }}>
-								<strong>Data Last Updated:</strong> {formatDate(country.eInvoicing.lastUpdated)}
+								<strong>{t('overview_last_updated')}</strong> {formatDate(country.eInvoicing.lastUpdated)}
 							</div>
 						</div>
 					)}
@@ -900,14 +1163,14 @@ export function CountryDetail({ country, onClose }: CountryDetailProps) {
 					{activeTab === 'timeline' && (
 						<div>
 							<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-								<h3 style={{ margin: 0 }}>Implementation Timeline</h3>
+								<h3 style={{ margin: 0 }}>{t('timeline_title')}</h3>
 								<button 
 									onClick={handleRefreshTimeline}
 									disabled={isRefreshing}
 									className="refresh-button"
 									aria-label="Refresh compliance data"
 								>
-									{isRefreshing ? 'Refreshing...' : 'Refresh Data'}
+									{isRefreshing ? (t('button_refreshing') || 'Refreshing...') : (t('button_refresh_data') || 'Refresh Data')}
 								</button>
 							</div>
 
@@ -963,21 +1226,21 @@ export function CountryDetail({ country, onClose }: CountryDetailProps) {
 					)}
 
 					{activeTab === 'news' && (
-						<div>
+						<div id="panel-news" role="tabpanel" aria-labelledby="tab-news">
 							<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-								<h3 style={{ margin: 0 }}>Latest News & Updates</h3>
+								<h3 style={{ margin: 0 }}>{t('news_title')}</h3>
 								<button 
 									onClick={loadNewsData}
 									disabled={loadingNews}
 									className="refresh-button"
 									aria-label="Refresh news data"
 								>
-									{loadingNews ? 'Loading...' : 'Refresh News'}
+									{loadingNews ? (t('button_refreshing') || 'Loading...') : (t('button_refresh_news') || 'Refresh News')}
 								</button>
 							</div>
 
 							{loadingNews ? (
-								<LoadingSpinner message="Loading latest news..." />
+								<LoadingSpinner message={t('loading_news')} />
 							) : (
 								<div className="news-container" style={{ maxHeight: '600px', overflowY: 'auto', paddingRight: '8px' }}>
 									{newsItems.length > 0 ? (
@@ -1025,40 +1288,31 @@ export function CountryDetail({ country, onClose }: CountryDetailProps) {
 												
 												<div className="news-meta" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 11, color: 'var(--muted)', marginTop: 12 }}>
 													<div className="news-source">
-														<strong>Source:</strong> {item.source}
+														<strong>{t('news_source')}</strong> {item.source}
 													</div>
 													<div className="news-date">
 														{formatDate(item.date)}
 													</div>
 												</div>
-												
-												{item.url && (
-													<div style={{ marginTop: 8 }}>
-														<button
-															onClick={() => window.open(item.url || `https://www.google.com/search?q=${encodeURIComponent(item.title + ' ' + country.name)}`, '_blank', 'noopener,noreferrer')}
-															className="news-read-more"
-															style={{
-																background: 'var(--primary)',
-																color: 'white',
-																border: 'none',
-																borderRadius: 4,
-																padding: '4px 8px',
-																fontSize: 11,
-																cursor: 'pointer',
-																fontWeight: '500'
-															}}
-														>
-															more info
-														</button>
-													</div>
-												)}
+								
+								<div style={{ marginTop: 8 }}>
+									<a
+										href={item.url || `https://www.google.com/search?q=${encodeURIComponent(item.title + ' ' + country.name)}`}
+										target="_blank"
+										rel="noopener noreferrer"
+										className="news-read-more"
+										aria-label={`More info about: ${item.title}. Opens ${item.url ? 'source ' + item.source : 'a web search'} in a new tab.`}
+									>
+										{t('news_more_info')}
+									</a>
+								</div>
 											</div>
 										))
 									) : (
 										<div className="no-news" style={{ textAlign: 'center', padding: 48, color: 'var(--muted)' }}>
-											<p style={{ margin: '8px 0', fontSize: 14 }}>No recent news available for {country.name}.</p>
+											<p style={{ margin: '8px 0', fontSize: 14 }}>{t('no_news_available')}</p>
 											<p style={{ fontSize: 12, color: 'var(--muted)' }}>
-												Check back later for updates from official sources, GENA members, and industry publications.
+												{t('check_back_later')}
 											</p>
 										</div>
 									)}
@@ -1068,6 +1322,11 @@ export function CountryDetail({ country, onClose }: CountryDetailProps) {
 					)}
 				</div>
 			</div>
+			<ProgressOverlay visible={loadingNews} message={t('progress_news_searching')} />
+			{showSearchRedirect && (
+				<SearchRedirect query={searchQuery} onClose={() => setShowSearchRedirect(false)} />
+			)}
+			<Toast visible={toast.visible} message={toast.message} onClose={() => setToast({ visible: false, message: '' })} />
 		</div>
 	);
 }

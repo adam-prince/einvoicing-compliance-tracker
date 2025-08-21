@@ -13,6 +13,7 @@ interface AppState {
 	countries: Country[];
 	filtered: Country[];
 	selected: Country | undefined;
+	language: string;
 	
 	// UI state
 	loading: boolean;
@@ -22,6 +23,7 @@ interface AppState {
 	// Actions
 	setCountries: (countries: Country[]) => void;
 	setSelected: (country: Country | undefined) => void;
+	setLanguage: (language: string) => void;
 	setLoading: (loading: boolean) => void;
 	setError: (error: string) => void;
 	setFilters: (filters: Partial<FilterState>) => void;
@@ -121,6 +123,7 @@ export const useStore = create<AppState>((set, get) => ({
 	countries: [],
 	filtered: [],
 	selected: undefined,
+	language: (typeof localStorage !== 'undefined' && localStorage.getItem('einvoicing-lang')) || 'en-GB',
 	loading: false,
 	error: '',
 	filters: initialFilters,
@@ -138,6 +141,16 @@ export const useStore = create<AppState>((set, get) => ({
 	
 	setSelected: (selected: Country | undefined) => {
 		set({ selected });
+	},
+
+	setLanguage: (language: string) => {
+		try {
+			localStorage.setItem('einvoicing-lang', language);
+			if (typeof document !== 'undefined') {
+				document.documentElement.lang = language.split('-')[0] || language;
+			}
+		} catch {}
+		set({ language });
 	},
 	
 	setLoading: (loading: boolean) => {

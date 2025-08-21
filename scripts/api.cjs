@@ -46,6 +46,43 @@ const server = http.createServer((req, res) => {
 
 server.listen(PORT, () => {
   console.log(`[api] listening on http://localhost:${PORT}`);
+  try {
+    scheduleDaily8UTC();
+  } catch (e) {
+    console.warn('[api] scheduler failed to start:', e);
+  }
 });
+
+
+// Schedule a daily refresh at 08:00 UTC (if server process is running)
+function scheduleDaily8UTC() {
+  const now = new Date();
+  const next = new Date(now);
+  next.setUTCHours(8, 0, 0, 0);
+  if (next <= now) next.setUTCDate(next.getUTCDate() + 1);
+  const ms = next - now;
+  console.log(`[api] next auto-refresh scheduled at ${next.toISOString()} (in ${(ms/1000/60).toFixed(1)} minutes)`);
+  setTimeout(() => {
+    triggerRefreshFromWeb();
+    // Set interval for every 24h thereafter
+    setInterval(triggerRefreshFromWeb, 24 * 60 * 60 * 1000);
+  }, ms);
+}
+
+function triggerRefreshFromWeb() {
+  try {
+    ensureTmp();
+    writeProgress({ status: 'running', progress: 0, startedAt: new Date().toISOString(), scheduled: true });
+    const child = spawn(process.execPath, ['scripts/update-from-web.cjs'], { stdio: 'inherit' });
+    child.on('exit', (code) => {
+      writeProgress({ status: code === 0 ? 'done' : 'error', progress: 100, finishedAt: new Date().toISOString(), code, scheduled: true });
+      const when = new Date();
+      console.log(`[api] scheduled refresh completed at ${when.toISOString()} with code ${code}`);
+    });
+    console.log('[api] scheduled refresh started at', new Date().toISOString());
+  } catch (e) {
+    console.warn('[api] scheduled refresh error:', e);
+  }
+}
 
 

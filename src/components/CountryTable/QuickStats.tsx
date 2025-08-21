@@ -1,8 +1,10 @@
 import { useMemo } from 'react';
 import { useStore } from '../../store/useStore';
+import { useI18n } from '../../i18n';
 
 export function QuickStats() {
 	const { filtered } = useStore();
+	const { t } = useI18n();
 	const stats = useMemo(() => {
 		let countries = filtered.length;
 		let mandated = 0, permitted = 0, planned = 0, none = 0;
@@ -20,19 +22,19 @@ export function QuickStats() {
 		<div className="kpi">
 			<div className="item">
 				<div className="value">{stats.countries}</div>
-				<div className="label">Countries</div>
+				<div className="label">{t('kpi_countries') || 'Countries'}</div>
 			</div>
 			<div className="item">
 				<div className="value">{stats.mandated}</div>
-				<div className="label">Any Mandate</div>
+				<div className="label">{t('kpi_any_mandate') || 'Any Mandate'}</div>
 			</div>
 			<div className="item">
 				<div className="value">{stats.planned}</div>
-				<div className="label">Planned</div>
+				<div className="label">{t('status_planned')}</div>
 			</div>
 			<div className="item">
 				<div className="value">{stats.permitted}</div>
-				<div className="label">Permitted Only</div>
+				<div className="label">{t('kpi_permitted_only') || 'Permitted Only'}</div>
 			</div>
 		</div>
 	);
