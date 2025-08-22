@@ -600,46 +600,89 @@ export function CountryDetail({ country, onClose }: CountryDetailProps) {
 	const handleRefreshTimeline = async () => {
 		setIsRefreshing(true);
 		setRefreshError('');
-		setProgress({ percentage: 0, message: 'Starting refresh...', stage: 'visible' });
+		setProgress({ percentage: 0, message: t('refresh_starting') || 'Starting refresh...', stage: 'visible' });
 
 		try {
-			// Foreground: refresh currently filtered countries first
+			// Get currently filtered (visible) countries
 			const filteredList = (useStore.getState().filtered || []) as any[];
-			const visibleIds: string[] = filteredList.map((c: any) => c.isoCode3);
+			const visibleIds: string[] = filteredList.map((c: any) => c.isoCode3).filter(Boolean);
 			const total = Math.max(visibleIds.length, 1);
 			let done = 0;
+
+			// Foreground: refresh visible countries with proper progress tracking
 			for (const id of visibleIds) {
+				const countryName = filteredList.find(c => c.isoCode3 === id)?.name || id;
+				setProgress({ 
+					percentage: Math.round((done / total) * 100), 
+					message: t('refresh_country_progress', { current: done + 1, total, country: countryName }) || `Refreshing ${done + 1} of ${total}: ${countryName}`, 
+					stage: 'visible' 
+				});
+				
+				// Use a simplified refresh without internal progress callbacks to avoid conflicts
 				await complianceService.refreshComplianceData(id);
 				done += 1;
-				setProgress({ percentage: Math.round((done / total) * 100), message: `Refreshing ${done} of ${total}…`, stage: 'visible' });
 			}
+
+			// Final progress update
+			setProgress({ percentage: 100, message: t('refresh_finalizing') || 'Finalizing updates...', stage: 'complete' });
 
 			// Update this country's data immediately
 			const updated = complianceService.getComplianceTimeline(country.isoCode3);
 			if (updated) setTimelineData(updated);
 
-			// If on news, refresh news list too
-			if (activeTab === 'news') await loadNewsData();
+			// If on news tab, refresh news list too
+			if (activeTab === 'news') {
+				await loadNewsData();
+			}
 
+			// Check links for updated data
 			await checkAllDetailLinks();
 
-			// Background: refresh remaining countries without blocking modal
-			const all = complianceService.getAllAvailableCountries();
-			const remaining = all.filter((id) => !visibleIds.includes(id));
-			(async () => {
-				for (const id of remaining) {
-					await complianceService.refreshComplianceData(id);
-				}
-				setToast({ visible: true, message: t('bg_updates_completed', { count: remaining.length }) });
-			})();
+			// Small delay to show completion before closing modal
+			await new Promise(resolve => setTimeout(resolve, 500));
+
 		} catch (error) {
-			setRefreshError('Failed to refresh compliance data. Please try again.');
+			const errorMsg = t('refresh_error') || 'Failed to refresh compliance data. Please try again.';
+			setRefreshError(errorMsg);
 			console.error('Refresh error:', error);
+			return; // Don't start background updates if foreground failed
 		} finally {
-			setTimeout(() => {
-				setIsRefreshing(false);
-				setProgress({ percentage: 0, message: '', stage: '' });
-			}, 400);
+			// Always close the progress modal after foreground updates
+			setIsRefreshing(false);
+			setProgress({ percentage: 0, message: '', stage: '' });
+		}
+
+		// Start background updates after modal closes and user regains control
+		setTimeout(() => {
+			const currentFilteredList = (useStore.getState().filtered || []) as any[];
+			const excludeIds = currentFilteredList.map((c: any) => c.isoCode3).filter(Boolean);
+			startBackgroundRefresh(excludeIds);
+		}, 100);
+	};
+
+	// Separate function for background updates
+	const startBackgroundRefresh = async (excludeIds: string[]) => {
+		try {
+			const all = complianceService.getAllAvailableCountries();
+			const remaining = all.filter((id) => !excludeIds.includes(id));
+			
+			if (remaining.length === 0) return;
+
+			// Background refresh without progress tracking
+			for (const id of remaining) {
+				await complianceService.refreshComplianceData(id);
+			}
+
+			// Show success toast when background updates complete
+			const successMsg = t('background_refresh_complete', { count: remaining.length }) 
+				|| `Background updates completed for ${remaining.length} ${remaining.length === 1 ? 'country' : 'countries'}.`;
+			
+			setToast({ visible: true, message: successMsg });
+		} catch (error) {
+			console.error('Background refresh error:', error);
+			// Show error toast for background updates
+			const errorMsg = t('background_refresh_error') || 'Some background updates failed.';
+			setToast({ visible: true, message: errorMsg });
 		}
 	};
 

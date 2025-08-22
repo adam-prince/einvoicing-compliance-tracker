@@ -50,6 +50,13 @@ export default {
 	kpi_any_mandate: 'Algún mandato',
 	kpi_permitted_only: 'Solo permitido',
 	bg_updates_completed: '{count} actualizaciones en segundo plano completadas.',
+	// New refresh progress messages
+	refresh_starting: 'Iniciando actualización...',
+	refresh_country_progress: 'Actualizando {current} de {total}: {country}',
+	refresh_finalizing: 'Finalizando actualizaciones...',
+	refresh_error: 'Error al actualizar los datos de cumplimiento. Por favor, inténtelo de nuevo.',
+	background_refresh_complete: 'Actualizaciones en segundo plano completadas para {count} {count, plural, one {país} other {países}}.',
+	background_refresh_error: 'Algunas actualizaciones en segundo plano fallaron.'
 };
 
 

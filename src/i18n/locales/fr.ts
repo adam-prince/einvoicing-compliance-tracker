@@ -50,6 +50,13 @@ export default {
 	kpi_any_mandate: 'Au moins une obligation',
 	kpi_permitted_only: 'Uniquement autorisé',
 	bg_updates_completed: '{count} mises à jour en arrière-plan terminées.',
+	// New refresh progress messages
+	refresh_starting: 'Démarrage de la mise à jour...',
+	refresh_country_progress: 'Mise à jour {current} sur {total} : {country}',
+	refresh_finalizing: 'Finalisation des mises à jour...',
+	refresh_error: 'Échec de la mise à jour des données de conformité. Veuillez réessayer.',
+	background_refresh_complete: 'Mises à jour en arrière-plan terminées pour {count} {count, plural, one {pays} other {pays}}.',
+	background_refresh_error: 'Certaines mises à jour en arrière-plan ont échoué.'
 };
 
 

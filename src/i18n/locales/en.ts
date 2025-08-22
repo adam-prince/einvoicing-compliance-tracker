@@ -56,6 +56,13 @@ export default {
 	formats_none: 'No specific formats specified',
 	legislation_none: 'No legislation specified',
 	bg_updates_completed: '{count} background updates completed.',
+	// New refresh progress messages
+	refresh_starting: 'Starting refresh...',
+	refresh_country_progress: 'Refreshing {current} of {total}: {country}',
+	refresh_finalizing: 'Finalizing updates...',
+	refresh_error: 'Failed to refresh compliance data. Please try again.',
+	background_refresh_complete: 'Background updates completed for {count} {count, plural, one {country} other {countries}}.',
+	background_refresh_error: 'Some background updates failed.'
 };
 
 

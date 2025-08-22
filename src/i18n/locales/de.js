@@ -50,4 +50,11 @@ export default {
     kpi_any_mandate: 'Irgendeine Pflicht',
     kpi_permitted_only: 'Nur zulässig',
     bg_updates_completed: '{count} Hintergrundaktualisierungen abgeschlossen.',
+    // New refresh progress messages
+    refresh_starting: 'Aktualisierung wird gestartet...',
+    refresh_country_progress: 'Aktualisiere {current} von {total}: {country}',
+    refresh_finalizing: 'Aktualisierungen werden abgeschlossen...',
+    refresh_error: 'Aktualisierung der Compliance-Daten fehlgeschlagen. Bitte versuchen Sie es erneut.',
+    background_refresh_complete: 'Hintergrundaktualisierungen für {count} {count, plural, one {Land} other {Länder}} abgeschlossen.',
+    background_refresh_error: 'Einige Hintergrundaktualisierungen sind fehlgeschlagen.'
 };
