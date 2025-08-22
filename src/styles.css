@@ -2,20 +2,23 @@
    E-INVOICING COMPLIANCE TRACKER - STYLES
    ============================================= */
 
-/* CSS Variables */
+/* Import Sage Design Tokens */
+@import '@sage/design-tokens/css/base.css';
+
+/* CSS Variables - Updated to use Sage Design Tokens */
 :root {
-	--bg: #ffffff;
-	--panel: #ffffff;
-	--panel-2: #f8fafc;
-	--text: #000000;
-	--muted: #374151;
-	--primary: #2563eb;
-	--green: #00d639;
-	--yellow: #ca8a04;
-	--red: #dc2626;
-	--gray: #6b7280;
-	--border: #e5e7eb;
-	--focus-ring: #2563eb;
+	--bg: var(--colorsUtilityYang100);
+	--panel: var(--colorsUtilityYang100);
+	--panel-2: var(--colorsUtilityMajor025);
+	--text: var(--colorsUtilityYin100);
+	--muted: var(--colorsUtilityMajor400);
+	--primary: var(--colorsActionMajor500);
+	--green: var(--colorsActionMajor500);
+	--yellow: var(--colorsStatusNotification500);
+	--red: var(--colorsStatusCaution500);
+	--gray: var(--colorsUtilityMajor300);
+	--border: var(--colorsUtilityMajor150);
+	--focus-ring: var(--colorsActionMajor500);
 }
 
 /* Base Styles */
@@ -31,22 +34,23 @@ body {
 	margin: 0;
 	color: var(--text);
 	background: var(--bg);
-	font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-	line-height: 1.5;
+	font-size: var(--fontSizes100);
+	font-weight: var(--fontWeights400);
+	line-height: var(--lineHeights500);
 }
 
 /* Layout Components */
 .container { 
 	max-width: 1280px; 
 	margin: 0 auto; 
-	padding: 24px; 
+	padding: var(--spacing600); 
 }
 
 .card { 
 	background: var(--panel); 
 	border: 1px solid var(--border); 
-	border-radius: 12px; 
-	padding: 16px; 
+	border-radius: var(--borderRadius100); 
+	padding: var(--spacing400); 
 }
 
 .row { 

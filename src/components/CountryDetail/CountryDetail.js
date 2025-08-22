@@ -1,5 +1,6 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import React, { useState, useEffect, useRef } from 'react';
+import { Button, Modal } from 'carbon-react/lib';
 import { ComplianceDataService } from '../../services/complianceDataService';
 import { LoadingSpinner } from '../common/LoadingSpinner';
 import { getFormatSpecifications, getLegislationDocuments } from '../../data/formatSpecifications';
@@ -927,122 +928,114 @@ export function CountryDetail({ country, onClose }) {
             return (_jsxs("button", { onClick: () => handleSmartLink(`https://www.google.com/search?q=${encodeURIComponent(legislationName + ' ' + country.name + ' e-invoicing')}`, legislationName, 'Search Results', country.isoCode3), className: "legislation-button", title: "Search for this legislation", children: [_jsx("span", { className: "legislation-name", children: legislationName }), _jsx("span", { className: "legislation-type", children: "Search" }), _jsx("span", { className: "external-link-icon", children: "\u2197" })] }));
         }
     };
-    return (_jsxs("div", { className: "modal-backdrop", role: "dialog", "aria-modal": "true", "aria-labelledby": "country-detail-title", "aria-describedby": "country-detail-desc", onClick: onClose, children: [_jsxs("div", { className: "modal", onClick: (e) => e.stopPropagation(), ref: modalRef, children: [_jsxs("header", { className: "modal-header-sticky", children: [_jsxs("div", { children: [_jsx("h2", { id: "country-detail-title", style: { margin: 0 }, children: country.name }), _jsxs("p", { id: "country-detail-desc", style: { margin: '4px 0 0 0', color: 'var(--muted)', fontSize: 14 }, children: [country.continent, " \u2022 ", country.isoCode3] })] }), _jsx("button", { onClick: onClose, className: "modal-close-button", "aria-label": `Close details for ${country.name}`, children: "\u2715" })] }), _jsxs("div", { className: "tabs tabs-sticky", role: "tablist", "aria-label": "Country details tabs", children: [_jsx("div", { className: `tab ${activeTab === 'overview' ? 'active' : ''}`, onClick: () => setActiveTab('overview'), role: "tab", id: "tab-overview", "aria-selected": activeTab === 'overview', "aria-controls": "panel-overview", tabIndex: activeTab === 'overview' ? 0 : -1, onKeyDown: (e) => {
-                                    const order = ['overview', 'timeline', 'news'];
-                                    if (e.key === 'Enter' || e.key === ' ') {
-                                        e.preventDefault();
-                                        setActiveTab('overview');
-                                    }
-                                    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft' || e.key === 'Home' || e.key === 'End') {
-                                        e.preventDefault();
-                                        const idx = order.indexOf(activeTab);
-                                        let next = idx;
-                                        if (e.key === 'ArrowRight')
-                                            next = (idx + 1) % order.length;
-                                        if (e.key === 'ArrowLeft')
-                                            next = (idx - 1 + order.length) % order.length;
-                                        if (e.key === 'Home')
-                                            next = 0;
-                                        if (e.key === 'End')
-                                            next = order.length - 1;
-                                        setActiveTab(order[next]);
-                                        const nextId = `tab-${order[next]}`;
-                                        document.getElementById(nextId)?.focus();
-                                    }
-                                }, children: t('tabs_overview') }), _jsx("div", { className: `tab ${activeTab === 'timeline' ? 'active' : ''}`, onClick: () => setActiveTab('timeline'), role: "tab", id: "tab-timeline", "aria-selected": activeTab === 'timeline', "aria-controls": "panel-timeline", tabIndex: activeTab === 'timeline' ? 0 : -1, onKeyDown: (e) => {
-                                    const order = ['overview', 'timeline', 'news'];
-                                    if (e.key === 'Enter' || e.key === ' ') {
-                                        e.preventDefault();
-                                        setActiveTab('timeline');
-                                    }
-                                    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft' || e.key === 'Home' || e.key === 'End') {
-                                        e.preventDefault();
-                                        const idx = order.indexOf(activeTab);
-                                        let next = idx;
-                                        if (e.key === 'ArrowRight')
-                                            next = (idx + 1) % order.length;
-                                        if (e.key === 'ArrowLeft')
-                                            next = (idx - 1 + order.length) % order.length;
-                                        if (e.key === 'Home')
-                                            next = 0;
-                                        if (e.key === 'End')
-                                            next = order.length - 1;
-                                        setActiveTab(order[next]);
-                                        const nextId = `tab-${order[next]}`;
-                                        document.getElementById(nextId)?.focus();
-                                    }
-                                }, children: t('timeline_title') }), _jsx("div", { className: `tab ${activeTab === 'news' ? 'active' : ''}`, onClick: () => setActiveTab('news'), role: "tab", id: "tab-news", "aria-selected": activeTab === 'news', "aria-controls": "panel-news", tabIndex: activeTab === 'news' ? 0 : -1, onKeyDown: (e) => {
-                                    const order = ['overview', 'timeline', 'news'];
-                                    if (e.key === 'Enter' || e.key === ' ') {
-                                        e.preventDefault();
-                                        setActiveTab('news');
-                                    }
-                                    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft' || e.key === 'Home' || e.key === 'End') {
-                                        e.preventDefault();
-                                        const idx = order.indexOf(activeTab);
-                                        let next = idx;
-                                        if (e.key === 'ArrowRight')
-                                            next = (idx + 1) % order.length;
-                                        if (e.key === 'ArrowLeft')
-                                            next = (idx - 1 + order.length) % order.length;
-                                        if (e.key === 'Home')
-                                            next = 0;
-                                        if (e.key === 'End')
-                                            next = order.length - 1;
-                                        setActiveTab(order[next]);
-                                        const nextId = `tab-${order[next]}`;
-                                        document.getElementById(nextId)?.focus();
-                                    }
-                                }, children: t('news_title') })] }), isRefreshing && (_jsx("div", { className: "progress-modal-container", children: _jsxs("div", { className: "progress-modal-content", children: [_jsx("h3", { style: { margin: '0 0 16px 0', fontSize: '16px', fontWeight: '600' }, children: t('progress_updating') }), _jsx("div", { className: "progress-bar", children: _jsx("div", { className: "progress-fill", style: { width: `${progress.percentage}%` } }) }), _jsxs("div", { className: "progress-text", children: [_jsxs("span", { className: "progress-percentage", children: [progress.percentage, "%"] }), _jsx("span", { className: "progress-message", children: progress.message })] })] }) })), _jsxs("div", { className: "modal-content", children: [activeTab === 'overview' && (_jsxs("div", { id: "panel-overview", role: "tabpanel", "aria-labelledby": "tab-overview", children: [_jsx("h3", { children: t('tabs_overview') }), _jsxs("div", { style: { display: 'grid', gap: 16, marginBottom: 24 }, children: [_jsxs("div", { className: "card", children: [_jsx("h4", { style: { margin: '0 0 12px 0', color: 'var(--primary)' }, children: t('b2g_title') || 'Business-to-Government (B2G)' }), _jsxs("div", { style: { marginBottom: 12 }, children: [_jsx("strong", { children: t('overview_status') }), _jsx("span", { style: { marginLeft: 8 }, children: _jsx("span", { className: `badge ${country.eInvoicing.b2g.status === 'mandated' ? 'green' :
-                                                                        country.eInvoicing.b2g.status === 'planned' ? 'yellow' :
-                                                                            country.eInvoicing.b2g.status === 'permitted' ? 'yellow' : 'gray'}`, children: country.eInvoicing.b2g.status.charAt(0).toUpperCase() + country.eInvoicing.b2g.status.slice(1) }) })] }), country.eInvoicing.b2g.implementationDate && (_jsxs("div", { style: { marginBottom: 12 }, children: [_jsx("strong", { children: t('overview_impl_date') }), " ", formatDate(country.eInvoicing.b2g.implementationDate)] })), _jsxs("div", { style: { marginBottom: 12 }, children: [_jsx("strong", { children: t('overview_supported_formats') }), _jsx("div", { style: { marginTop: 8 }, children: renderFormats(country.eInvoicing.b2g.formats) })] }), _jsxs("div", { children: [_jsx("strong", { children: t('overview_legislation') }), _jsx("div", { style: { marginTop: 8 }, children: renderLegislation(country.eInvoicing.b2g.legislation) })] })] }), _jsxs("div", { className: "card", children: [_jsx("h4", { style: { margin: '0 0 12px 0', color: 'var(--primary)' }, children: t('b2b_title') || 'Business-to-Business (B2B)' }), _jsxs("div", { style: { marginBottom: 12 }, children: [_jsxs("strong", { children: [t('overview_status'), ":"] }), _jsx("span", { style: { marginLeft: 8 }, children: _jsx("span", { className: `badge ${country.eInvoicing.b2b.status === 'mandated' ? 'green' :
-                                                                        country.eInvoicing.b2b.status === 'planned' ? 'yellow' :
-                                                                            country.eInvoicing.b2b.status === 'permitted' ? 'yellow' : 'gray'}`, children: country.eInvoicing.b2b.status.charAt(0).toUpperCase() + country.eInvoicing.b2b.status.slice(1) }) })] }), country.eInvoicing.b2b.implementationDate && (_jsxs("div", { style: { marginBottom: 12 }, children: [_jsxs("strong", { children: [t('overview_implementation_date'), ":"] }), " ", formatDate(country.eInvoicing.b2b.implementationDate)] })), _jsxs("div", { style: { marginBottom: 12 }, children: [_jsxs("strong", { children: [t('overview_supported_formats'), ":"] }), _jsx("div", { style: { marginTop: 8 }, children: renderFormats(country.eInvoicing.b2b.formats) })] }), _jsxs("div", { children: [_jsxs("strong", { children: [t('overview_legislation'), ":"] }), _jsx("div", { style: { marginTop: 8 }, children: renderLegislation(country.eInvoicing.b2b.legislation) })] })] }), _jsxs("div", { className: "card", children: [_jsx("h4", { style: { margin: '0 0 12px 0', color: 'var(--primary)' }, children: t('b2c_title') || 'Business-to-Consumer (B2C)' }), _jsxs("div", { style: { marginBottom: 12 }, children: [_jsxs("strong", { children: [t('overview_status'), ":"] }), _jsx("span", { style: { marginLeft: 8 }, children: _jsx("span", { className: `badge ${country.eInvoicing.b2c.status === 'mandated' ? 'green' :
-                                                                        country.eInvoicing.b2c.status === 'planned' ? 'yellow' :
-                                                                            country.eInvoicing.b2c.status === 'permitted' ? 'yellow' : 'gray'}`, children: country.eInvoicing.b2c.status.charAt(0).toUpperCase() + country.eInvoicing.b2c.status.slice(1) }) })] }), country.eInvoicing.b2c.implementationDate && (_jsxs("div", { style: { marginBottom: 12 }, children: [_jsxs("strong", { children: [t('overview_implementation_date'), ":"] }), " ", formatDate(country.eInvoicing.b2c.implementationDate)] })), _jsxs("div", { style: { marginBottom: 12 }, children: [_jsxs("strong", { children: [t('overview_supported_formats'), ":"] }), _jsx("div", { style: { marginTop: 8 }, children: renderFormats(country.eInvoicing.b2c.formats) })] }), _jsxs("div", { children: [_jsxs("strong", { children: [t('overview_legislation'), ":"] }), _jsx("div", { style: { marginTop: 8 }, children: renderLegislation(country.eInvoicing.b2c.legislation) })] })] })] }), _jsxs("div", { style: { fontSize: 12, color: 'var(--muted)', padding: 12, background: 'var(--panel-2)', borderRadius: 8 }, children: [_jsx("strong", { children: t('overview_last_updated') }), " ", formatDate(country.eInvoicing.lastUpdated)] })] })), activeTab === 'timeline' && (_jsxs("div", { children: [_jsxs("div", { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }, children: [_jsx("h3", { style: { margin: 0 }, children: t('timeline_title') }), _jsx("button", { onClick: handleRefreshTimeline, disabled: isRefreshing, className: "refresh-button", "aria-label": "Refresh compliance data", children: isRefreshing ? (t('button_refreshing') || 'Refreshing...') : (t('button_refresh_data') || 'Refresh Data') })] }), refreshError && (_jsx("div", { style: {
+    return (_jsxs(Modal, { open: true, onCancel: onClose, title: country.name, subtitle: `${country.continent} • ${country.isoCode3}`, size: "xlarge", children: [_jsxs("div", { className: "tabs tabs-sticky", role: "tablist", "aria-label": "Country details tabs", children: [_jsx("div", { className: `tab ${activeTab === 'overview' ? 'active' : ''}`, onClick: () => setActiveTab('overview'), role: "tab", id: "tab-overview", "aria-selected": activeTab === 'overview', "aria-controls": "panel-overview", tabIndex: activeTab === 'overview' ? 0 : -1, onKeyDown: (e) => {
+                            const order = ['overview', 'timeline', 'news'];
+                            if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault();
+                                setActiveTab('overview');
+                            }
+                            if (e.key === 'ArrowRight' || e.key === 'ArrowLeft' || e.key === 'Home' || e.key === 'End') {
+                                e.preventDefault();
+                                const idx = order.indexOf(activeTab);
+                                let next = idx;
+                                if (e.key === 'ArrowRight')
+                                    next = (idx + 1) % order.length;
+                                if (e.key === 'ArrowLeft')
+                                    next = (idx - 1 + order.length) % order.length;
+                                if (e.key === 'Home')
+                                    next = 0;
+                                if (e.key === 'End')
+                                    next = order.length - 1;
+                                setActiveTab(order[next]);
+                                const nextId = `tab-${order[next]}`;
+                                document.getElementById(nextId)?.focus();
+                            }
+                        }, children: t('tabs_overview') }), _jsx("div", { className: `tab ${activeTab === 'timeline' ? 'active' : ''}`, onClick: () => setActiveTab('timeline'), role: "tab", id: "tab-timeline", "aria-selected": activeTab === 'timeline', "aria-controls": "panel-timeline", tabIndex: activeTab === 'timeline' ? 0 : -1, onKeyDown: (e) => {
+                            const order = ['overview', 'timeline', 'news'];
+                            if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault();
+                                setActiveTab('timeline');
+                            }
+                            if (e.key === 'ArrowRight' || e.key === 'ArrowLeft' || e.key === 'Home' || e.key === 'End') {
+                                e.preventDefault();
+                                const idx = order.indexOf(activeTab);
+                                let next = idx;
+                                if (e.key === 'ArrowRight')
+                                    next = (idx + 1) % order.length;
+                                if (e.key === 'ArrowLeft')
+                                    next = (idx - 1 + order.length) % order.length;
+                                if (e.key === 'Home')
+                                    next = 0;
+                                if (e.key === 'End')
+                                    next = order.length - 1;
+                                setActiveTab(order[next]);
+                                const nextId = `tab-${order[next]}`;
+                                document.getElementById(nextId)?.focus();
+                            }
+                        }, children: t('timeline_title') }), _jsx("div", { className: `tab ${activeTab === 'news' ? 'active' : ''}`, onClick: () => setActiveTab('news'), role: "tab", id: "tab-news", "aria-selected": activeTab === 'news', "aria-controls": "panel-news", tabIndex: activeTab === 'news' ? 0 : -1, onKeyDown: (e) => {
+                            const order = ['overview', 'timeline', 'news'];
+                            if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault();
+                                setActiveTab('news');
+                            }
+                            if (e.key === 'ArrowRight' || e.key === 'ArrowLeft' || e.key === 'Home' || e.key === 'End') {
+                                e.preventDefault();
+                                const idx = order.indexOf(activeTab);
+                                let next = idx;
+                                if (e.key === 'ArrowRight')
+                                    next = (idx + 1) % order.length;
+                                if (e.key === 'ArrowLeft')
+                                    next = (idx - 1 + order.length) % order.length;
+                                if (e.key === 'Home')
+                                    next = 0;
+                                if (e.key === 'End')
+                                    next = order.length - 1;
+                                setActiveTab(order[next]);
+                                const nextId = `tab-${order[next]}`;
+                                document.getElementById(nextId)?.focus();
+                            }
+                        }, children: t('news_title') })] }), isRefreshing && (_jsx("div", { className: "progress-modal-container", children: _jsxs("div", { className: "progress-modal-content", children: [_jsx("h3", { style: { margin: '0 0 16px 0', fontSize: '16px', fontWeight: '600' }, children: t('progress_updating') }), _jsx("div", { className: "progress-bar", children: _jsx("div", { className: "progress-fill", style: { width: `${progress.percentage}%` } }) }), _jsxs("div", { className: "progress-text", children: [_jsxs("span", { className: "progress-percentage", children: [progress.percentage, "%"] }), _jsx("span", { className: "progress-message", children: progress.message })] })] }) })), _jsxs("div", { className: "modal-content", children: [activeTab === 'overview' && (_jsxs("div", { id: "panel-overview", role: "tabpanel", "aria-labelledby": "tab-overview", children: [_jsx("h3", { children: t('tabs_overview') }), _jsxs("div", { style: { display: 'grid', gap: 16, marginBottom: 24 }, children: [_jsxs("div", { className: "card", children: [_jsx("h4", { style: { margin: '0 0 12px 0', color: 'var(--primary)' }, children: t('b2g_title') || 'Business-to-Government (B2G)' }), _jsxs("div", { style: { marginBottom: 12 }, children: [_jsx("strong", { children: t('overview_status') }), _jsx("span", { style: { marginLeft: 8 }, children: _jsx("span", { className: `badge ${country.eInvoicing.b2g.status === 'mandated' ? 'green' :
+                                                                country.eInvoicing.b2g.status === 'planned' ? 'yellow' :
+                                                                    country.eInvoicing.b2g.status === 'permitted' ? 'yellow' : 'gray'}`, children: country.eInvoicing.b2g.status.charAt(0).toUpperCase() + country.eInvoicing.b2g.status.slice(1) }) })] }), country.eInvoicing.b2g.implementationDate && (_jsxs("div", { style: { marginBottom: 12 }, children: [_jsx("strong", { children: t('overview_impl_date') }), " ", formatDate(country.eInvoicing.b2g.implementationDate)] })), _jsxs("div", { style: { marginBottom: 12 }, children: [_jsx("strong", { children: t('overview_supported_formats') }), _jsx("div", { style: { marginTop: 8 }, children: renderFormats(country.eInvoicing.b2g.formats) })] }), _jsxs("div", { children: [_jsx("strong", { children: t('overview_legislation') }), _jsx("div", { style: { marginTop: 8 }, children: renderLegislation(country.eInvoicing.b2g.legislation) })] })] }), _jsxs("div", { className: "card", children: [_jsx("h4", { style: { margin: '0 0 12px 0', color: 'var(--primary)' }, children: t('b2b_title') || 'Business-to-Business (B2B)' }), _jsxs("div", { style: { marginBottom: 12 }, children: [_jsxs("strong", { children: [t('overview_status'), ":"] }), _jsx("span", { style: { marginLeft: 8 }, children: _jsx("span", { className: `badge ${country.eInvoicing.b2b.status === 'mandated' ? 'green' :
+                                                                country.eInvoicing.b2b.status === 'planned' ? 'yellow' :
+                                                                    country.eInvoicing.b2b.status === 'permitted' ? 'yellow' : 'gray'}`, children: country.eInvoicing.b2b.status.charAt(0).toUpperCase() + country.eInvoicing.b2b.status.slice(1) }) })] }), country.eInvoicing.b2b.implementationDate && (_jsxs("div", { style: { marginBottom: 12 }, children: [_jsxs("strong", { children: [t('overview_implementation_date'), ":"] }), " ", formatDate(country.eInvoicing.b2b.implementationDate)] })), _jsxs("div", { style: { marginBottom: 12 }, children: [_jsxs("strong", { children: [t('overview_supported_formats'), ":"] }), _jsx("div", { style: { marginTop: 8 }, children: renderFormats(country.eInvoicing.b2b.formats) })] }), _jsxs("div", { children: [_jsxs("strong", { children: [t('overview_legislation'), ":"] }), _jsx("div", { style: { marginTop: 8 }, children: renderLegislation(country.eInvoicing.b2b.legislation) })] })] }), _jsxs("div", { className: "card", children: [_jsx("h4", { style: { margin: '0 0 12px 0', color: 'var(--primary)' }, children: t('b2c_title') || 'Business-to-Consumer (B2C)' }), _jsxs("div", { style: { marginBottom: 12 }, children: [_jsxs("strong", { children: [t('overview_status'), ":"] }), _jsx("span", { style: { marginLeft: 8 }, children: _jsx("span", { className: `badge ${country.eInvoicing.b2c.status === 'mandated' ? 'green' :
+                                                                country.eInvoicing.b2c.status === 'planned' ? 'yellow' :
+                                                                    country.eInvoicing.b2c.status === 'permitted' ? 'yellow' : 'gray'}`, children: country.eInvoicing.b2c.status.charAt(0).toUpperCase() + country.eInvoicing.b2c.status.slice(1) }) })] }), country.eInvoicing.b2c.implementationDate && (_jsxs("div", { style: { marginBottom: 12 }, children: [_jsxs("strong", { children: [t('overview_implementation_date'), ":"] }), " ", formatDate(country.eInvoicing.b2c.implementationDate)] })), _jsxs("div", { style: { marginBottom: 12 }, children: [_jsxs("strong", { children: [t('overview_supported_formats'), ":"] }), _jsx("div", { style: { marginTop: 8 }, children: renderFormats(country.eInvoicing.b2c.formats) })] }), _jsxs("div", { children: [_jsxs("strong", { children: [t('overview_legislation'), ":"] }), _jsx("div", { style: { marginTop: 8 }, children: renderLegislation(country.eInvoicing.b2c.legislation) })] })] })] }), _jsxs("div", { style: { fontSize: 12, color: 'var(--muted)', padding: 12, background: 'var(--panel-2)', borderRadius: 8 }, children: [_jsx("strong", { children: t('overview_last_updated') }), " ", formatDate(country.eInvoicing.lastUpdated)] })] })), activeTab === 'timeline' && (_jsxs("div", { children: [_jsxs("div", { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }, children: [_jsx("h3", { style: { margin: 0 }, children: t('timeline_title') }), _jsx(Button, { onClick: handleRefreshTimeline, disabled: isRefreshing, size: "small", variant: "secondary", "aria-label": "Refresh compliance data", children: isRefreshing ? (t('button_refreshing') || 'Refreshing...') : (t('button_refresh_data') || 'Refresh Data') })] }), refreshError && (_jsx("div", { style: {
+                                    padding: 12,
+                                    background: '#fecaca',
+                                    border: '1px solid #ef4444',
+                                    borderRadius: 8,
+                                    marginBottom: 16,
+                                    color: '#7f1d1d'
+                                }, children: refreshError })), isRefreshing ? (_jsx(LoadingSpinner, { message: "Refreshing compliance data..." })) : timelineData ? (_jsxs("div", { className: "timeline", children: [timelineData.sources && (_jsxs("div", { style: {
+                                            marginBottom: 24,
                                             padding: 12,
-                                            background: '#fecaca',
-                                            border: '1px solid #ef4444',
+                                            background: 'var(--panel-2)',
                                             borderRadius: 8,
-                                            marginBottom: 16,
-                                            color: '#7f1d1d'
-                                        }, children: refreshError })), isRefreshing ? (_jsx(LoadingSpinner, { message: "Refreshing compliance data..." })) : timelineData ? (_jsxs("div", { className: "timeline", children: [timelineData.sources && (_jsxs("div", { style: {
-                                                    marginBottom: 24,
-                                                    padding: 12,
-                                                    background: 'var(--panel-2)',
-                                                    borderRadius: 8,
-                                                    fontSize: 12
-                                                }, children: [_jsx("strong", { children: "Data Sources:" }), " ", timelineData.sources.join(', '), _jsx("br", {}), _jsx("strong", { children: "Last Updated:" }), " ", formatDate(timelineData.lastUpdated)] })), renderTimelineSection('B2G', groupedTimeline.B2G), renderTimelineSection('B2B', groupedTimeline.B2B), renderTimelineSection('B2C', groupedTimeline.B2C), renderTimelineSection('reporting', groupedTimeline.reporting), Object.values(groupedTimeline).every(events => events.length === 0) && (_jsxs("div", { className: "no-timeline", children: [_jsx("p", { children: "No detailed timeline information available for this country." }), _jsx("p", { children: "Click \"Refresh Data\" to check for updates." })] }))] })) : (_jsx("div", { className: "no-timeline", children: _jsx("p", { children: "Loading timeline data..." }) }))] })), activeTab === 'news' && (_jsxs("div", { id: "panel-news", role: "tabpanel", "aria-labelledby": "tab-news", children: [_jsxs("div", { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }, children: [_jsx("h3", { style: { margin: 0 }, children: t('news_title') }), _jsx("button", { onClick: loadNewsData, disabled: loadingNews, className: "refresh-button", "aria-label": "Refresh news data", children: loadingNews ? (t('button_refreshing') || 'Loading...') : (t('button_refresh_news') || 'Refresh News') })] }), loadingNews ? (_jsx(LoadingSpinner, { message: t('loading_news') })) : (_jsx("div", { className: "news-container", style: { maxHeight: '600px', overflowY: 'auto', paddingRight: '8px' }, children: newsItems.length > 0 ? (newsItems.map((item) => (_jsxs("div", { className: `news-item ${item.relevance}-relevance`, style: {
-                                                background: 'var(--panel-2)',
-                                                border: '1px solid var(--border)',
-                                                borderRadius: 8,
-                                                padding: 16,
-                                                marginBottom: 12,
-                                                position: 'relative',
-                                                transition: 'all 0.2s ease'
-                                            }, children: [_jsxs("div", { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }, children: [_jsx("h4", { style: {
-                                                                margin: 0,
-                                                                color: 'var(--text)',
-                                                                fontSize: 14,
-                                                                lineHeight: 1.4,
-                                                                fontWeight: '600',
-                                                                paddingRight: '80px'
-                                                            }, children: item.title }), _jsx("span", { className: "badge news-source-badge", style: {
-                                                                background: getSourceTypeColor(item.sourceType),
-                                                                color: 'white',
-                                                                fontSize: 10,
-                                                                padding: '3px 8px',
-                                                                position: 'absolute',
-                                                                top: 16,
-                                                                right: 16,
-                                                                flexShrink: 0
-                                                            }, children: item.sourceType })] }), _jsx("p", { style: { color: 'var(--text)', fontSize: 13, lineHeight: 1.4, margin: '8px 0' }, children: item.summary }), _jsxs("div", { className: "news-meta", style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 11, color: 'var(--muted)', marginTop: 12 }, children: [_jsxs("div", { className: "news-source", children: [_jsx("strong", { children: t('news_source') }), " ", item.source] }), _jsx("div", { className: "news-date", children: formatDate(item.date) })] }), _jsx("div", { style: { marginTop: 8 }, children: _jsx("button", { onClick: () => handleSmartLink(item.url || generateSourceUrl(item.sourceType, item.source, country.isoCode3, item.title), item.title, item.source, country.isoCode3), className: "news-read-more", style: {
-                                                            background: 'none',
-                                                            border: 'none',
-                                                            color: 'inherit',
-                                                            textDecoration: 'underline',
-                                                            cursor: 'pointer',
-                                                            padding: 0,
-                                                            font: 'inherit'
-                                                        }, "aria-label": `More info about: ${item.title}. Opens source ${item.source} in a new tab with smart link handling.`, children: t('news_more_info') }) })] }, item.id)))) : (_jsxs("div", { className: "no-news", style: { textAlign: 'center', padding: 48, color: 'var(--muted)' }, children: [_jsx("p", { style: { margin: '8px 0', fontSize: 14 }, children: t('no_news_available') }), _jsx("p", { style: { fontSize: 12, color: 'var(--muted)' }, children: t('check_back_later') })] })) }))] }))] })] }), _jsx(ProgressOverlay, { visible: loadingNews, message: t('progress_news_searching') }), showSearchRedirect && (_jsx(SearchRedirect, { query: searchQuery, onClose: () => setShowSearchRedirect(false) })), _jsx(Toast, { visible: toast.visible, message: toast.message, onClose: () => setToast({ visible: false, message: '' }) })] }));
+                                            fontSize: 12
+                                        }, children: [_jsx("strong", { children: "Data Sources:" }), " ", timelineData.sources.join(', '), _jsx("br", {}), _jsx("strong", { children: "Last Updated:" }), " ", formatDate(timelineData.lastUpdated)] })), renderTimelineSection('B2G', groupedTimeline.B2G), renderTimelineSection('B2B', groupedTimeline.B2B), renderTimelineSection('B2C', groupedTimeline.B2C), renderTimelineSection('reporting', groupedTimeline.reporting), Object.values(groupedTimeline).every(events => events.length === 0) && (_jsxs("div", { className: "no-timeline", children: [_jsx("p", { children: "No detailed timeline information available for this country." }), _jsx("p", { children: "Click \"Refresh Data\" to check for updates." })] }))] })) : (_jsx("div", { className: "no-timeline", children: _jsx("p", { children: "Loading timeline data..." }) }))] })), activeTab === 'news' && (_jsxs("div", { id: "panel-news", role: "tabpanel", "aria-labelledby": "tab-news", children: [_jsxs("div", { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }, children: [_jsx("h3", { style: { margin: 0 }, children: t('news_title') }), _jsx(Button, { onClick: loadNewsData, disabled: loadingNews, size: "small", variant: "secondary", "aria-label": "Refresh news data", children: loadingNews ? (t('button_refreshing') || 'Loading...') : (t('button_refresh_news') || 'Refresh News') })] }), loadingNews ? (_jsx(LoadingSpinner, { message: t('loading_news') })) : (_jsx("div", { className: "news-container", style: { maxHeight: '600px', overflowY: 'auto', paddingRight: '8px' }, children: newsItems.length > 0 ? (newsItems.map((item) => (_jsxs("div", { className: `news-item ${item.relevance}-relevance`, style: {
+                                        background: 'var(--panel-2)',
+                                        border: '1px solid var(--border)',
+                                        borderRadius: 8,
+                                        padding: 16,
+                                        marginBottom: 12,
+                                        position: 'relative',
+                                        transition: 'all 0.2s ease'
+                                    }, children: [_jsxs("div", { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }, children: [_jsx("h4", { style: {
+                                                        margin: 0,
+                                                        color: 'var(--text)',
+                                                        fontSize: 14,
+                                                        lineHeight: 1.4,
+                                                        fontWeight: '600',
+                                                        paddingRight: '80px'
+                                                    }, children: item.title }), _jsx("span", { className: "badge news-source-badge", style: {
+                                                        background: getSourceTypeColor(item.sourceType),
+                                                        color: 'white',
+                                                        fontSize: 10,
+                                                        padding: '3px 8px',
+                                                        position: 'absolute',
+                                                        top: 16,
+                                                        right: 16,
+                                                        flexShrink: 0
+                                                    }, children: item.sourceType })] }), _jsx("p", { style: { color: 'var(--text)', fontSize: 13, lineHeight: 1.4, margin: '8px 0' }, children: item.summary }), _jsxs("div", { className: "news-meta", style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 11, color: 'var(--muted)', marginTop: 12 }, children: [_jsxs("div", { className: "news-source", children: [_jsx("strong", { children: t('news_source') }), " ", item.source] }), _jsx("div", { className: "news-date", children: formatDate(item.date) })] }), _jsx("div", { style: { marginTop: 8 }, children: _jsx(Button, { onClick: () => handleSmartLink(item.url || generateSourceUrl(item.sourceType, item.source, country.isoCode3, item.title), item.title, item.source, country.isoCode3), size: "small", variant: "tertiary", "aria-label": `More info about: ${item.title}. Opens source ${item.source} in a new tab with smart link handling.`, children: t('news_more_info') }) })] }, item.id)))) : (_jsxs("div", { className: "no-news", style: { textAlign: 'center', padding: 48, color: 'var(--muted)' }, children: [_jsx("p", { style: { margin: '8px 0', fontSize: 14 }, children: t('no_news_available') }), _jsx("p", { style: { fontSize: 12, color: 'var(--muted)' }, children: t('check_back_later') })] })) }))] }))] }), _jsx(ProgressOverlay, { visible: loadingNews, message: t('progress_news_searching') }), showSearchRedirect && (_jsx(SearchRedirect, { query: searchQuery, onClose: () => setShowSearchRedirect(false) })), _jsx(Toast, { visible: toast.visible, message: toast.message, onClose: () => setToast({ visible: false, message: '' }) })] }));
 }

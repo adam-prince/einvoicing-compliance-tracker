@@ -1,4 +1,5 @@
 import { useEffect, useCallback } from 'react';
+import { CarbonProvider, GlobalStyle, Select, Option } from 'carbon-react/lib';
 import type { Country, EInvoicingCompliance } from '@types';
 import { useStore } from './store/useStore';
 import complianceData from './data/compliance-data.json';
@@ -249,58 +250,63 @@ export function App() {
 	}
 
 	return (
-		<div className="container">
-			<div className="row" style={{ justifyContent: 'space-between', alignItems: 'center' }}>
-				<div>
-					<h1 style={{ marginTop: 0 }}>{t('app_title')}</h1>
-					<p style={{ color: '#9aa4b2', marginTop: -8 }}>
-						{t('app_subtitle')}
-					</p>
+		<CarbonProvider>
+			<GlobalStyle />
+			<div className="container">
+				<div className="row" style={{ justifyContent: 'space-between', alignItems: 'center' }}>
+					<div>
+						<h1 style={{ marginTop: 0 }}>{t('app_title')}</h1>
+						<p style={{ color: '#9aa4b2', marginTop: -8 }}>
+							{t('app_subtitle')}
+						</p>
+					</div>
+					<div className="row" aria-label="Language selector" style={{ gap: 8 }}>
+						<Select
+							label={t('label_language')}
+							value={language}
+							onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setLanguage(e.target.value)}
+							aria-label="Select application language"
+							size="small"
+							labelInline
+							labelWidth="80px"
+						>
+							<Option value="en-GB" text="English (UK)" />
+							<Option value="en-US" text="English (US)" />
+							<Option value="fr-FR" text="Français" />
+							<Option value="de-DE" text="Deutsch" />
+							<Option value="es-ES" text="Español" />
+						</Select>
+						{/* Main refresh button removed as requested; use existing 'Refresh details' controls */}
+					</div>
 				</div>
-				<div className="row" aria-label="Language selector" style={{ gap: 8 }}>
-					<label htmlFor="language-select" style={{ fontSize: 12, color: '#6b7280' }}>{t('label_language')}</label>
-					<select
-						id="language-select"
-						value={language}
-						onChange={(e) => setLanguage(e.target.value)}
-						aria-label="Select application language"
-					>
-						<option value="en-GB">English (UK)</option>
-						<option value="en-US">English (US)</option>
-						<option value="fr-FR">Français</option>
-						<option value="de-DE">Deutsch</option>
-						<option value="es-ES">Español</option>
-					</select>
-					{/* Main refresh button removed as requested; use existing 'Refresh details' controls */}
-				</div>
-			</div>
 
-			{loading ? (
-				<LoadingSpinner message={t('loading_compliance')} />
-			) : (
-				<>
-					<main id="main" role="main" tabIndex={-1}>
-						<QuickStats />
-						<div className="spacer" />
-						<Filters />
-						<div className="spacer" />
-						<div className="row" style={{ justifyContent: 'space-between', marginBottom: 8 }}>
-							<div style={{ color: '#9aa4b2' }} aria-live="polite">
-								{t('filters_total_countries', { count: countries.length })}
+				{loading ? (
+					<LoadingSpinner message={t('loading_compliance')} />
+				) : (
+					<>
+						<main id="main" role="main" tabIndex={-1}>
+							<QuickStats />
+							<div className="spacer" />
+							<Filters />
+							<div className="spacer" />
+							<div className="row" style={{ justifyContent: 'space-between', marginBottom: 8 }}>
+								<div style={{ color: '#9aa4b2' }} aria-live="polite">
+									{t('filters_total_countries', { count: countries.length })}
+								</div>
+								<ExportButtons />
 							</div>
-							<ExportButtons />
-						</div>
-						<CountryTable />
-					</main>
-				</>
-			)}
+							<CountryTable />
+						</main>
+					</>
+				)}
 
-			{selected && (
-				<CountryDetail 
-					country={selected} 
-					onClose={closeModal}
-				/>
-			)}
-		</div>
+				{selected && (
+					<CountryDetail 
+						country={selected} 
+						onClose={closeModal}
+					/>
+				)}
+			</div>
+		</CarbonProvider>
 	);
 }

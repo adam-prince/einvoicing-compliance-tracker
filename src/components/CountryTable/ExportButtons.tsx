@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Button } from 'carbon-react/lib';
 import { useStore } from '../../store/useStore';
 import ExcelJS from 'exceljs';
 import { ProgressOverlay } from '../common/ProgressOverlay';
@@ -149,32 +150,40 @@ export function ExportButtons() {
 
 	return (
 		<div className="row" style={{ gap: 8 }}>
-			<button onClick={toExcel}>Export Excel</button>
-			<button onClick={async () => {
-				try {
-					setOverlayMessage('Searching for updates, please wait (server)...');
-					await fetch('http://localhost:4321/refresh-web', { method: 'POST' });
-					setNodeProgress(5);
-					setNodeVisible(true);
-					// Wait for overlay poller to close then run CORS
-					const waitForNode = async () => new Promise<void>(resolve => {
-						const check = () => {
-							if (!nodeVisible) return resolve();
+			<Button onClick={toExcel} size="small" variant="secondary">
+				Export Excel
+			</Button>
+			<Button 
+				onClick={async () => {
+					try {
+						setOverlayMessage('Searching for updates, please wait (server)...');
+						await fetch('http://localhost:4321/refresh-web', { method: 'POST' });
+						setNodeProgress(5);
+						setNodeVisible(true);
+						// Wait for overlay poller to close then run CORS
+						const waitForNode = async () => new Promise<void>(resolve => {
+							const check = () => {
+								if (!nodeVisible) return resolve();
+								setTimeout(check, 500);
+							};
 							setTimeout(check, 500);
-						};
-						setTimeout(check, 500);
-					});
-					await waitForNode();
-					// Sync UN countries list via local API (non-blocking if API not available)
-					// UN country sync removed per request
-					setOverlayMessage('Searching for updates, please wait (browser)...');
-					await runCorsRefresh();
-					setOverlayMessage('Updates complete. Reloading...');
-					setTimeout(() => location.reload(), 600);
-				} catch {
-					alert('Please start the local API once: npm run api');
-				}
-			}}>Refresh details</button>
+						});
+						await waitForNode();
+						// Sync UN countries list via local API (non-blocking if API not available)
+						// UN country sync removed per request
+						setOverlayMessage('Searching for updates, please wait (browser)...');
+						await runCorsRefresh();
+						setOverlayMessage('Updates complete. Reloading...');
+						setTimeout(() => location.reload(), 600);
+					} catch {
+						alert('Please start the local API once: npm run api');
+					}
+				}}
+				size="small"
+				variant="primary"
+			>
+				Refresh details
+			</Button>
 			<ProgressOverlay visible={nodeVisible || isCorsRefreshing} message={overlayMessage} progress={nodeVisible ? nodeProgress : corsProgress} />
 		</div>
 	);

@@ -1,5 +1,6 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { useEffect, useState } from 'react';
+import { Button } from 'carbon-react/lib';
 import { useStore } from '../../store/useStore';
 import ExcelJS from 'exceljs';
 import { ProgressOverlay } from '../common/ProgressOverlay';
@@ -153,7 +154,7 @@ export function ExportButtons() {
             setIsCorsRefreshing(false);
         }
     }
-    return (_jsxs("div", { className: "row", style: { gap: 8 }, children: [_jsx("button", { onClick: toExcel, children: "Export Excel" }), _jsx("button", { onClick: async () => {
+    return (_jsxs("div", { className: "row", style: { gap: 8 }, children: [_jsx(Button, { onClick: toExcel, size: "small", variant: "secondary", children: "Export Excel" }), _jsx(Button, { onClick: async () => {
                     try {
                         setOverlayMessage('Searching for updates, please wait (server)...');
                         await fetch('http://localhost:4321/refresh-web', { method: 'POST' });
@@ -179,5 +180,5 @@ export function ExportButtons() {
                     catch {
                         alert('Please start the local API once: npm run api');
                     }
-                }, children: "Refresh details" }), _jsx(ProgressOverlay, { visible: nodeVisible || isCorsRefreshing, message: overlayMessage, progress: nodeVisible ? nodeProgress : corsProgress })] }));
+                }, size: "small", variant: "primary", children: "Refresh details" }), _jsx(ProgressOverlay, { visible: nodeVisible || isCorsRefreshing, message: overlayMessage, progress: nodeVisible ? nodeProgress : corsProgress })] }));
 }

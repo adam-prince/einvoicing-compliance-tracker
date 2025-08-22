@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Button, IconButton, Modal } from 'carbon-react/lib';
 import type { Country } from '@types';
 import { ComplianceDataService, type EnhancedComplianceData, type TimelineEvent, type ProgressUpdate } from '../../services/complianceDataService';
 import { LoadingSpinner } from '../common/LoadingSpinner';
@@ -1164,23 +1165,13 @@ export function CountryDetail({ country, onClose }: CountryDetailProps) {
 	};
 
 	return (
-		<div className="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="country-detail-title" aria-describedby="country-detail-desc" onClick={onClose}>
-			<div className="modal" onClick={(e) => e.stopPropagation()} ref={modalRef}>
-				<header className="modal-header-sticky">
-					<div>
-						<h2 id="country-detail-title" style={{ margin: 0 }}>{country.name}</h2>
-						<p id="country-detail-desc" style={{ margin: '4px 0 0 0', color: 'var(--muted)', fontSize: 14 }}>
-							{country.continent} • {country.isoCode3}
-						</p>
-					</div>
-					<button 
-						onClick={onClose}
-						className="modal-close-button"
-						aria-label={`Close details for ${country.name}`}
-					>
-						✕
-					</button>
-				</header>
+		<Modal
+			open={true}
+			onCancel={onClose}
+			title={country.name}
+			subtitle={`${country.continent} • ${country.isoCode3}`}
+			size="xlarge"
+		>
 
 				<div className="tabs tabs-sticky" role="tablist" aria-label="Country details tabs">
 					<div 
@@ -1418,14 +1409,15 @@ export function CountryDetail({ country, onClose }: CountryDetailProps) {
 						<div>
 							<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
 								<h3 style={{ margin: 0 }}>{t('timeline_title')}</h3>
-								<button 
+								<Button 
 									onClick={handleRefreshTimeline}
 									disabled={isRefreshing}
-									className="refresh-button"
+									size="small"
+									variant="secondary"
 									aria-label="Refresh compliance data"
 								>
 									{isRefreshing ? (t('button_refreshing') || 'Refreshing...') : (t('button_refresh_data') || 'Refresh Data')}
-								</button>
+								</Button>
 							</div>
 
 							{refreshError && (
@@ -1483,14 +1475,15 @@ export function CountryDetail({ country, onClose }: CountryDetailProps) {
 						<div id="panel-news" role="tabpanel" aria-labelledby="tab-news">
 							<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
 								<h3 style={{ margin: 0 }}>{t('news_title')}</h3>
-								<button 
+								<Button 
 									onClick={loadNewsData}
 									disabled={loadingNews}
-									className="refresh-button"
+									size="small"
+									variant="secondary"
 									aria-label="Refresh news data"
 								>
 									{loadingNews ? (t('button_refreshing') || 'Loading...') : (t('button_refresh_news') || 'Refresh News')}
-								</button>
+								</Button>
 							</div>
 
 							{loadingNews ? (
@@ -1550,27 +1543,19 @@ export function CountryDetail({ country, onClose }: CountryDetailProps) {
 												</div>
 								
 								<div style={{ marginTop: 8 }}>
-									<button
+									<Button
 										onClick={() => handleSmartLink(
 											item.url || generateSourceUrl(item.sourceType, item.source, country.isoCode3, item.title),
 											item.title,
 											item.source,
 											country.isoCode3
 										)}
-										className="news-read-more"
-										style={{ 
-											background: 'none', 
-											border: 'none', 
-											color: 'inherit', 
-											textDecoration: 'underline',
-											cursor: 'pointer',
-											padding: 0,
-											font: 'inherit'
-										}}
+										size="small"
+										variant="tertiary"
 										aria-label={`More info about: ${item.title}. Opens source ${item.source} in a new tab with smart link handling.`}
 									>
 										{t('news_more_info')}
-									</button>
+									</Button>
 								</div>
 											</div>
 										))
@@ -1587,12 +1572,12 @@ export function CountryDetail({ country, onClose }: CountryDetailProps) {
 						</div>
 					)}
 				</div>
-			</div>
-			<ProgressOverlay visible={loadingNews} message={t('progress_news_searching')} />
-			{showSearchRedirect && (
-				<SearchRedirect query={searchQuery} onClose={() => setShowSearchRedirect(false)} />
-			)}
-			<Toast visible={toast.visible} message={toast.message} onClose={() => setToast({ visible: false, message: '' })} />
-		</div>
+
+				<ProgressOverlay visible={loadingNews} message={t('progress_news_searching')} />
+				{showSearchRedirect && (
+					<SearchRedirect query={searchQuery} onClose={() => setShowSearchRedirect(false)} />
+				)}
+				<Toast visible={toast.visible} message={toast.message} onClose={() => setToast({ visible: false, message: '' })} />
+		</Modal>
 	);
 }

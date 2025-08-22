@@ -1,5 +1,6 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { useState, useRef } from 'react';
+import { Button } from 'carbon-react/lib';
 import { useI18n } from '../../i18n';
 export function ColumnManager({ columns, onColumnsChange, onClose }) {
     const { t } = useI18n();
@@ -70,13 +71,7 @@ export function ColumnManager({ columns, onColumnsChange, onClose }) {
                         display: 'flex',
                         justifyContent: 'space-between',
                         alignItems: 'center'
-                    }, children: [_jsx("h2", { id: "column-manager-title", style: { margin: 0, fontSize: '18px' }, children: t('column_manager_title') || 'Manage Columns' }), _jsx("button", { onClick: onClose, "aria-label": t('button_close') || 'Close', style: {
-                                background: 'var(--button-bg, #f3f4f6)',
-                                border: '1px solid var(--border, #d1d5db)',
-                                borderRadius: '4px',
-                                padding: '4px 8px',
-                                cursor: 'pointer'
-                            }, children: "\u00D7" })] }), _jsxs("div", { style: { padding: 16 }, children: [_jsx("p", { style: { color: 'var(--muted)', fontSize: '14px', marginBottom: 16 }, children: t('column_manager_help') || 'Drag columns to reorder, toggle visibility with checkboxes.' }), _jsx("div", { style: { marginBottom: 16 }, children: _jsx("div", { style: {
+                    }, children: [_jsx("h2", { id: "column-manager-title", style: { margin: 0, fontSize: '18px' }, children: t('column_manager_title') || 'Manage Columns' }), _jsx(Button, { onClick: onClose, "aria-label": t('button_close') || 'Close', size: "small", variant: "tertiary", children: "\u00D7" })] }), _jsxs("div", { style: { padding: 16 }, children: [_jsx("p", { style: { color: 'var(--muted)', fontSize: '14px', marginBottom: 16 }, children: t('column_manager_help') || 'Drag columns to reorder, toggle visibility with checkboxes.' }), _jsx("div", { style: { marginBottom: 16 }, children: _jsx("div", { style: {
                                     display: 'grid',
                                     gap: 8,
                                     maxHeight: '300px',
@@ -110,28 +105,5 @@ export function ColumnManager({ columns, onColumnsChange, onClose }) {
                                 gap: 12,
                                 justifyContent: 'space-between',
                                 alignItems: 'center'
-                            }, children: [_jsx("button", { onClick: handleReset, style: {
-                                        background: 'var(--secondary-bg, #6b7280)',
-                                        color: 'white',
-                                        border: 'none',
-                                        borderRadius: '4px',
-                                        padding: '8px 16px',
-                                        cursor: 'pointer',
-                                        fontSize: '14px'
-                                    }, children: t('button_reset_columns') || 'Reset to Default' }), _jsxs("div", { style: { display: 'flex', gap: 8 }, children: [_jsx("button", { onClick: onClose, style: {
-                                                background: 'var(--button-bg, #f3f4f6)',
-                                                border: '1px solid var(--border)',
-                                                borderRadius: '4px',
-                                                padding: '8px 16px',
-                                                cursor: 'pointer',
-                                                fontSize: '14px'
-                                            }, children: t('button_cancel') || 'Cancel' }), _jsx("button", { onClick: handleApply, style: {
-                                                background: 'var(--primary, #3b82f6)',
-                                                color: 'white',
-                                                border: 'none',
-                                                borderRadius: '4px',
-                                                padding: '8px 16px',
-                                                cursor: 'pointer',
-                                                fontSize: '14px'
-                                            }, children: t('button_apply') || 'Apply' })] })] })] })] }) }));
+                            }, children: [_jsx(Button, { onClick: handleReset, variant: "secondary", children: t('button_reset_columns') || 'Reset to Default' }), _jsxs("div", { style: { display: 'flex', gap: 8 }, children: [_jsx(Button, { onClick: onClose, variant: "secondary", children: t('button_cancel') || 'Cancel' }), _jsx(Button, { onClick: handleApply, variant: "primary", children: t('button_apply') || 'Apply' })] })] })] })] }) }));
 }

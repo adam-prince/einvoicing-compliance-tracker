@@ -1,5 +1,6 @@
 import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import { createColumnHelper, flexRender, getCoreRowModel, getSortedRowModel, useReactTable, SortingState, ColumnDef } from '@tanstack/react-table';
+import { Button, FlatTable, FlatTableHead, FlatTableHeader, FlatTableBody, FlatTableRow, FlatTableCell } from 'carbon-react/lib';
 import type { Country } from '@types';
 import { Badge } from '../common/Badge';
 import { useStore } from '../../store/useStore';
@@ -101,16 +102,15 @@ const DetailsButton = React.memo(({
 	}, [country, onOpenModal]);
 
 	return (
-		<button 
-			type="button" 
+		<Button 
 			onClick={handleClick}
 			onKeyDown={handleKeyDown}
-			className="details-button"
+			size="small"
+			variant="secondary"
 			aria-label={t('button_view_details_aria') ? t('button_view_details_aria').replace('{country}', country.name) : `View detailed compliance information for ${country.name}`}
-			tabIndex={0}
 		>
 			{t('button_details') || 'Details'}
-		</button>
+		</Button>
 	);
 });
 
@@ -339,25 +339,16 @@ export function CountryTable() {
 	return (
 		<div className="card">
 			<div style={{ display: 'flex', justifyContent: 'flex-end', padding: '12px 16px', borderBottom: '1px solid var(--border)' }}>
-				<button
+				<Button
 					onClick={() => setShowColumnManager(true)}
-					style={{
-						background: 'var(--button-bg, #f3f4f6)',
-						border: '1px solid var(--border)',
-						borderRadius: '4px',
-						padding: '6px 12px',
-						cursor: 'pointer',
-						fontSize: '13px',
-						display: 'flex',
-						alignItems: 'center',
-						gap: '6px'
-					}}
+					size="small"
+					variant="secondary"
 					aria-label={t('button_manage_columns') || 'Manage table columns'}
 					title={t('button_manage_columns') || 'Manage table columns'}
 				>
 					<span style={{ fontSize: '12px' }}>⚙️</span>
 					{t('button_columns') || 'Columns'}
-				</button>
+				</Button>
 			</div>
 			<div className="table-container" role="region" aria-label="E-invoicing compliance data">
 				<table role="table" aria-label="Countries and their e-invoicing compliance status">

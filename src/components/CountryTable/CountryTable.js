@@ -1,6 +1,7 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import { createColumnHelper, flexRender, getCoreRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table';
+import { Button } from 'carbon-react/lib';
 import { Badge } from '../common/Badge';
 import { useStore } from '../../store/useStore';
 import { format } from 'date-fns';
@@ -42,7 +43,7 @@ const DetailsButton = React.memo(({ country, onOpenModal, t }) => {
             onOpenModal(country, e);
         }
     }, [country, onOpenModal]);
-    return (_jsx("button", { type: "button", onClick: handleClick, onKeyDown: handleKeyDown, className: "details-button", "aria-label": t('button_view_details_aria') ? t('button_view_details_aria').replace('{country}', country.name) : `View detailed compliance information for ${country.name}`, tabIndex: 0, children: t('button_details') || 'Details' }));
+    return (_jsx(Button, { onClick: handleClick, onKeyDown: handleKeyDown, size: "small", variant: "secondary", "aria-label": t('button_view_details_aria') ? t('button_view_details_aria').replace('{country}', country.name) : `View detailed compliance information for ${country.name}`, children: t('button_details') || 'Details' }));
 });
 DetailsButton.displayName = 'DetailsButton';
 // Default column configurations
@@ -187,17 +188,7 @@ export function CountryTable() {
     if (filtered.length === 0) {
         return (_jsx("div", { className: "card", children: _jsx("div", { className: "table-loading", children: _jsx("div", { className: "skeleton-table", children: Array.from({ length: 5 }).map((_, i) => (_jsx("div", { className: "skeleton-row", children: _jsx("div", { className: "skeleton", style: { height: 48 } }) }, i))) }) }) }));
     }
-    return (_jsxs("div", { className: "card", children: [_jsx("div", { style: { display: 'flex', justifyContent: 'flex-end', padding: '12px 16px', borderBottom: '1px solid var(--border)' }, children: _jsxs("button", { onClick: () => setShowColumnManager(true), style: {
-                        background: 'var(--button-bg, #f3f4f6)',
-                        border: '1px solid var(--border)',
-                        borderRadius: '4px',
-                        padding: '6px 12px',
-                        cursor: 'pointer',
-                        fontSize: '13px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px'
-                    }, "aria-label": t('button_manage_columns') || 'Manage table columns', title: t('button_manage_columns') || 'Manage table columns', children: [_jsx("span", { style: { fontSize: '12px' }, children: "\u2699\uFE0F" }), t('button_columns') || 'Columns'] }) }), _jsx("div", { className: "table-container", role: "region", "aria-label": "E-invoicing compliance data", children: _jsxs("table", { role: "table", "aria-label": "Countries and their e-invoicing compliance status", children: [_jsx("colgroup", { children: columns.map((column) => (_jsx("col", { className: `col-${column.id}` }, column.id))) }), _jsx("thead", { children: table.getHeaderGroups().map(hg => (_jsx("tr", { role: "row", children: hg.headers.map(h => (_jsxs("th", { onClick: h.column.getToggleSortingHandler(), className: "sortable-header", role: "columnheader", "aria-sort": h.column.getIsSorted() === 'asc' ? 'ascending' :
+    return (_jsxs("div", { className: "card", children: [_jsx("div", { style: { display: 'flex', justifyContent: 'flex-end', padding: '12px 16px', borderBottom: '1px solid var(--border)' }, children: _jsxs(Button, { onClick: () => setShowColumnManager(true), size: "small", variant: "secondary", "aria-label": t('button_manage_columns') || 'Manage table columns', title: t('button_manage_columns') || 'Manage table columns', children: [_jsx("span", { style: { fontSize: '12px' }, children: "\u2699\uFE0F" }), t('button_columns') || 'Columns'] }) }), _jsx("div", { className: "table-container", role: "region", "aria-label": "E-invoicing compliance data", children: _jsxs("table", { role: "table", "aria-label": "Countries and their e-invoicing compliance status", children: [_jsx("colgroup", { children: columns.map((column) => (_jsx("col", { className: `col-${column.id}` }, column.id))) }), _jsx("thead", { children: table.getHeaderGroups().map(hg => (_jsx("tr", { role: "row", children: hg.headers.map(h => (_jsxs("th", { onClick: h.column.getToggleSortingHandler(), className: "sortable-header", role: "columnheader", "aria-sort": h.column.getIsSorted() === 'asc' ? 'ascending' :
                                         h.column.getIsSorted() === 'desc' ? 'descending' :
                                             'none', tabIndex: 0, onKeyDown: (e) => {
                                         if (e.key === 'Enter' || e.key === ' ') {
