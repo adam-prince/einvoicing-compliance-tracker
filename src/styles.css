@@ -528,6 +528,8 @@ table .details-button,
 	background: #ffffff !important; /* Solid white background */
 	padding: 12px 16px; 
 	border-bottom: 1px solid var(--border); 
+	border-top-left-radius: 12px !important; /* Match modal border radius */
+	border-top-right-radius: 12px !important; /* Match modal border radius */
 	display: flex; 
 	align-items: center; 
 	justify-content: space-between;
@@ -2233,9 +2235,9 @@ div:contains("Update in progress") {
 	margin-right: 6px !important;
 	border: 2px solid rgba(0,0,0,0.25) !important; /* outline for contrast */
 }
-.status-dot.dot-ok { background: #10b981 !important; }       /* green */
-.status-dot.dot-unknown { background: #9ca3af !important; }  /* gray */
-.status-dot.dot-dead { background: #f59e0b !important; }     /* amber */
+.status-dot.dot-ok { background: #10b981 !important; }       /* green - verified working */
+.status-dot.dot-unknown { background: #f59e0b !important; }  /* amber - status uncertain */
+.status-dot.dot-dead { background: #ef4444 !important; }     /* red - confirmed broken */
 
 /* Visually hidden for SR-only text */
 .sr-only {
@@ -2322,6 +2324,55 @@ div:contains("Update in progress") {
 	border-color: var(--gray) !important;
 	cursor: not-allowed !important;
 	transform: none !important;
+}
+
+/* =============================================
+   COLUMN MANAGER STYLES
+   ============================================= */
+
+.column-drag-item {
+	transition: all 0.2s ease;
+	user-select: none;
+}
+
+.column-drag-item:hover {
+	background: var(--hover-bg, #f9fafb) !important;
+	transform: translateY(-1px);
+	box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.column-drag-item:active {
+	cursor: grabbing !important;
+	box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.column-drag-item input[type="checkbox"] {
+	width: 16px;
+	height: 16px;
+	cursor: pointer;
+}
+
+.column-drag-item label {
+	font-weight: 500;
+	color: var(--text-primary, #1f2937);
+}
+
+/* Drag handle styling */
+.column-drag-item span[aria-label*="Drag"] {
+	font-family: monospace;
+	font-size: 16px;
+	color: var(--muted, #9ca3af);
+	transition: color 0.2s ease;
+}
+
+.column-drag-item:hover span[aria-label*="Drag"] {
+	color: var(--primary, #3b82f6);
+}
+
+/* Drop zones */
+.column-drag-item.drag-over {
+	border-color: var(--primary, #3b82f6) !important;
+	background: var(--primary-light, #eff6ff) !important;
 }
 
 /* =============================================

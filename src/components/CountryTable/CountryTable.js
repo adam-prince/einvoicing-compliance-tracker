@@ -1,10 +1,11 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
-import React, { useMemo, useState, useCallback } from 'react';
+import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import { createColumnHelper, flexRender, getCoreRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table';
 import { Badge } from '../common/Badge';
 import { useStore } from '../../store/useStore';
 import { format } from 'date-fns';
 import { useI18n } from '../../i18n';
+import { ColumnManager } from './ColumnManager';
 const columnHelper = createColumnHelper();
 // Memoized components for better performance
 const StatusCell = React.memo(({ country, type, onOpenModal }) => {
@@ -31,7 +32,7 @@ const ExpandButton = React.memo(({ isExpanded, onToggle, countryName }) => {
     return (_jsx("button", { onClick: onToggle, onKeyDown: handleKeyDown, className: "expand-button", "aria-label": `${isExpanded ? 'Collapse' : 'Expand'} details for ${countryName}`, "aria-expanded": isExpanded, tabIndex: 0, children: isExpanded ? '▾' : '▸' }));
 });
 ExpandButton.displayName = 'ExpandButton';
-const DetailsButton = React.memo(({ country, onOpenModal }) => {
+const DetailsButton = React.memo(({ country, onOpenModal, t }) => {
     const handleClick = useCallback((e) => {
         onOpenModal(country, e);
     }, [country, onOpenModal]);
@@ -41,13 +42,55 @@ const DetailsButton = React.memo(({ country, onOpenModal }) => {
             onOpenModal(country, e);
         }
     }, [country, onOpenModal]);
-    return (_jsx("button", { type: "button", onClick: handleClick, onKeyDown: handleKeyDown, className: "details-button", "aria-label": `View detailed compliance information for ${country.name}`, tabIndex: 0, children: "Details" }));
+    return (_jsx("button", { type: "button", onClick: handleClick, onKeyDown: handleKeyDown, className: "details-button", "aria-label": t('button_view_details_aria') ? t('button_view_details_aria').replace('{country}', country.name) : `View detailed compliance information for ${country.name}`, tabIndex: 0, children: t('button_details') || 'Details' }));
 });
 DetailsButton.displayName = 'DetailsButton';
+// Default column configurations
+const getDefaultColumnConfigs = (t) => [
+    { id: 'continent', label: t('table_continent') || 'Continent', visible: true, order: 0 },
+    { id: 'name', label: t('table_country') || 'Country', visible: true, order: 1 },
+    { id: 'b2g', label: 'B2G', visible: true, order: 2 },
+    { id: 'b2b', label: 'B2B', visible: true, order: 3 },
+    { id: 'b2c', label: 'B2C', visible: true, order: 4 },
+    { id: 'periodic', label: t('table_periodic') || 'Periodic E-reporting', visible: true, order: 5 }
+];
+// Load column config from localStorage
+const loadColumnConfig = (t) => {
+    try {
+        const saved = localStorage.getItem('einvoicing-column-config');
+        if (saved) {
+            const parsed = JSON.parse(saved);
+            // Update labels with current translations but keep order/visibility
+            return parsed.map(col => ({
+                ...col,
+                label: getDefaultColumnConfigs(t).find(def => def.id === col.id)?.label || col.label
+            }));
+        }
+    }
+    catch (error) {
+        console.warn('Failed to load column config:', error);
+    }
+    return getDefaultColumnConfigs(t);
+};
+// Save column config to localStorage
+const saveColumnConfig = (columns) => {
+    try {
+        localStorage.setItem('einvoicing-column-config', JSON.stringify(columns));
+    }
+    catch (error) {
+        console.warn('Failed to save column config:', error);
+    }
+};
 export function CountryTable() {
     const { filtered, setSelected } = useStore();
     const { t, displayRegionName } = useI18n();
     const [expanded, setExpanded] = useState({});
+    const [showColumnManager, setShowColumnManager] = useState(false);
+    const [columnConfigs, setColumnConfigs] = useState(() => loadColumnConfig(t));
+    const [sorting, setSorting] = useState([
+        { id: 'continent', desc: false },
+        { id: 'name', desc: false }
+    ]);
     // Optimized modal handler with proper event handling
     const handleOpenModal = useCallback((country, e) => {
         e.preventDefault();
@@ -59,49 +102,75 @@ export function CountryTable() {
     const toggleExpanded = useCallback((id) => {
         setExpanded(prev => ({ ...prev, [id]: !prev[id] }));
     }, []);
-    // Memoized columns to prevent recreation on every render
-    const columns = useMemo(() => [
-        columnHelper.accessor('name', {
+    // Update column config when translations change
+    useEffect(() => {
+        setColumnConfigs(prev => prev.map(col => ({
+            ...col,
+            label: getDefaultColumnConfigs(t).find(def => def.id === col.id)?.label || col.label
+        })));
+    }, [t]);
+    // Handle column configuration changes
+    const handleColumnsChange = useCallback((newColumns) => {
+        setColumnConfigs(newColumns);
+        saveColumnConfig(newColumns);
+    }, []);
+    // Create all column definitions
+    const allColumnDefinitions = useMemo(() => ({
+        name: columnHelper.accessor('name', {
+            id: 'name',
             header: t('table_country') || 'Country',
             cell: ({ row, getValue }) => {
                 const country = row.original;
                 const isExpanded = expanded[country.id];
                 const localizedName = displayRegionName(country.isoCode2, getValue());
-                return (_jsxs("div", { className: "country-name-cell", children: [_jsxs("div", { className: "country-name-content", children: [_jsx(ExpandButton, { isExpanded: isExpanded, onToggle: () => toggleExpanded(country.id), countryName: country.name }), _jsx("span", { className: "country-name", title: localizedName, children: localizedName })] }), _jsx(DetailsButton, { country: country, onOpenModal: handleOpenModal })] }));
+                return (_jsxs("div", { className: "country-name-cell", children: [_jsxs("div", { className: "country-name-content", children: [_jsx(ExpandButton, { isExpanded: isExpanded, onToggle: () => toggleExpanded(country.id), countryName: country.name }), _jsx("span", { className: "country-name", title: localizedName, children: localizedName })] }), _jsx(DetailsButton, { country: country, onOpenModal: handleOpenModal, t: t })] }));
             }
         }),
-        columnHelper.accessor('continent', {
+        continent: columnHelper.accessor('continent', {
+            id: 'continent',
             header: t('table_continent') || 'Continent',
             cell: info => (_jsx("span", { className: "continent-cell", title: info.getValue(), children: info.getValue() }))
         }),
-        columnHelper.display({
+        b2g: columnHelper.display({
             id: 'b2g',
             header: 'B2G',
             cell: ({ row }) => (_jsx(StatusCell, { country: row.original, type: "b2g", onOpenModal: handleOpenModal }))
         }),
-        columnHelper.display({
+        b2b: columnHelper.display({
             id: 'b2b',
             header: 'B2B',
             cell: ({ row }) => (_jsx(StatusCell, { country: row.original, type: "b2b", onOpenModal: handleOpenModal }))
         }),
-        columnHelper.display({
+        b2c: columnHelper.display({
             id: 'b2c',
             header: 'B2C',
             cell: ({ row }) => (_jsx(StatusCell, { country: row.original, type: "b2c", onOpenModal: handleOpenModal }))
         }),
-        columnHelper.display({
+        periodic: columnHelper.display({
             id: 'periodic',
             header: t('table_periodic') || 'Periodic E-reporting',
             cell: ({ row }) => {
                 const status = row.original.eInvoicing.periodic?.status || 'N/A';
                 return (_jsx("span", { className: "periodic-status", title: `Periodic e-reporting status: ${status}`, children: status }));
             }
-        }),
-    ], [expanded, handleOpenModal, toggleExpanded, t, displayRegionName]);
-    // Memoized table instance
+        })
+    }), [expanded, handleOpenModal, toggleExpanded, t, displayRegionName]);
+    // Create visible columns in the correct order
+    const columns = useMemo(() => {
+        return columnConfigs
+            .filter(config => config.visible)
+            .sort((a, b) => a.order - b.order)
+            .map(config => allColumnDefinitions[config.id])
+            .filter(Boolean);
+    }, [columnConfigs, allColumnDefinitions]);
+    // Memoized table instance with sorting
     const table = useReactTable({
         data: filtered,
         columns,
+        state: {
+            sorting,
+        },
+        onSortingChange: setSorting,
         getCoreRowModel: getCoreRowModel(),
         getSortedRowModel: getSortedRowModel(),
     });
@@ -118,18 +187,28 @@ export function CountryTable() {
     if (filtered.length === 0) {
         return (_jsx("div", { className: "card", children: _jsx("div", { className: "table-loading", children: _jsx("div", { className: "skeleton-table", children: Array.from({ length: 5 }).map((_, i) => (_jsx("div", { className: "skeleton-row", children: _jsx("div", { className: "skeleton", style: { height: 48 } }) }, i))) }) }) }));
     }
-    return (_jsx("div", { className: "card", children: _jsx("div", { className: "table-container", role: "region", "aria-label": "E-invoicing compliance data", children: _jsxs("table", { role: "table", "aria-label": "Countries and their e-invoicing compliance status", children: [_jsxs("colgroup", { children: [_jsx("col", { className: "col-country" }), _jsx("col", { className: "col-continent" }), _jsx("col", { className: "col-b2g" }), _jsx("col", { className: "col-b2b" }), _jsx("col", { className: "col-b2c" }), _jsx("col", { className: "col-periodic" })] }), _jsx("thead", { children: table.getHeaderGroups().map(hg => (_jsx("tr", { role: "row", children: hg.headers.map(h => (_jsxs("th", { onClick: h.column.getToggleSortingHandler(), className: "sortable-header", role: "columnheader", "aria-sort": h.column.getIsSorted() === 'asc' ? 'ascending' :
-                                    h.column.getIsSorted() === 'desc' ? 'descending' :
-                                        'none', tabIndex: 0, onKeyDown: (e) => {
-                                    if (e.key === 'Enter' || e.key === ' ') {
-                                        e.preventDefault();
-                                        h.column.getToggleSortingHandler()?.(e);
-                                    }
-                                }, children: [flexRender(h.column.columnDef.header, h.getContext()), h.column.getIsSorted() && (_jsx("span", { "aria-hidden": "true", children: h.column.getIsSorted() === 'asc' ? ' ↑' : ' ↓' }))] }, h.id))) }, hg.id))) }), _jsx("tbody", { children: table.getRowModel().rows.map(r => {
-                            const country = r.original;
-                            const isExpanded = expanded[country.id];
-                            return (_jsxs(React.Fragment, { children: [_jsx("tr", { className: "data-row", onClick: (e) => handleRowClick(e, country.id), role: "row", "aria-expanded": isExpanded, children: r.getVisibleCells().map((c) => (_jsx("td", { role: "gridcell", children: flexRender(c.column.columnDef.cell, c.getContext()) }, c.id))) }), isExpanded && (_jsxs("tr", { className: "expand-row", role: "row", "aria-label": `Implementation dates for ${country.name}`, children: [_jsx("td", {}), _jsx("td", {}), _jsx("td", { children: _jsxs("div", { className: "badge gray", title: "B2G implementation date", children: ["B2G: ", formatImpl(country.eInvoicing.b2g.implementationDate)] }) }), _jsx("td", { children: _jsxs("div", { className: "badge gray", title: "B2B implementation date", children: ["B2B: ", formatImpl(country.eInvoicing.b2b.implementationDate)] }) }), _jsx("td", { children: _jsxs("div", { className: "badge gray", title: "B2C implementation date", children: ["B2C: ", formatImpl(country.eInvoicing.b2c.implementationDate)] }) }), _jsx("td", {})] }))] }, r.id));
-                        }) })] }) }) }));
+    return (_jsxs("div", { className: "card", children: [_jsx("div", { style: { display: 'flex', justifyContent: 'flex-end', padding: '12px 16px', borderBottom: '1px solid var(--border)' }, children: _jsxs("button", { onClick: () => setShowColumnManager(true), style: {
+                        background: 'var(--button-bg, #f3f4f6)',
+                        border: '1px solid var(--border)',
+                        borderRadius: '4px',
+                        padding: '6px 12px',
+                        cursor: 'pointer',
+                        fontSize: '13px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px'
+                    }, "aria-label": t('button_manage_columns') || 'Manage table columns', title: t('button_manage_columns') || 'Manage table columns', children: [_jsx("span", { style: { fontSize: '12px' }, children: "\u2699\uFE0F" }), t('button_columns') || 'Columns'] }) }), _jsx("div", { className: "table-container", role: "region", "aria-label": "E-invoicing compliance data", children: _jsxs("table", { role: "table", "aria-label": "Countries and their e-invoicing compliance status", children: [_jsx("colgroup", { children: columns.map((column) => (_jsx("col", { className: `col-${column.id}` }, column.id))) }), _jsx("thead", { children: table.getHeaderGroups().map(hg => (_jsx("tr", { role: "row", children: hg.headers.map(h => (_jsxs("th", { onClick: h.column.getToggleSortingHandler(), className: "sortable-header", role: "columnheader", "aria-sort": h.column.getIsSorted() === 'asc' ? 'ascending' :
+                                        h.column.getIsSorted() === 'desc' ? 'descending' :
+                                            'none', tabIndex: 0, onKeyDown: (e) => {
+                                        if (e.key === 'Enter' || e.key === ' ') {
+                                            e.preventDefault();
+                                            h.column.getToggleSortingHandler()?.(e);
+                                        }
+                                    }, children: [flexRender(h.column.columnDef.header, h.getContext()), h.column.getIsSorted() && (_jsx("span", { "aria-hidden": "true", children: h.column.getIsSorted() === 'asc' ? ' ↑' : ' ↓' }))] }, h.id))) }, hg.id))) }), _jsx("tbody", { children: table.getRowModel().rows.map(r => {
+                                const country = r.original;
+                                const isExpanded = expanded[country.id];
+                                return (_jsxs(React.Fragment, { children: [_jsx("tr", { className: "data-row", onClick: (e) => handleRowClick(e, country.id), role: "row", "aria-expanded": isExpanded, children: r.getVisibleCells().map((c) => (_jsx("td", { role: "gridcell", children: flexRender(c.column.columnDef.cell, c.getContext()) }, c.id))) }), isExpanded && (_jsxs("tr", { className: "expand-row", role: "row", "aria-label": `Implementation dates for ${country.name}`, children: [_jsx("td", {}), _jsx("td", {}), _jsx("td", { children: _jsxs("div", { className: "badge gray", title: "B2G implementation date", children: ["B2G: ", formatImpl(country.eInvoicing.b2g.implementationDate)] }) }), _jsx("td", { children: _jsxs("div", { className: "badge gray", title: "B2B implementation date", children: ["B2B: ", formatImpl(country.eInvoicing.b2b.implementationDate)] }) }), _jsx("td", { children: _jsxs("div", { className: "badge gray", title: "B2C implementation date", children: ["B2C: ", formatImpl(country.eInvoicing.b2c.implementationDate)] }) }), _jsx("td", {})] }))] }, r.id));
+                            }) })] }) }), showColumnManager && (_jsx(ColumnManager, { columns: columnConfigs, onColumnsChange: handleColumnsChange, onClose: () => setShowColumnManager(false) }))] }));
 }
 function formatImpl(dateIso) {
     if (!dateIso)

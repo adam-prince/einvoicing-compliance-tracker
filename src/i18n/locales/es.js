@@ -56,5 +56,38 @@ export default {
     refresh_finalizing: 'Finalizando actualizaciones...',
     refresh_error: 'Error al actualizar los datos de cumplimiento. Por favor, inténtelo de nuevo.',
     background_refresh_complete: 'Actualizaciones en segundo plano completadas para {count} {count, plural, one {país} other {países}}.',
-    background_refresh_error: 'Algunas actualizaciones en segundo plano fallaron.'
+    background_refresh_error: 'Algunas actualizaciones en segundo plano fallaron.',
+    // Button and UI translations
+    button_details: 'Detalles',
+    button_view_details_aria: 'Ver información detallada de cumplimiento para {country}',
+    button_columns: 'Columnas',
+    button_manage_columns: 'Gestionar columnas de la tabla',
+    button_close: 'Cerrar',
+    button_cancel: 'Cancelar',
+    button_apply: 'Aplicar',
+    button_reset_columns: 'Restablecer predeterminado',
+    // Column manager
+    column_manager_title: 'Gestionar columnas',
+    column_manager_help: 'Arrastre columnas para reordenar, alterne la visibilidad con casillas de verificación.',
+    drag_handle: 'Arrastrar para reordenar',
+    order_position: 'Posición {position}',
+    // Skip link
+    skip_to_main: 'Saltar al contenido principal',
+    // Timeline and content translations
+    timeline_periodic_reporting: 'Informes electrónicos periódicos',
+    timeline_B2G: 'Empresa a Administración (B2G)',
+    timeline_B2B: 'Empresa a Empresa (B2B)',
+    timeline_B2C: 'Empresa a Consumidor (B2C)',
+    timeline_threshold: 'Umbral',
+    // News source types
+    news_source_Official: 'Oficial',
+    news_source_GENA: 'GENA',
+    news_source_Consulting: 'Consultoría',
+    news_source_VATCalc: 'VATCalc',
+    news_source_Industry: 'Industria',
+    news_source_Government: 'Gobierno',
+    // Toast messages
+    toast_background_refresh_complete: 'Actualización de detalles en segundo plano ahora completada',
+    toast_link_broken: 'El enlace parece roto. Abriendo búsqueda para: {title}',
+    toast_popup_blocked: 'Ventana emergente bloqueada. Abriendo búsqueda en su lugar.'
 };

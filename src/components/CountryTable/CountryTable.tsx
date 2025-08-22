@@ -1,10 +1,11 @@
-import React, { useMemo, useState, useCallback } from 'react';
-import { createColumnHelper, flexRender, getCoreRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table';
+import React, { useMemo, useState, useCallback, useEffect } from 'react';
+import { createColumnHelper, flexRender, getCoreRowModel, getSortedRowModel, useReactTable, SortingState, ColumnDef } from '@tanstack/react-table';
 import type { Country } from '@types';
 import { Badge } from '../common/Badge';
 import { useStore } from '../../store/useStore';
 import { format } from 'date-fns';
 import { useI18n } from '../../i18n';
+import { ColumnManager, type ColumnConfig } from './ColumnManager';
 
 const columnHelper = createColumnHelper<Country>();
 
@@ -81,10 +82,12 @@ ExpandButton.displayName = 'ExpandButton';
 
 const DetailsButton = React.memo(({ 
 	country, 
-	onOpenModal 
+	onOpenModal,
+	t
 }: { 
 	country: Country;
 	onOpenModal: (country: Country, e: React.MouseEvent) => void;
+	t: (key: string) => string;
 }) => {
 	const handleClick = useCallback((e: React.MouseEvent) => {
 		onOpenModal(country, e);
@@ -103,20 +106,63 @@ const DetailsButton = React.memo(({
 			onClick={handleClick}
 			onKeyDown={handleKeyDown}
 			className="details-button"
-			aria-label={`View detailed compliance information for ${country.name}`}
+			aria-label={t('button_view_details_aria') ? t('button_view_details_aria').replace('{country}', country.name) : `View detailed compliance information for ${country.name}`}
 			tabIndex={0}
 		>
-			Details
+			{t('button_details') || 'Details'}
 		</button>
 	);
 });
 
 DetailsButton.displayName = 'DetailsButton';
 
+// Default column configurations
+const getDefaultColumnConfigs = (t: any): ColumnConfig[] => [
+	{ id: 'continent', label: t('table_continent') || 'Continent', visible: true, order: 0 },
+	{ id: 'name', label: t('table_country') || 'Country', visible: true, order: 1 },
+	{ id: 'b2g', label: 'B2G', visible: true, order: 2 },
+	{ id: 'b2b', label: 'B2B', visible: true, order: 3 },
+	{ id: 'b2c', label: 'B2C', visible: true, order: 4 },
+	{ id: 'periodic', label: t('table_periodic') || 'Periodic E-reporting', visible: true, order: 5 }
+];
+
+// Load column config from localStorage
+const loadColumnConfig = (t: any): ColumnConfig[] => {
+	try {
+		const saved = localStorage.getItem('einvoicing-column-config');
+		if (saved) {
+			const parsed = JSON.parse(saved) as ColumnConfig[];
+			// Update labels with current translations but keep order/visibility
+			return parsed.map(col => ({
+				...col,
+				label: getDefaultColumnConfigs(t).find(def => def.id === col.id)?.label || col.label
+			}));
+		}
+	} catch (error) {
+		console.warn('Failed to load column config:', error);
+	}
+	return getDefaultColumnConfigs(t);
+};
+
+// Save column config to localStorage
+const saveColumnConfig = (columns: ColumnConfig[]) => {
+	try {
+		localStorage.setItem('einvoicing-column-config', JSON.stringify(columns));
+	} catch (error) {
+		console.warn('Failed to save column config:', error);
+	}
+};
+
 export function CountryTable() {
 	const { filtered, setSelected } = useStore();
 	const { t, displayRegionName } = useI18n();
 	const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+	const [showColumnManager, setShowColumnManager] = useState(false);
+	const [columnConfigs, setColumnConfigs] = useState<ColumnConfig[]>(() => loadColumnConfig(t));
+	const [sorting, setSorting] = useState<SortingState>([
+		{ id: 'continent', desc: false },
+		{ id: 'name', desc: false }
+	]);
 
 	// Optimized modal handler with proper event handling
 	const handleOpenModal = useCallback((country: Country, e: React.MouseEvent | KeyboardEvent) => {
@@ -131,9 +177,26 @@ export function CountryTable() {
 		setExpanded(prev => ({ ...prev, [id]: !prev[id] }));
 	}, []);
 
-	// Memoized columns to prevent recreation on every render
-	const columns = useMemo(() => [
-		columnHelper.accessor('name', { 
+	// Update column config when translations change
+	useEffect(() => {
+		setColumnConfigs(prev => 
+			prev.map(col => ({
+				...col,
+				label: getDefaultColumnConfigs(t).find(def => def.id === col.id)?.label || col.label
+			}))
+		);
+	}, [t]);
+
+	// Handle column configuration changes
+	const handleColumnsChange = useCallback((newColumns: ColumnConfig[]) => {
+		setColumnConfigs(newColumns);
+		saveColumnConfig(newColumns);
+	}, []);
+
+	// Create all column definitions
+	const allColumnDefinitions = useMemo<Record<string, ColumnDef<Country, any>>>(() => ({
+		name: columnHelper.accessor('name', { 
+			id: 'name',
 			header: t('table_country') || 'Country', 
 			cell: ({ row, getValue }) => {
 				const country = row.original;
@@ -158,12 +221,14 @@ export function CountryTable() {
 						<DetailsButton
 							country={country}
 							onOpenModal={handleOpenModal}
+							t={t}
 						/>
 					</div>
 				);
 			}
 		}),
-		columnHelper.accessor('continent', { 
+		continent: columnHelper.accessor('continent', { 
+			id: 'continent',
 			header: t('table_continent') || 'Continent', 
 			cell: info => (
 				<span className="continent-cell" title={info.getValue()}>
@@ -171,7 +236,7 @@ export function CountryTable() {
 				</span>
 			)
 		}),
-		columnHelper.display({ 
+		b2g: columnHelper.display({ 
 			id: 'b2g', 
 			header: 'B2G', 
 			cell: ({ row }) => (
@@ -182,7 +247,7 @@ export function CountryTable() {
 				/>
 			)
 		}),
-		columnHelper.display({ 
+		b2b: columnHelper.display({ 
 			id: 'b2b', 
 			header: 'B2B', 
 			cell: ({ row }) => (
@@ -193,7 +258,7 @@ export function CountryTable() {
 				/>
 			)
 		}),
-		columnHelper.display({ 
+		b2c: columnHelper.display({ 
 			id: 'b2c', 
 			header: 'B2C', 
 			cell: ({ row }) => (
@@ -204,7 +269,7 @@ export function CountryTable() {
 				/>
 			)
 		}),
-		columnHelper.display({ 
+		periodic: columnHelper.display({ 
 			id: 'periodic', 
 			header: t('table_periodic') || 'Periodic E-reporting', 
 			cell: ({ row }) => {
@@ -218,13 +283,26 @@ export function CountryTable() {
 					</span>
 				);
 			}
-		}),
-	], [expanded, handleOpenModal, toggleExpanded, t, displayRegionName]);
+		})
+	}), [expanded, handleOpenModal, toggleExpanded, t, displayRegionName]);
 
-	// Memoized table instance
+	// Create visible columns in the correct order
+	const columns = useMemo(() => {
+		return columnConfigs
+			.filter(config => config.visible)
+			.sort((a, b) => a.order - b.order)
+			.map(config => allColumnDefinitions[config.id])
+			.filter(Boolean);
+	}, [columnConfigs, allColumnDefinitions]);
+
+	// Memoized table instance with sorting
 	const table = useReactTable({
 		data: filtered,
 		columns,
+		state: {
+			sorting,
+		},
+		onSortingChange: setSorting,
 		getCoreRowModel: getCoreRowModel(),
 		getSortedRowModel: getSortedRowModel(),
 	});
@@ -260,15 +338,33 @@ export function CountryTable() {
 
 	return (
 		<div className="card">
+			<div style={{ display: 'flex', justifyContent: 'flex-end', padding: '12px 16px', borderBottom: '1px solid var(--border)' }}>
+				<button
+					onClick={() => setShowColumnManager(true)}
+					style={{
+						background: 'var(--button-bg, #f3f4f6)',
+						border: '1px solid var(--border)',
+						borderRadius: '4px',
+						padding: '6px 12px',
+						cursor: 'pointer',
+						fontSize: '13px',
+						display: 'flex',
+						alignItems: 'center',
+						gap: '6px'
+					}}
+					aria-label={t('button_manage_columns') || 'Manage table columns'}
+					title={t('button_manage_columns') || 'Manage table columns'}
+				>
+					<span style={{ fontSize: '12px' }}>⚙️</span>
+					{t('button_columns') || 'Columns'}
+				</button>
+			</div>
 			<div className="table-container" role="region" aria-label="E-invoicing compliance data">
 				<table role="table" aria-label="Countries and their e-invoicing compliance status">
 					<colgroup>
-						<col className="col-country" />
-						<col className="col-continent" />
-						<col className="col-b2g" />
-						<col className="col-b2b" />
-						<col className="col-b2c" />
-						<col className="col-periodic" />
+						{columns.map((column) => (
+							<col key={column.id} className={`col-${column.id}`} />
+						))}
 					</colgroup>
 					<thead>
 						{table.getHeaderGroups().map(hg => (
@@ -355,6 +451,13 @@ export function CountryTable() {
 					</tbody>
 				</table>
 			</div>
+			{showColumnManager && (
+				<ColumnManager
+					columns={columnConfigs}
+					onColumnsChange={handleColumnsChange}
+					onClose={() => setShowColumnManager(false)}
+				/>
+			)}
 		</div>
 	);
 }

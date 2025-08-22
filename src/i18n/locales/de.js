@@ -56,5 +56,38 @@ export default {
     refresh_finalizing: 'Aktualisierungen werden abgeschlossen...',
     refresh_error: 'Aktualisierung der Compliance-Daten fehlgeschlagen. Bitte versuchen Sie es erneut.',
     background_refresh_complete: 'Hintergrundaktualisierungen für {count} {count, plural, one {Land} other {Länder}} abgeschlossen.',
-    background_refresh_error: 'Einige Hintergrundaktualisierungen sind fehlgeschlagen.'
+    background_refresh_error: 'Einige Hintergrundaktualisierungen sind fehlgeschlagen.',
+    // Button and UI translations
+    button_details: 'Details',
+    button_view_details_aria: 'Detaillierte Compliance-Informationen für {country} anzeigen',
+    button_columns: 'Spalten',
+    button_manage_columns: 'Tabellenspalten verwalten',
+    button_close: 'Schließen',
+    button_cancel: 'Abbrechen',
+    button_apply: 'Anwenden',
+    button_reset_columns: 'Auf Standard zurücksetzen',
+    // Column manager
+    column_manager_title: 'Spalten verwalten',
+    column_manager_help: 'Ziehen Sie Spalten zum Neuordnen, schalten Sie die Sichtbarkeit mit Kontrollkästchen um.',
+    drag_handle: 'Zum Neuordnen ziehen',
+    order_position: 'Position {position}',
+    // Skip link
+    skip_to_main: 'Zum Hauptinhalt springen',
+    // Timeline and content translations
+    timeline_periodic_reporting: 'Periodische E-Meldungen',
+    timeline_B2G: 'Unternehmen zu Behörden (B2G)',
+    timeline_B2B: 'Unternehmen zu Unternehmen (B2B)',
+    timeline_B2C: 'Unternehmen zu Verbraucher (B2C)',
+    timeline_threshold: 'Schwellenwert',
+    // News source types
+    news_source_Official: 'Amtlich',
+    news_source_GENA: 'GENA',
+    news_source_Consulting: 'Beratung',
+    news_source_VATCalc: 'VATCalc',
+    news_source_Industry: 'Industrie',
+    news_source_Government: 'Regierung',
+    // Toast messages
+    toast_background_refresh_complete: 'Hintergrund-Aktualisierung der Details jetzt abgeschlossen',
+    toast_link_broken: 'Link scheint defekt zu sein. Öffne Suche für: {title}',
+    toast_popup_blocked: 'Popup blockiert. Öffne stattdessen Suche.'
 };

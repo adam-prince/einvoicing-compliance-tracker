@@ -56,5 +56,38 @@ export default {
     refresh_finalizing: 'Finalisation des mises à jour...',
     refresh_error: 'Échec de la mise à jour des données de conformité. Veuillez réessayer.',
     background_refresh_complete: 'Mises à jour en arrière-plan terminées pour {count} {count, plural, one {pays} other {pays}}.',
-    background_refresh_error: 'Certaines mises à jour en arrière-plan ont échoué.'
+    background_refresh_error: 'Certaines mises à jour en arrière-plan ont échoué.',
+    // Button and UI translations
+    button_details: 'Détails',
+    button_view_details_aria: 'Voir les informations de conformité détaillées pour {country}',
+    button_columns: 'Colonnes',
+    button_manage_columns: 'Gérer les colonnes du tableau',
+    button_close: 'Fermer',
+    button_cancel: 'Annuler',
+    button_apply: 'Appliquer',
+    button_reset_columns: 'Réinitialiser par défaut',
+    // Column manager
+    column_manager_title: 'Gérer les colonnes',
+    column_manager_help: 'Faites glisser les colonnes pour les réorganiser, basculez la visibilité avec les cases à cocher.',
+    drag_handle: 'Faire glisser pour réorganiser',
+    order_position: 'Position {position}',
+    // Skip link
+    skip_to_main: 'Aller au contenu principal',
+    // Timeline and content translations
+    timeline_periodic_reporting: 'Rapports électroniques périodiques',
+    timeline_B2G: 'Entreprise vers Administration (B2G)',
+    timeline_B2B: 'Entreprise vers Entreprise (B2B)',
+    timeline_B2C: 'Entreprise vers Consommateur (B2C)',
+    timeline_threshold: 'Seuil',
+    // News source types
+    news_source_Official: 'Officiel',
+    news_source_GENA: 'GENA',
+    news_source_Consulting: 'Conseil',
+    news_source_VATCalc: 'VATCalc',
+    news_source_Industry: 'Industrie',
+    news_source_Government: 'Gouvernement',
+    // Toast messages
+    toast_background_refresh_complete: 'Actualisation des détails en arrière-plan maintenant terminée',
+    toast_link_broken: 'Le lien semble cassé. Ouverture de la recherche pour : {title}',
+    toast_popup_blocked: 'Pop-up bloqué. Ouverture de la recherche à la place.'
 };

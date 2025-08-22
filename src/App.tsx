@@ -142,10 +142,16 @@ export function App() {
 		loadData();
 	}, [loadData]);
 
-	// Theme management - REMOVED APPLY DESIGN AUTO-LOADING
+	// Theme management and skip link translation
 	useEffect(() => {
 		loadSavedTheme();
-	}, []);
+		
+		// Update skip link text with current language
+		const skipLink = document.getElementById('skip-link');
+		if (skipLink) {
+			skipLink.textContent = t('skip_to_main') || 'Skip to main content';
+		}
+	}, [t]);
 
 	// Hash-based modal management with improved URL handling
 	useEffect(() => {

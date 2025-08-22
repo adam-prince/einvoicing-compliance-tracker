@@ -96,24 +96,33 @@ export const formatSpecifications: Record<string, FormatSpecification[]> = {
 		}
 	],
 	
-	// FRANCE
-	'Chorus Pro': [
+	'Factur-X': [
 		{
-			name: 'Chorus Pro Format',
-			url: 'https://chorus-pro.gouv.fr/',
-			description: 'French B2G e-invoicing platform format',
-			authority: 'French Government',
+			name: 'Factur-X Official',
+			version: '1.0.07',
+			url: 'https://fnfe-mpe.org/',
+			description: 'Franco-German e-invoice standard homepage',
+			authority: 'FNFE-MPE',
+			type: 'specification'
+		},
+		{
+			name: 'Factur-X on FeRD',
+			version: '1.0.07',
+			url: 'https://www.ferd-net.de/',
+			description: 'FeRD German e-invoice standards organization',
+			authority: 'FeRD e.V.',
 			type: 'specification'
 		}
 	],
-	'Factur-X': [
+	
+	// FRANCE
+	'Chorus Pro': [
 		{
-			name: 'Factur-X 1.0.06',
-			version: '1.0.06',
-			url: 'https://fnfe-mpe.org/factur-x/',
-			description: 'Franco-German e-invoicing standard',
-			authority: 'FNFE-MPE',
-			type: 'standard'
+			name: 'Chorus Pro Documentation',
+			url: 'https://chorus-pro.gouv.fr/',
+			description: 'French B2G e-invoicing platform',
+			authority: 'French Government',
+			type: 'specification'
 		}
 	],
 	

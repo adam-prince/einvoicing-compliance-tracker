@@ -62,7 +62,40 @@ export default {
 	refresh_finalizing: 'Finalizing updates...',
 	refresh_error: 'Failed to refresh compliance data. Please try again.',
 	background_refresh_complete: 'Background updates completed for {count} {count, plural, one {country} other {countries}}.',
-	background_refresh_error: 'Some background updates failed.'
+	background_refresh_error: 'Some background updates failed.',
+	// Button and UI translations
+	button_details: 'Details',
+	button_view_details_aria: 'View detailed compliance information for {country}',
+	button_columns: 'Columns',
+	button_manage_columns: 'Manage table columns',
+	button_close: 'Close',
+	button_cancel: 'Cancel',
+	button_apply: 'Apply',
+	button_reset_columns: 'Reset to Default',
+	// Column manager
+	column_manager_title: 'Manage Columns',
+	column_manager_help: 'Drag columns to reorder, toggle visibility with checkboxes.',
+	drag_handle: 'Drag to reorder',
+	order_position: 'Position {position}',
+	// Skip link
+	skip_to_main: 'Skip to main content',
+	// Timeline and content translations
+	timeline_periodic_reporting: 'Periodic E-Reporting',
+	timeline_B2G: 'Business-to-Government (B2G)',
+	timeline_B2B: 'Business-to-Business (B2B)',
+	timeline_B2C: 'Business-to-Consumer (B2C)',
+	timeline_threshold: 'Threshold',
+	// News source types
+	news_source_Official: 'Official',
+	news_source_GENA: 'GENA',
+	news_source_Consulting: 'Consulting',
+	news_source_VATCalc: 'VATCalc',
+	news_source_Industry: 'Industry',
+	news_source_Government: 'Government',
+	// Toast messages
+	toast_background_refresh_complete: 'Background refresh details now complete',
+	toast_link_broken: 'Link appears broken. Opening search for: {title}',
+	toast_popup_blocked: 'Popup blocked. Opening search instead.'
 };
 
 
