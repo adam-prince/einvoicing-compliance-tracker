@@ -25,6 +25,7 @@ declare module 'carbon-react/lib' {
     onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
     type?: string;
     labelWidth?: string;
+    size?: 'small' | 'medium' | 'large';
   }
 
   export interface SelectProps {

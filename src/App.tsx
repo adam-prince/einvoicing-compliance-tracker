@@ -1,5 +1,5 @@
 import { useEffect, useCallback } from 'react';
-import { CarbonProvider, GlobalStyle, Select, Option } from 'carbon-react/lib';
+import { CarbonProvider, GlobalStyle, Select, Option, Button } from 'carbon-react/lib';
 import type { Country, EInvoicingCompliance } from '@types';
 import { useStore } from './store/useStore';
 import complianceData from './data/compliance-data.json';
@@ -13,6 +13,8 @@ import { ErrorMessage } from './components/common/ErrorBoundary';
 import { loadSavedTheme } from './utils/theme';
 import { ComplianceDataService } from './services/complianceDataService';
 import { useI18n } from './i18n';
+import { useColumnManager } from './hooks/useColumnManager';
+import { ColumnManager } from './components/CountryTable/ColumnManager';
 
 interface ComplianceData {
 	isoCode3: string;
@@ -43,6 +45,13 @@ export function App() {
 		setLanguage,
 	} = useStore();
 	const { t } = useI18n();
+	const { 
+		columnConfigs, 
+		showColumnManager, 
+		openColumnManager, 
+		closeColumnManager, 
+		handleColumnsChange 
+	} = useColumnManager();
 
 	// Memoize data processing functions for better performance
 	const mergeCountriesWithCompliance = useCallback((basics: BasicCountry[], compliance: ComplianceData[]): Country[] => {
@@ -260,23 +269,35 @@ export function App() {
 							{t('app_subtitle')}
 						</p>
 					</div>
-					<div className="row" aria-label="Language selector" style={{ gap: 8 }}>
-						<Select
-							label={t('label_language')}
-							value={language}
-							onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setLanguage(e.target.value)}
-							aria-label="Select application language"
-							size="small"
-							labelInline
-							labelWidth="80px"
-						>
-							<Option value="en-GB" text="English (UK)" />
-							<Option value="en-US" text="English (US)" />
-							<Option value="fr-FR" text="Français" />
-							<Option value="de-DE" text="Deutsch" />
-							<Option value="es-ES" text="Español" />
-						</Select>
-						{/* Main refresh button removed as requested; use existing 'Refresh details' controls */}
+					<div className="row" aria-label="Application controls" style={{ gap: 16, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+						<div style={{ minWidth: '180px' }}>
+							<Select
+								label={t('label_language')}
+								value={language}
+								onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setLanguage(e.target.value)}
+								aria-label="Select application language"
+								size="medium"
+								labelInline={false}
+							>
+								<Option value="en-GB" text="English (UK)" />
+								<Option value="en-US" text="English (US)" />
+								<Option value="fr-FR" text="Français" />
+								<Option value="de-DE" text="Deutsch" />
+								<Option value="es-ES" text="Español" />
+							</Select>
+						</div>
+						<div style={{ minWidth: '120px' }}>
+							<Button
+								onClick={openColumnManager}
+								size="medium"
+								variant="secondary"
+								aria-label={t('button_manage_columns') || 'Manage table columns'}
+								title={t('button_manage_columns') || 'Manage table columns'}
+							>
+								<span style={{ fontSize: '12px', marginRight: '6px' }}>⚙️</span>
+								{t('button_columns') || 'Columns'}
+							</Button>
+						</div>
 					</div>
 				</div>
 
@@ -304,6 +325,14 @@ export function App() {
 					<CountryDetail 
 						country={selected} 
 						onClose={closeModal}
+					/>
+				)}
+
+				{showColumnManager && (
+					<ColumnManager
+						columns={columnConfigs}
+						onColumnsChange={handleColumnsChange}
+						onClose={closeColumnManager}
 					/>
 				)}
 			</div>
