@@ -6,6 +6,7 @@ export interface ColumnConfig {
 	label: string;
 	visible: boolean;
 	order: number;
+	description?: string;
 }
 
 // Default column configurations - Details first, Country second, Continent third
