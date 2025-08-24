@@ -4,13 +4,65 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="light dark" />
+    <meta name="description" content="Track e-invoicing compliance requirements and implementation status across different countries and regions." />
+    <meta name="keywords" content="e-invoicing, compliance, tax, B2G, B2B, B2C, electronic invoicing, digital transformation" />
+    <meta name="author" content="E-Invoicing Compliance Tracker" />
+    <meta name="theme-color" content="#3b82f6" />
+    <!-- WCAG 2.2 Level AA Compliance Meta Tags -->
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="msapplication-tap-highlight" content="no" />
     <title>E‑Invoicing Compliance Tracker</title>
+    <!-- Accessibility Enhancements -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin="anonymous" />
+    <style>
+      /* Critical CSS for initial load accessibility */
+      .sr-only {
+        position: absolute !important;
+        width: 1px !important;
+        height: 1px !important;
+        padding: 0 !important;
+        margin: -1px !important;
+        overflow: hidden !important;
+        clip: rect(0, 0, 0, 0) !important;
+        white-space: nowrap !important;
+        border: 0 !important;
+      }
+      
+      /* High contrast mode support */
+      @media (prefers-contrast: high) {
+        * {
+          border-color: ButtonText !important;
+        }
+      }
+      
+      /* Reduced motion preferences */
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+          scroll-behavior: auto !important;
+        }
+      }
+    </style>
   </head>
   <body>
-    <a class="skip-link" href="#main" id="skip-link">Skip to main content</a>
-    <div id="root"></div>
+    <!-- Skip Links for Keyboard Navigation -->
+    <nav aria-label="Skip navigation" class="skip-navigation">
+      <a class="skip-link" href="#main" id="skip-link">Skip to main content</a>
+      <a class="skip-link" href="#filters">Skip to filters</a>
+      <a class="skip-link" href="#table">Skip to data table</a>
+    </nav>
+    
+    <!-- Application Root -->
+    <div id="root" role="application" aria-label="E-Invoicing Compliance Tracker Application"></div>
+    
+    <!-- Screen Reader Announcements -->
+    <div id="aria-live-region" aria-live="polite" aria-atomic="true" class="sr-only"></div>
+    <div id="aria-live-assertive" aria-live="assertive" aria-atomic="true" class="sr-only"></div>
+    
     <script type="module" src="/src/main.tsx"></script>
   </body>
-  </html>
-
-
+</html>

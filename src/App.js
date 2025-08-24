@@ -1,7 +1,7 @@
-import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
-import { useEffect, useCallback } from 'react';
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+import { useEffect, useCallback, useState } from 'react';
+import { CarbonProvider, GlobalStyle, Button } from 'carbon-react';
 import { useStore } from './store/useStore';
-import complianceData from './data/compliance-data.json';
 import { CountryTable } from './components/CountryTable/CountryTable';
 import { CountryDetail } from './components/CountryDetail/CountryDetail';
 import { Filters } from './components/Filters/Filters';
@@ -9,185 +9,192 @@ import { QuickStats } from './components/CountryTable/QuickStats';
 import { ExportButtons } from './components/CountryTable/ExportButtons';
 import { LoadingSpinner } from './components/common/LoadingSpinner';
 import { ErrorMessage } from './components/common/ErrorBoundary';
+import { SecurityHeaders } from './components/common/SecurityHeaders';
+import { SettingsModal } from './components/Settings/SettingsModal';
 import { loadSavedTheme } from './utils/theme';
-import { ComplianceDataService } from './services/complianceDataService';
 import { useI18n } from './i18n';
+import { useColumnManager } from './hooks/useColumnManager';
+import { ColumnManager } from './components/CountryTable/ColumnManager';
+import { gracefulShutdown, initializeCleanupHandlers } from './utils/cleanup';
+import { useCountries } from './hooks/useApi';
 export function App() {
-    const { setCountries, setLoading, setError, countries, selected, setSelected, loading, error, language, setLanguage, } = useStore();
-    const { t } = useI18n();
-    // Memoize data processing functions for better performance
-    const mergeCountriesWithCompliance = useCallback((basics, compliance) => {
-        const complianceByIso3 = new Map(compliance.map(c => [c.isoCode3 || c.name, c]));
-        const result = basics
-            .filter(b => b.continent &&
-            String(b.continent).trim().length > 0 &&
-            String(b.name).trim().toLowerCase() !== String(b.continent).trim().toLowerCase())
-            .map(b => {
-            const comp = complianceByIso3.get(b.isoCode3) || {};
-            const e = comp.eInvoicing || {
-                b2g: { status: 'none', formats: [], legislation: { name: '' } },
-                b2b: { status: 'none', formats: [], legislation: { name: '' } },
-                b2c: { status: 'none', formats: [], legislation: { name: '' } },
-                lastUpdated: new Date().toISOString(),
-            };
-            return {
-                id: b.isoCode3 || b.isoCode2 || b.name,
-                name: b.name,
-                isoCode2: b.isoCode2,
-                isoCode3: b.isoCode3,
-                continent: b.continent,
-                region: b.region,
-                eInvoicing: normalizeCompliance(e),
-            };
-        });
-        // Add compliance-only countries
-        for (const c of compliance) {
-            if (!result.find(r => r.isoCode3 === c.isoCode3)) {
-                result.push({
-                    id: c.isoCode3,
-                    name: c.name,
-                    isoCode2: '',
-                    isoCode3: c.isoCode3,
-                    continent: c.continent || 'Unknown',
-                    eInvoicing: normalizeCompliance(c.eInvoicing),
-                });
+    console.log('App component rendering...');
+    try {
+        const { setCountries, setLoading, setError, countries, selected, setSelected, loading, error, language, setLanguage, } = useStore();
+        console.log('App useStore loaded, countries count:', countries.length);
+        const { t } = useI18n();
+        const { columnConfigs, showColumnManager, openColumnManager, closeColumnManager, handleColumnsChange } = useColumnManager();
+        // Settings modal state
+        const [showSettings, setShowSettings] = useState(false);
+        const openSettings = useCallback(() => setShowSettings(true), []);
+        const closeSettings = useCallback(() => setShowSettings(false), []);
+        // Use the API to load countries data
+        const { data: countriesData, isLoading: apiLoading, error: apiError, refetch } = useCountries();
+        // Fallback to local data if API fails
+        const loadLocalDataFallback = useCallback(async () => {
+            setLoading(true);
+            setError('');
+            try {
+                // Import local data as fallback
+                const [countriesModule, complianceModule] = await Promise.all([
+                    import('./data/countries.json'),
+                    import('./data/compliance-data.json')
+                ]);
+                const basics = countriesModule.default;
+                const compliance = complianceModule.default;
+                // Basic data merging for fallback
+                if (basics && Array.isArray(basics) && basics.length > 0) {
+                    // Convert basic countries to full country format
+                    const countries = basics.map(country => ({
+                        id: country.isoCode3 || country.name,
+                        name: country.name || 'Unknown',
+                        isoCode2: country.isoCode2 || '',
+                        isoCode3: country.isoCode3 || '',
+                        continent: country.continent || 'Unknown',
+                        region: country.region,
+                        eInvoicing: {
+                            b2g: { status: 'none', formats: [], legislation: { name: '' } },
+                            b2b: { status: 'none', formats: [], legislation: { name: '' } },
+                            b2c: { status: 'none', formats: [], legislation: { name: '' } },
+                            lastUpdated: new Date().toISOString(),
+                        }
+                    }));
+                    setCountries(countries);
+                    setError(''); // Clear error since we have data now
+                }
+                else {
+                    throw new Error('No local data available');
+                }
             }
-        }
-        return result
-            .filter(c => c.continent && c.name.toLowerCase() !== String(c.continent).toLowerCase())
-            .sort((a, b) => a.name.localeCompare(b.name));
-    }, []);
-    const normalizeCompliance = useCallback((c) => {
-        const safe = (x) => ({
-            status: x?.status ?? 'none',
-            implementationDate: x?.implementationDate,
-            formats: x?.formats ?? [],
-            legislation: x?.legislation ?? { name: '' }
-        });
-        return {
-            b2g: safe(c?.b2g),
-            b2b: safe(c?.b2b),
-            b2c: safe(c?.b2c),
-            lastUpdated: c?.lastUpdated ?? new Date().toISOString(),
-        };
-    }, []);
-    // Enhanced data loading with better error handling
-    const loadData = useCallback(async () => {
-        setLoading(true);
-        setError('');
-        try {
-            const basics = (await import('./data/countries.json')).default;
-            if (!Array.isArray(basics) || basics.length === 0) {
-                throw new Error('Invalid country data format');
+            catch (e) {
+                console.error('Failed to load fallback data:', e);
+                setError(e.message || 'Failed to load country data. Please check your connection.');
             }
-            const merged = mergeCountriesWithCompliance(basics, complianceData);
-            if (merged.length === 0) {
-                throw new Error('No valid country data found');
+            finally {
+                setLoading(false);
             }
-            setCountries(merged);
-        }
-        catch (e) {
-            console.error('Failed to load data:', e);
-            setError(e.message || 'Failed to load country data. Please try again.');
-        }
-        finally {
-            setLoading(false);
-        }
-    }, [setCountries, setLoading, setError, mergeCountriesWithCompliance]);
-    // Initial data load
-    useEffect(() => {
-        loadData();
-    }, [loadData]);
-    // Theme management and skip link translation
-    useEffect(() => {
-        loadSavedTheme();
-        // Update skip link text with current language
-        const skipLink = document.getElementById('skip-link');
-        if (skipLink) {
-            skipLink.textContent = t('skip_to_main') || 'Skip to main content';
-        }
-    }, [t]);
-    // Hash-based modal management with improved URL handling
-    useEffect(() => {
-        const openFromHash = () => {
-            const match = /#country=([^&]+)/.exec(window.location.hash);
-            if (!match) {
-                setSelected(undefined);
-                return;
+        }, [setCountries, setLoading, setError]);
+        // Update store when API data changes, with automatic fallback
+        useEffect(() => {
+            if (countriesData) {
+                setCountries(countriesData);
+                setLoading(false);
+                setError('');
             }
-            const id = decodeURIComponent(match[1]);
-            const country = countries.find((c) => c.id === id);
-            if (country) {
-                setSelected(country);
+            else if (apiError) {
+                console.log('API failed, loading local data fallback...');
+                // Automatically trigger fallback when API fails
+                loadLocalDataFallback();
             }
             else {
-                // Clear invalid hash
-                history.replaceState(null, '', window.location.pathname + window.location.search);
-                setSelected(undefined);
+                setLoading(apiLoading);
             }
-        };
-        window.addEventListener('hashchange', openFromHash);
-        openFromHash();
-        return () => window.removeEventListener('hashchange', openFromHash);
-    }, [countries, setSelected]);
-    // Keyboard event handling for accessibility
-    useEffect(() => {
-        const handleKeyDown = (e) => {
-            if (e.key === 'Escape' && selected) {
-                setSelected(undefined);
-                if (window.location.hash.startsWith('#country=')) {
-                    history.replaceState(null, '', window.location.pathname + window.location.search);
+        }, [countriesData, apiLoading, apiError, setCountries, setLoading, setError, loadLocalDataFallback]);
+        // Initialize cleanup handlers
+        useEffect(() => {
+            initializeCleanupHandlers();
+        }, []);
+        // Theme management and skip link translation
+        useEffect(() => {
+            loadSavedTheme();
+            // Update skip link text with current language
+            const skipLink = document.getElementById('skip-link');
+            if (skipLink) {
+                skipLink.textContent = t('skip_to_main') || 'Skip to main content';
+            }
+        }, [t]);
+        // Hash-based modal management with improved URL handling
+        useEffect(() => {
+            const openFromHash = () => {
+                const match = /#country=([^&]+)/.exec(window.location.hash);
+                if (!match) {
+                    setSelected(undefined);
+                    return;
                 }
-            }
-        };
-        document.addEventListener('keydown', handleKeyDown);
-        return () => document.removeEventListener('keydown', handleKeyDown);
-    }, [selected, setSelected]);
-    // Memoize modal close handler
-    const closeModal = useCallback(() => {
-        setSelected(undefined);
-        if (window.location.hash.startsWith('#country=')) {
-            history.replaceState(null, '', window.location.pathname + window.location.search);
-        }
-    }, [setSelected]);
-    // Retry function for error recovery
-    const retryLoad = useCallback(() => {
-        loadData();
-    }, [loadData]);
-    // Selective refresh: block only for filtered countries; refresh others in background
-    const refreshVisibleThenBackground = useCallback(async () => {
-        const service = ComplianceDataService.getInstance();
-        try {
-            setLoading(true);
-            // Foreground refresh for filtered (visible) countries
-            const visibleIds = new Set((useStore.getState().filtered || []).map((c) => c.isoCode3));
-            for (const id of visibleIds) {
-                await service.refreshComplianceData(id);
-            }
-            // Merge by reloading data (from service cache)
-            await loadData();
-        }
-        finally {
-            setLoading(false);
-            // Background refresh for remaining countries
-            setTimeout(async () => {
-                const all = service.getAllAvailableCountries();
-                for (const id of all) {
-                    if (!(useStore.getState().filtered || []).find((c) => c.isoCode3 === id)) {
-                        await service.refreshComplianceData(id);
+                const id = decodeURIComponent(match[1]);
+                const country = countries.find((c) => c.id === id);
+                if (country) {
+                    setSelected(country);
+                }
+                else {
+                    // Clear invalid hash
+                    history.replaceState(null, '', window.location.pathname + window.location.search);
+                    setSelected(undefined);
+                }
+            };
+            window.addEventListener('hashchange', openFromHash);
+            openFromHash();
+            return () => window.removeEventListener('hashchange', openFromHash);
+        }, [countries, setSelected]);
+        // Keyboard event handling for accessibility
+        useEffect(() => {
+            const handleKeyDown = (e) => {
+                if (e.key === 'Escape' && selected) {
+                    setSelected(undefined);
+                    if (window.location.hash.startsWith('#country=')) {
+                        history.replaceState(null, '', window.location.pathname + window.location.search);
                     }
                 }
-                // After background completes, silently refresh list if user hasn't navigated away
-                try {
-                    await loadData();
-                }
-                catch { }
-            }, 0);
+            };
+            document.addEventListener('keydown', handleKeyDown);
+            return () => document.removeEventListener('keydown', handleKeyDown);
+        }, [selected, setSelected]);
+        // Memoize modal close handler
+        const closeModal = useCallback(() => {
+            setSelected(undefined);
+            if (window.location.hash.startsWith('#country=')) {
+                history.replaceState(null, '', window.location.pathname + window.location.search);
+            }
+        }, [setSelected]);
+        // Retry function for error recovery
+        const retryLoad = useCallback(() => {
+            // Always try local data fallback on retry since API is not available
+            loadLocalDataFallback();
+        }, [loadLocalDataFallback]);
+        // Selective refresh: use API to refresh data
+        const refreshVisibleThenBackground = useCallback(async () => {
+            try {
+                setLoading(true);
+                // Refresh data via API
+                await refetch();
+            }
+            catch (error) {
+                console.error('Failed to refresh data:', error);
+                // Fallback to local data if API fails
+                await loadLocalDataFallback();
+            }
+            finally {
+                setLoading(false);
+            }
+        }, [refetch, loadLocalDataFallback, setLoading]);
+        // Show error state
+        if (error && !loading) {
+            return (_jsx("div", { className: "container", children: _jsx(ErrorMessage, { message: error, onRetry: retryLoad }) }));
         }
-    }, [loadData, setLoading]);
-    // Show error state
-    if (error && !loading) {
-        return (_jsx("div", { className: "container", children: _jsx(ErrorMessage, { message: error, onRetry: retryLoad }) }));
+        try {
+            return (_jsxs(CarbonProvider, { children: [_jsx(GlobalStyle, {}), _jsx(SecurityHeaders, {}), _jsxs("div", { className: "app-container", children: [_jsx("header", { className: "app-header", role: "banner", children: _jsxs("div", { className: "header-content", children: [_jsxs("div", { className: "header-title-section", children: [_jsx("h1", { className: "app-title", children: t('app_title') || 'E‑Invoicing Compliance Tracker' }), _jsx("p", { className: "app-subtitle", children: t('app_subtitle') || 'Track e-invoicing compliance requirements across countries' })] }), _jsxs("div", { className: "header-controls", role: "group", "aria-label": "Application controls", children: [_jsxs(Button, { onClick: openSettings, size: "small", variant: "primary", "aria-label": t('open_settings') || 'Open application settings', style: {
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '6px',
+                                                        backgroundColor: '#0f62fe',
+                                                        color: 'white',
+                                                        border: '1px solid #0f62fe'
+                                                    }, children: [_jsx("span", { "aria-hidden": "true", children: "\u2699\uFE0F" }), t('settings') || 'Settings'] }), _jsxs(Button, { onClick: gracefulShutdown, size: "small", variant: "secondary", "aria-label": t('exit_application') || 'Exit application and clean up data', style: {
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '6px',
+                                                        backgroundColor: '#dc2626',
+                                                        color: 'white',
+                                                        border: '1px solid #dc2626'
+                                                    }, children: [_jsx("span", { "aria-hidden": "true", children: "\uD83D\uDEAA" }), t('exit') || 'Exit'] })] })] }) }), _jsx("div", { className: "app-content", children: loading ? (_jsxs("div", { className: "loading-container", role: "status", "aria-live": "polite", children: [_jsx(LoadingSpinner, {}), _jsx("span", { className: "sr-only", children: t('loading_data') || 'Loading compliance data...' })] })) : (_jsx("main", { id: "main", role: "main", tabIndex: -1, className: "main-content", children: _jsxs("div", { className: "content-sections", children: [_jsxs("section", { "aria-labelledby": "stats-heading", className: "stats-section", children: [_jsx("h2", { id: "stats-heading", className: "sr-only", children: t('statistics') || 'Compliance Statistics' }), _jsx(QuickStats, {})] }), _jsxs("section", { id: "filters", "aria-labelledby": "filters-heading", className: "filters-section", children: [_jsx("h2", { id: "filters-heading", className: "section-heading", children: t('filters') || 'Filters' }), _jsx(Filters, {})] }), _jsxs("section", { "aria-labelledby": "export-heading", className: "export-section", children: [_jsx("h2", { id: "export-heading", className: "sr-only", children: t('export_options') || 'Export Options' }), _jsx(ExportButtons, {})] }), _jsxs("section", { id: "table", "aria-labelledby": "table-heading", className: "table-section", children: [_jsx("h2", { id: "table-heading", className: "section-heading", children: t('countries_table') || 'Countries Compliance Data' }), _jsx(CountryTable, {})] })] }) })) }), showSettings && (_jsx(SettingsModal, { onClose: closeSettings })), showColumnManager && (_jsx(ColumnManager, { columns: columnConfigs, onClose: closeColumnManager, onColumnsChange: handleColumnsChange })), selected && (_jsx(CountryDetail, { country: selected, onClose: closeModal }))] })] }));
+        }
+        catch (renderError) {
+            console.error('Error rendering App component:', renderError);
+            return (_jsxs("div", { style: { padding: '2rem', fontFamily: 'Arial, sans-serif' }, children: [_jsx("h1", { style: { color: 'red' }, children: "Application Error" }), _jsx("p", { children: "There was an error rendering the application:" }), _jsx("pre", { style: { background: '#f5f5f5', padding: '1rem', borderRadius: '4px' }, children: String(renderError) })] }));
+        }
     }
-    return (_jsxs("div", { className: "container", children: [_jsxs("div", { className: "row", style: { justifyContent: 'space-between', alignItems: 'center' }, children: [_jsxs("div", { children: [_jsx("h1", { style: { marginTop: 0 }, children: t('app_title') }), _jsx("p", { style: { color: '#9aa4b2', marginTop: -8 }, children: t('app_subtitle') })] }), _jsxs("div", { className: "row", "aria-label": "Language selector", style: { gap: 8 }, children: [_jsx("label", { htmlFor: "language-select", style: { fontSize: 12, color: '#6b7280' }, children: t('label_language') }), _jsxs("select", { id: "language-select", value: language, onChange: (e) => setLanguage(e.target.value), "aria-label": "Select application language", children: [_jsx("option", { value: "en-GB", children: "English (UK)" }), _jsx("option", { value: "en-US", children: "English (US)" }), _jsx("option", { value: "fr-FR", children: "Fran\u00E7ais" }), _jsx("option", { value: "de-DE", children: "Deutsch" }), _jsx("option", { value: "es-ES", children: "Espa\u00F1ol" })] })] })] }), loading ? (_jsx(LoadingSpinner, { message: t('loading_compliance') })) : (_jsx(_Fragment, { children: _jsxs("main", { id: "main", role: "main", tabIndex: -1, children: [_jsx(QuickStats, {}), _jsx("div", { className: "spacer" }), _jsx(Filters, {}), _jsx("div", { className: "spacer" }), _jsxs("div", { className: "row", style: { justifyContent: 'space-between', marginBottom: 8 }, children: [_jsx("div", { style: { color: '#9aa4b2' }, "aria-live": "polite", children: t('filters_total_countries', { count: countries.length }) }), _jsx(ExportButtons, {})] }), _jsx(CountryTable, {})] }) })), selected && (_jsx(CountryDetail, { country: selected, onClose: closeModal }))] }));
+    catch (appError) {
+        console.error('Error in App component:', appError);
+        return (_jsxs("div", { style: { padding: '2rem', fontFamily: 'Arial, sans-serif' }, children: [_jsx("h1", { style: { color: 'red' }, children: "Application Initialization Error" }), _jsx("p", { children: "There was an error initializing the application:" }), _jsx("pre", { style: { background: '#f5f5f5', padding: '1rem', borderRadius: '4px' }, children: String(appError) })] }));
+    }
 }

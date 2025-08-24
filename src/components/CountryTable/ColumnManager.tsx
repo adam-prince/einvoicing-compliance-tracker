@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { Button } from 'carbon-react';
 import { useI18n } from '../../i18n';
 
 export interface ColumnConfig {
@@ -106,19 +107,14 @@ export function ColumnManager({ columns, onColumnsChange, onClose }: ColumnManag
 					<h2 id="column-manager-title" style={{ margin: 0, fontSize: '18px' }}>
 						{t('column_manager_title') || 'Manage Columns'}
 					</h2>
-					<button 
+					<Button 
 						onClick={onClose}
 						aria-label={t('button_close') || 'Close'}
-						style={{
-							background: 'var(--button-bg, #f3f4f6)',
-							border: '1px solid var(--border, #d1d5db)',
-							borderRadius: '4px',
-							padding: '4px 8px',
-							cursor: 'pointer'
-						}}
+						size="small"
+						variant="tertiary"
 					>
 						×
-					</button>
+					</Button>
 				</header>
 				
 				<div style={{ padding: 16 }}>
@@ -208,49 +204,26 @@ export function ColumnManager({ columns, onColumnsChange, onClose }: ColumnManag
 						justifyContent: 'space-between',
 						alignItems: 'center'
 					}}>
-						<button
+						<Button
 							onClick={handleReset}
-							style={{
-								background: 'var(--secondary-bg, #6b7280)',
-								color: 'white',
-								border: 'none',
-								borderRadius: '4px',
-								padding: '8px 16px',
-								cursor: 'pointer',
-								fontSize: '14px'
-							}}
+							variant="secondary"
 						>
 							{t('button_reset_columns') || 'Reset to Default'}
-						</button>
+						</Button>
 						
 						<div style={{ display: 'flex', gap: 8 }}>
-							<button
+							<Button
 								onClick={onClose}
-								style={{
-									background: 'var(--button-bg, #f3f4f6)',
-									border: '1px solid var(--border)',
-									borderRadius: '4px',
-									padding: '8px 16px',
-									cursor: 'pointer',
-									fontSize: '14px'
-								}}
+								variant="secondary"
 							>
 								{t('button_cancel') || 'Cancel'}
-							</button>
-							<button
+							</Button>
+							<Button
 								onClick={handleApply}
-								style={{
-									background: 'var(--primary, #3b82f6)',
-									color: 'white',
-									border: 'none',
-									borderRadius: '4px',
-									padding: '8px 16px',
-									cursor: 'pointer',
-									fontSize: '14px'
-								}}
+								variant="primary"
 							>
 								{t('button_apply') || 'Apply'}
-							</button>
+							</Button>
 						</div>
 					</div>
 				</div>

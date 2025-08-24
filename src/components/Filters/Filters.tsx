@@ -1,9 +1,11 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { Textbox, Select, Option } from 'carbon-react';
 import { useStore } from '../../store/useStore';
 import { useDebouncedValue } from '../../hooks/useDebouncedValue';
 import { useI18n } from '../../i18n';
+import { sanitizeSearchQuery } from '../../utils/security';
 
-export function Filters() {
+export const Filters = React.memo(function Filters() {
 	const { filters, setFilters } = useStore();
 	const { t } = useI18n();
 	const [search, setSearch] = useState(filters.search);
@@ -14,60 +16,59 @@ export function Filters() {
 	}, [debouncedSearch, setFilters]);
 
 	return (
-		<div className="card row wrap" style={{ gap: 12 }}>
-			<div>
-				<label htmlFor="country-search">{t('filters_search_countries')}</label>
-				<input
-					type="text"
-					placeholder={t('filters_search_placeholder')}
-					value={search}
-					onChange={(e) => setSearch(e.target.value)}
-					style={{ minWidth: 220 }}
-					id="country-search"
-					name="country-search"
-				/>
-			</div>
-			<div>
-				<label htmlFor="last-change-date">{t('filters_updated_after')}</label>
-				<input
-					type="date"
-					id="last-change-date"
-					name="last-change-date"
-					value={filters.lastChangeAfter || ''}
-					onChange={(e) => setFilters({ lastChangeAfter: e.target.value })}
-				/>
-			</div>
-			<div>
-				<label htmlFor="continent-filter">{t('filters_continent')}</label>
-				<select 
-					value={filters.continent || 'all'} 
-					onChange={(e) => setFilters({ continent: e.target.value === 'all' ? '' : e.target.value })} 
-					id="continent-filter" 
-					name="continent-filter"
-				>
-					<option value="all">{t('filters_all_continents')}</option>
-					<option value="Europe">{t('filters_continent_europe')}</option>
-					<option value="Asia">{t('filters_continent_asia')}</option>
-					<option value="Africa">{t('filters_continent_africa')}</option>
-					<option value="Americas">{t('filters_continent_americas')}</option>
-					<option value="Oceania">{t('filters_continent_oceania')}</option>
-				</select>
-			</div>
-			<div>
-				<label htmlFor="status-filter">{t('filters_status')}</label>
-				<select 
-					value={filters.status || 'all'} 
-					onChange={(e) => setFilters({ status: e.target.value === 'all' ? '' : e.target.value })} 
-					id="status-filter" 
-					name="status-filter"
-				>
-					<option value="all">{t('filters_all_statuses')}</option>
-					<option value="mandated">{t('status_mandated')}</option>
-					<option value="permitted">{t('status_permitted')}</option>
-					<option value="planned">{t('status_planned')}</option>
-					<option value="none">{t('status_none')}</option>
-				</select>
+		<div className="card">
+			<div className="row wrap" style={{ gap: 16, alignItems: 'flex-end' }}>
+				<div style={{ minWidth: '250px', flex: '1 1 250px' }}>
+					<Textbox
+						label={t('filters_search_countries')}
+						placeholder={t('filters_search_placeholder')}
+						value={search}
+						onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+							const sanitizedValue = sanitizeSearchQuery(e.target.value);
+							setSearch(sanitizedValue);
+						}}
+						size="medium"
+					/>
+				</div>
+				<div style={{ minWidth: '180px', flex: '0 1 180px' }}>
+					<Textbox
+						type="date"
+						label={t('filters_updated_after')}
+						value={filters.lastChangeAfter || ''}
+						onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFilters({ lastChangeAfter: e.target.value })}
+						size="medium"
+					/>
+				</div>
+				<div style={{ minWidth: '160px', flex: '0 1 160px' }}>
+					<Select 
+						label={t('filters_continent')}
+						value={filters.continent || 'all'} 
+						onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFilters({ continent: e.target.value === 'all' ? '' : e.target.value })}
+						size="medium"
+					>
+						<Option value="all" text={t('filters_all_continents')} />
+						<Option value="Europe" text={t('filters_continent_europe')} />
+						<Option value="Asia" text={t('filters_continent_asia')} />
+						<Option value="Africa" text={t('filters_continent_africa')} />
+						<Option value="Americas" text={t('filters_continent_americas')} />
+						<Option value="Oceania" text={t('filters_continent_oceania')} />
+					</Select>
+				</div>
+				<div style={{ minWidth: '140px', flex: '0 1 140px' }}>
+					<Select 
+						label={t('filters_status')}
+						value={filters.status || 'all'} 
+						onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFilters({ status: e.target.value === 'all' ? '' : e.target.value })}
+						size="medium"
+					>
+						<Option value="all" text={t('filters_all_statuses')} />
+						<Option value="mandated" text={t('status_mandated')} />
+						<Option value="permitted" text={t('status_permitted')} />
+						<Option value="planned" text={t('status_planned')} />
+						<Option value="none" text={t('status_none')} />
+					</Select>
+				</div>
 			</div>
 		</div>
 	);
-}
+});

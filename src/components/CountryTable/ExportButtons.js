@@ -1,9 +1,11 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { Button } from 'carbon-react';
 import { useStore } from '../../store/useStore';
-import ExcelJS from 'exceljs';
 import { ProgressOverlay } from '../common/ProgressOverlay';
-export function ExportButtons() {
+import { rateLimiter, RATE_LIMITS, sanitizeFilename } from '../../utils/security';
+import { apiService } from '../../services/api';
+export const ExportButtons = React.memo(function ExportButtons() {
     const { filtered, countries } = useStore();
     const [isCorsRefreshing, setIsCorsRefreshing] = useState(false);
     const [corsProgress, setCorsProgress] = useState(0);
@@ -32,89 +34,270 @@ export function ExportButtons() {
         return () => timer && clearInterval(timer);
     }, [nodeVisible]);
     async function toExcel() {
-        const workbook = new ExcelJS.Workbook();
-        const sheet = workbook.addWorksheet('Countries');
-        sheet.columns = [
-            { header: 'id', key: 'id' },
-            { header: 'name', key: 'name' },
-            { header: 'isoCode2', key: 'isoCode2' },
-            { header: 'isoCode3', key: 'isoCode3' },
-            { header: 'continent', key: 'continent' },
-            { header: 'region', key: 'region' },
-            { header: 'b2g_status', key: 'b2g_status' },
-            { header: 'b2g_implementationDate', key: 'b2g_implementationDate' },
-            { header: 'b2g_lastChangeDate', key: 'b2g_lastChangeDate' },
-            { header: 'b2b_status', key: 'b2b_status' },
-            { header: 'b2b_implementationDate', key: 'b2b_implementationDate' },
-            { header: 'b2b_lastChangeDate', key: 'b2b_lastChangeDate' },
-            { header: 'b2b_legislationFinalisedDate', key: 'b2b_legislationFinalisedDate' },
-            { header: 'b2b_lastDraftDate', key: 'b2b_lastDraftDate' },
-            { header: 'b2b_phases', key: 'b2b_phases' },
-            { header: 'b2c_status', key: 'b2c_status' },
-            { header: 'b2c_implementationDate', key: 'b2c_implementationDate' },
-            { header: 'b2c_lastChangeDate', key: 'b2c_lastChangeDate' },
-            { header: 'lastUpdated', key: 'lastUpdated' },
-        ];
-        for (const c of filtered) {
-            const b2bPhases = c.eInvoicing.b2b?.phases || [];
-            const phasesStr = Array.isArray(b2bPhases)
-                ? b2bPhases.map((p) => `${p.name} - ${p.startDate}${p.criteria ? ' - ' + p.criteria : ''}`).join(' | ')
-                : '';
-            sheet.addRow({
-                id: c.id,
-                name: c.name,
-                isoCode2: c.isoCode2,
-                isoCode3: c.isoCode3,
-                continent: c.continent,
-                region: c.region ?? '',
-                b2g_status: c.eInvoicing.b2g.status,
-                b2g_implementationDate: c.eInvoicing.b2g.implementationDate ?? '',
-                b2g_lastChangeDate: c.eInvoicing.b2g.lastChangeDate ?? '',
-                b2b_status: c.eInvoicing.b2b.status,
-                b2b_implementationDate: c.eInvoicing.b2b.implementationDate ?? '',
-                b2b_lastChangeDate: c.eInvoicing.b2b.lastChangeDate ?? '',
-                b2b_legislationFinalisedDate: c.eInvoicing.b2b.legislationFinalisedDate ?? '',
-                b2b_lastDraftDate: c.eInvoicing.b2b.lastDraftDate ?? '',
-                b2b_phases: phasesStr,
-                b2c_status: c.eInvoicing.b2c.status,
-                b2c_implementationDate: c.eInvoicing.b2c.implementationDate ?? '',
-                b2c_lastChangeDate: c.eInvoicing.b2c.lastChangeDate ?? '',
-                lastUpdated: c.eInvoicing.lastUpdated,
-            });
+        // Rate limiting check for export operations
+        const userId = 'current-user'; // In a real app, this would be the actual user ID
+        if (!rateLimiter.isAllowed(userId + '_export', RATE_LIMITS.export.maxRequests, RATE_LIMITS.export.windowMs)) {
+            alert('Export rate limit reached. Please wait before trying again.');
+            return;
         }
-        // Add a second sheet for format specifications with versions/dates
-        const fsheet = workbook.addWorksheet('Format Specs');
-        fsheet.columns = [
-            { header: 'country', key: 'country' },
-            { header: 'channel', key: 'channel' },
-            { header: 'format', key: 'format' },
-            { header: 'specUrl', key: 'specUrl' },
-            { header: 'specVersion', key: 'specVersion' },
-            { header: 'specPublishedDate', key: 'specPublishedDate' },
-        ];
-        for (const c of filtered) {
-            [['b2g', c.eInvoicing.b2g], ['b2b', c.eInvoicing.b2b], ['b2c', c.eInvoicing.b2c]].forEach(([ch, st]) => {
-                for (const f of st.formats) {
-                    fsheet.addRow({
-                        country: c.name,
-                        channel: ch,
-                        format: f.name,
-                        specUrl: f.specUrl || '',
-                        specVersion: f.specVersion || '',
-                        specPublishedDate: f.specPublishedDate || '',
-                    });
-                }
-            });
+        try {
+            setOverlayMessage('Preparing Excel export...');
+            setNodeVisible(true);
+            setNodeProgress(10);
+            // Try API export first
+            try {
+                const blob = await apiService.exportToExcel({
+                    filters: { countries: (filtered || countries).map(c => c.isoCode3) },
+                    format: 'detailed'
+                });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = sanitizeFilename('compliance-data.xlsx');
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                setNodeProgress(100);
+                setTimeout(() => setNodeVisible(false), 1000);
+                return;
+            }
+            catch (apiError) {
+                console.warn('API export failed, falling back to local generation:', apiError);
+                setOverlayMessage('API unavailable, generating locally...');
+                setNodeProgress(30);
+            }
+            // Fallback to local Excel generation
+            const ExcelJS = await import('exceljs');
+            const workbook = new ExcelJS.Workbook();
+            const sheet = workbook.addWorksheet('Countries');
+            setNodeProgress(50);
+            sheet.columns = [
+                { header: 'id', key: 'id' },
+                { header: 'name', key: 'name' },
+                { header: 'isoCode2', key: 'isoCode2' },
+                { header: 'isoCode3', key: 'isoCode3' },
+                { header: 'continent', key: 'continent' },
+                { header: 'region', key: 'region' },
+                { header: 'b2g_status', key: 'b2g_status' },
+                { header: 'b2g_implementationDate', key: 'b2g_implementationDate' },
+                { header: 'b2g_lastChangeDate', key: 'b2g_lastChangeDate' },
+                { header: 'b2b_status', key: 'b2b_status' },
+                { header: 'b2b_implementationDate', key: 'b2b_implementationDate' },
+                { header: 'b2b_lastChangeDate', key: 'b2b_lastChangeDate' },
+                { header: 'b2b_legislationFinalisedDate', key: 'b2b_legislationFinalisedDate' },
+                { header: 'b2b_lastDraftDate', key: 'b2b_lastDraftDate' },
+                { header: 'b2b_phases', key: 'b2b_phases' },
+                { header: 'b2c_status', key: 'b2c_status' },
+                { header: 'b2c_implementationDate', key: 'b2c_implementationDate' },
+                { header: 'b2c_lastChangeDate', key: 'b2c_lastChangeDate' },
+                { header: 'lastUpdated', key: 'lastUpdated' },
+            ];
+            for (const c of filtered) {
+                const b2bPhases = c.eInvoicing.b2b?.phases || [];
+                const phasesStr = Array.isArray(b2bPhases)
+                    ? b2bPhases.map((p) => `${p.name} - ${p.startDate}${p.criteria ? ' - ' + p.criteria : ''}`).join(' | ')
+                    : '';
+                sheet.addRow({
+                    id: c.id,
+                    name: c.name,
+                    isoCode2: c.isoCode2,
+                    isoCode3: c.isoCode3,
+                    continent: c.continent,
+                    region: c.region ?? '',
+                    b2g_status: c.eInvoicing.b2g.status,
+                    b2g_implementationDate: c.eInvoicing.b2g.implementationDate ?? '',
+                    b2g_lastChangeDate: c.eInvoicing.b2g.lastChangeDate ?? '',
+                    b2b_status: c.eInvoicing.b2b.status,
+                    b2b_implementationDate: c.eInvoicing.b2b.implementationDate ?? '',
+                    b2b_lastChangeDate: c.eInvoicing.b2b.lastChangeDate ?? '',
+                    b2b_legislationFinalisedDate: c.eInvoicing.b2b.legislationFinalisedDate ?? '',
+                    b2b_lastDraftDate: c.eInvoicing.b2b.lastDraftDate ?? '',
+                    b2b_phases: phasesStr,
+                    b2c_status: c.eInvoicing.b2c.status,
+                    b2c_implementationDate: c.eInvoicing.b2c.implementationDate ?? '',
+                    b2c_lastChangeDate: c.eInvoicing.b2c.lastChangeDate ?? '',
+                    lastUpdated: c.eInvoicing.lastUpdated,
+                });
+            }
+            // Add a second sheet for format specifications with versions/dates
+            const fsheet = workbook.addWorksheet('Format Specs');
+            fsheet.columns = [
+                { header: 'country', key: 'country' },
+                { header: 'channel', key: 'channel' },
+                { header: 'format', key: 'format' },
+                { header: 'specUrl', key: 'specUrl' },
+                { header: 'specVersion', key: 'specVersion' },
+                { header: 'specPublishedDate', key: 'specPublishedDate' },
+            ];
+            for (const c of filtered) {
+                [['b2g', c.eInvoicing.b2g], ['b2b', c.eInvoicing.b2b], ['b2c', c.eInvoicing.b2c]].forEach(([ch, st]) => {
+                    for (const f of st.formats) {
+                        fsheet.addRow({
+                            country: c.name,
+                            channel: ch,
+                            format: f.name,
+                            specUrl: f.specUrl || '',
+                            specVersion: f.specVersion || '',
+                            specPublishedDate: f.specPublishedDate || '',
+                        });
+                    }
+                });
+            }
+            const blob = await workbook.xlsx.writeBuffer();
+            const url = URL.createObjectURL(new Blob([blob], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
+            const a = document.createElement('a');
+            a.href = url;
+            // Sanitize filename to prevent path traversal attacks
+            const timestamp = new Date().toISOString().slice(0, 10);
+            a.download = sanitizeFilename(`einvoicing-compliance-${timestamp}.xlsx`);
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
         }
-        const blob = await workbook.xlsx.writeBuffer();
-        const url = URL.createObjectURL(new Blob([blob], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'countries.xlsx';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+        catch (error) {
+            console.error('Failed to export to Excel:', error);
+            alert('Failed to export to Excel. Please try again.');
+        }
+        finally {
+            setNodeVisible(false);
+        }
+    }
+    async function toCSV() {
+        // Rate limiting check for export operations
+        const userId = 'current-user';
+        if (!rateLimiter.isAllowed(userId + '_export', RATE_LIMITS.export.maxRequests, RATE_LIMITS.export.windowMs)) {
+            alert('Export rate limit reached. Please wait before trying again.');
+            return;
+        }
+        try {
+            setOverlayMessage('Preparing CSV export...');
+            setNodeVisible(true);
+            setNodeProgress(10);
+            // Try API export first
+            try {
+                const blob = await apiService.exportToCSV({
+                    filters: { countries: (filtered || countries).map(c => c.isoCode3) },
+                    format: 'detailed'
+                });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = sanitizeFilename('compliance-data.csv');
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                setNodeProgress(100);
+                setTimeout(() => setNodeVisible(false), 1000);
+                return;
+            }
+            catch (apiError) {
+                console.warn('API CSV export failed, falling back to local generation:', apiError);
+                setOverlayMessage('API unavailable, generating locally...');
+                setNodeProgress(30);
+            }
+            // Fallback to local CSV generation
+            const exportData = filtered && filtered.length > 0 ? filtered : countries;
+            const headers = ['ID', 'Name', 'ISO2', 'ISO3', 'Continent', 'Region', 'B2G Status', 'B2B Status', 'B2C Status', 'Last Updated'];
+            const csvContent = [
+                headers.join(','),
+                ...exportData.map(country => [
+                    country.id || '',
+                    `"${country.name || ''}"`,
+                    country.isoCode2 || '',
+                    country.isoCode3 || '',
+                    `"${country.continent || ''}"`,
+                    `"${country.region || ''}"`,
+                    country.eInvoicing?.b2g?.status || '',
+                    country.eInvoicing?.b2b?.status || '',
+                    country.eInvoicing?.b2c?.status || '',
+                    country.eInvoicing?.lastUpdated || ''
+                ].join(','))
+            ].join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = sanitizeFilename('compliance-data.csv');
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            setNodeProgress(100);
+            setTimeout(() => setNodeVisible(false), 1000);
+        }
+        catch (err) {
+            console.error('CSV export failed:', err);
+            alert('CSV export failed: ' + (err.message || 'Unknown error'));
+        }
+        finally {
+            setNodeVisible(false);
+        }
+    }
+    async function toJSON() {
+        // Rate limiting check for export operations
+        const userId = 'current-user';
+        if (!rateLimiter.isAllowed(userId + '_export', RATE_LIMITS.export.maxRequests, RATE_LIMITS.export.windowMs)) {
+            alert('Export rate limit reached. Please wait before trying again.');
+            return;
+        }
+        try {
+            setOverlayMessage('Preparing JSON export...');
+            setNodeVisible(true);
+            setNodeProgress(10);
+            // Try API export first
+            try {
+                const response = await apiService.exportToJSON({
+                    filters: { countries: (filtered || countries).map(c => c.isoCode3) },
+                    format: 'detailed'
+                });
+                const jsonContent = JSON.stringify(response.data, null, 2);
+                const blob = new Blob([jsonContent], { type: 'application/json;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = sanitizeFilename('compliance-data.json');
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                setNodeProgress(100);
+                setTimeout(() => setNodeVisible(false), 1000);
+                return;
+            }
+            catch (apiError) {
+                console.warn('API JSON export failed, falling back to local generation:', apiError);
+                setOverlayMessage('API unavailable, generating locally...');
+                setNodeProgress(30);
+            }
+            // Fallback to local JSON generation
+            const exportData = filtered && filtered.length > 0 ? filtered : countries;
+            const jsonContent = JSON.stringify({
+                exportDate: new Date().toISOString(),
+                totalCount: exportData.length,
+                countries: exportData
+            }, null, 2);
+            const blob = new Blob([jsonContent], { type: 'application/json;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = sanitizeFilename('compliance-data.json');
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            setNodeProgress(100);
+            setTimeout(() => setNodeVisible(false), 1000);
+        }
+        catch (err) {
+            console.error('JSON export failed:', err);
+            alert('JSON export failed: ' + (err.message || 'Unknown error'));
+        }
+        finally {
+            setNodeVisible(false);
+        }
     }
     async function runCorsRefresh() {
         setIsCorsRefreshing(true);
@@ -153,31 +336,31 @@ export function ExportButtons() {
             setIsCorsRefreshing(false);
         }
     }
-    return (_jsxs("div", { className: "row", style: { gap: 8 }, children: [_jsx("button", { onClick: toExcel, children: "Export Excel" }), _jsx("button", { onClick: async () => {
+    return (_jsxs("div", { className: "row", style: { gap: 8 }, children: [_jsx(Button, { onClick: toExcel, size: "small", variant: "secondary", children: "Export Excel" }), _jsx(Button, { onClick: toCSV, size: "small", variant: "secondary", children: "Export CSV" }), _jsx(Button, { onClick: toJSON, size: "small", variant: "secondary", children: "Export JSON" }), _jsx(Button, { onClick: async () => {
                     try {
-                        setOverlayMessage('Searching for updates, please wait (server)...');
-                        await fetch('http://localhost:4321/refresh-web', { method: 'POST' });
-                        setNodeProgress(5);
+                        setOverlayMessage('Refreshing data via API...');
                         setNodeVisible(true);
-                        // Wait for overlay poller to close then run CORS
-                        const waitForNode = async () => new Promise(resolve => {
-                            const check = () => {
-                                if (!nodeVisible)
-                                    return resolve();
-                                setTimeout(check, 500);
-                            };
-                            setTimeout(check, 500);
-                        });
-                        await waitForNode();
-                        // Sync UN countries list via local API (non-blocking if API not available)
-                        // UN country sync removed per request
-                        setOverlayMessage('Searching for updates, please wait (browser)...');
-                        await runCorsRefresh();
-                        setOverlayMessage('Updates complete. Reloading...');
-                        setTimeout(() => location.reload(), 600);
+                        setNodeProgress(50);
+                        // Use API health check first
+                        const health = await apiService.healthCheck();
+                        if (health.success) {
+                            // API is available, refresh the page to reload data
+                            setOverlayMessage('API available. Reloading...');
+                            setNodeProgress(100);
+                            setTimeout(() => location.reload(), 600);
+                        }
+                        else {
+                            // Fallback to local refresh method
+                            setOverlayMessage('API unavailable. Using local refresh...');
+                            await runCorsRefresh();
+                            setOverlayMessage('Updates complete. Reloading...');
+                            setTimeout(() => location.reload(), 600);
+                        }
                     }
-                    catch {
-                        alert('Please start the local API once: npm run api');
+                    catch (error) {
+                        console.error('Refresh failed:', error);
+                        alert('Refresh failed. Please check your connection.');
+                        setNodeVisible(false);
                     }
-                }, children: "Refresh details" }), _jsx(ProgressOverlay, { visible: nodeVisible || isCorsRefreshing, message: overlayMessage, progress: nodeVisible ? nodeProgress : corsProgress })] }));
-}
+                }, size: "small", variant: "primary", children: "Refresh Data" }), _jsx(ProgressOverlay, { visible: nodeVisible || isCorsRefreshing, message: overlayMessage, progress: nodeVisible ? nodeProgress : corsProgress })] }));
+});

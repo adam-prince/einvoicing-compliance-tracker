@@ -1,5 +1,6 @@
 import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import { createColumnHelper, flexRender, getCoreRowModel, getSortedRowModel, useReactTable, SortingState, ColumnDef } from '@tanstack/react-table';
+import { Button, FlatTable, FlatTableHead, FlatTableHeader, FlatTableBody, FlatTableRow, FlatTableCell } from 'carbon-react';
 import type { Country } from '@types';
 import { Badge } from '../common/Badge';
 import { useStore } from '../../store/useStore';
@@ -101,29 +102,29 @@ const DetailsButton = React.memo(({
 	}, [country, onOpenModal]);
 
 	return (
-		<button 
-			type="button" 
+		<Button 
 			onClick={handleClick}
 			onKeyDown={handleKeyDown}
-			className="details-button"
+			size="small"
+			variant="secondary"
 			aria-label={t('button_view_details_aria') ? t('button_view_details_aria').replace('{country}', country.name) : `View detailed compliance information for ${country.name}`}
-			tabIndex={0}
 		>
 			{t('button_details') || 'Details'}
-		</button>
+		</Button>
 	);
 });
 
 DetailsButton.displayName = 'DetailsButton';
 
-// Default column configurations
+// Default column configurations - Details first, Country second, Continent third
 const getDefaultColumnConfigs = (t: any): ColumnConfig[] => [
-	{ id: 'continent', label: t('table_continent') || 'Continent', visible: true, order: 0 },
+	{ id: 'details', label: t('button_details') || 'Details', visible: true, order: 0 },
 	{ id: 'name', label: t('table_country') || 'Country', visible: true, order: 1 },
-	{ id: 'b2g', label: 'B2G', visible: true, order: 2 },
-	{ id: 'b2b', label: 'B2B', visible: true, order: 3 },
-	{ id: 'b2c', label: 'B2C', visible: true, order: 4 },
-	{ id: 'periodic', label: t('table_periodic') || 'Periodic E-reporting', visible: true, order: 5 }
+	{ id: 'continent', label: t('table_continent') || 'Continent', visible: true, order: 2 },
+	{ id: 'b2g', label: 'B2G', visible: true, order: 3 },
+	{ id: 'b2b', label: 'B2B', visible: true, order: 4 },
+	{ id: 'b2c', label: 'B2C', visible: true, order: 5 },
+	{ id: 'periodic', label: t('table_periodic') || 'Periodic E-reporting', visible: true, order: 6 }
 ];
 
 // Load column config from localStorage
@@ -153,7 +154,7 @@ const saveColumnConfig = (columns: ColumnConfig[]) => {
 	}
 };
 
-export function CountryTable() {
+export const CountryTable = React.memo(function CountryTable() {
 	const { filtered, setSelected } = useStore();
 	const { t, displayRegionName } = useI18n();
 	const [expanded, setExpanded] = useState<Record<string, boolean>>({});
@@ -195,6 +196,21 @@ export function CountryTable() {
 
 	// Create all column definitions
 	const allColumnDefinitions = useMemo<Record<string, ColumnDef<Country, any>>>(() => ({
+		details: columnHelper.display({ 
+			id: 'details',
+			header: t('button_details') || 'Details',
+			size: 80,
+			cell: ({ row }) => {
+				const country = row.original;
+				return (
+					<DetailsButton
+						country={country}
+						onOpenModal={handleOpenModal}
+						t={t}
+					/>
+				);
+			}
+		}),
 		name: columnHelper.accessor('name', { 
 			id: 'name',
 			header: t('table_country') || 'Country', 
@@ -218,11 +234,6 @@ export function CountryTable() {
 								{localizedName}
 							</span>
 						</div>
-						<DetailsButton
-							country={country}
-							onOpenModal={handleOpenModal}
-							t={t}
-						/>
 					</div>
 				);
 			}
@@ -337,35 +348,15 @@ export function CountryTable() {
 	}
 
 	return (
-		<div className="card">
-			<div style={{ display: 'flex', justifyContent: 'flex-end', padding: '12px 16px', borderBottom: '1px solid var(--border)' }}>
-				<button
-					onClick={() => setShowColumnManager(true)}
-					style={{
-						background: 'var(--button-bg, #f3f4f6)',
-						border: '1px solid var(--border)',
-						borderRadius: '4px',
-						padding: '6px 12px',
-						cursor: 'pointer',
-						fontSize: '13px',
-						display: 'flex',
-						alignItems: 'center',
-						gap: '6px'
-					}}
-					aria-label={t('button_manage_columns') || 'Manage table columns'}
-					title={t('button_manage_columns') || 'Manage table columns'}
-				>
-					<span style={{ fontSize: '12px' }}>⚙️</span>
-					{t('button_columns') || 'Columns'}
-				</button>
-			</div>
-			<div className="table-container" role="region" aria-label="E-invoicing compliance data">
-				<table role="table" aria-label="Countries and their e-invoicing compliance status">
-					<colgroup>
-						{columns.map((column) => (
-							<col key={column.id} className={`col-${column.id}`} />
-						))}
-					</colgroup>
+		<div className="country-table-container">
+			<div className="table-wrapper" role="region" aria-label="E-invoicing compliance data">
+				<div className="table-container">
+					<table role="table" aria-label="Countries and their e-invoicing compliance status" className="compliance-table">
+						<colgroup>
+							{columns.map((column) => (
+								<col key={column.id} className={`col-${column.id}`} />
+							))}
+						</colgroup>
 					<thead>
 						{table.getHeaderGroups().map(hg => (
 							<tr key={hg.id} role="row">
@@ -449,7 +440,8 @@ export function CountryTable() {
 							);
 						})}
 					</tbody>
-				</table>
+					</table>
+				</div>
 			</div>
 			{showColumnManager && (
 				<ColumnManager
@@ -460,7 +452,7 @@ export function CountryTable() {
 			)}
 		</div>
 	);
-}
+});
 
 function formatImpl(dateIso?: string): string {
 	if (!dateIso) return 'None';

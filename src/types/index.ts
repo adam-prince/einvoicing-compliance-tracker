@@ -69,4 +69,42 @@ export interface PeriodicReporting {
 	legislation?: LegislationInfo; // links to VAT return/DRR sources
 }
 
+// API Response Types
+export interface ApiResponse<T> {
+	success: boolean;
+	data: T;
+	meta?: {
+		total?: number;
+		page?: number;
+		limit?: number;
+		timestamp: string;
+	};
+}
+
+export interface ErrorResponse {
+	success: false;
+	error: {
+		code: string;
+		message: string;
+		details?: any;
+	};
+	meta: {
+		timestamp: string;
+		requestId?: string;
+	};
+}
+
+// Filter and Query Types
+export interface FilterQuery {
+	page?: number;
+	limit?: number;
+	continent?: string;
+	region?: string;
+	search?: string;
+	status?: string;
+	type?: string;
+	hasPeriodicReporting?: boolean;
+	updatedSince?: string;
+}
+
 
