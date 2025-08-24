@@ -1,16 +1,16 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
-import { useState, useRef, useEffect, useCallback } from 'react';
-import { Modal, Button } from 'carbon-react';
+import { useState, useEffect, useCallback } from 'react';
+import { Button } from 'carbon-react';
+import { DraggableModal } from '../common/DraggableModal';
 import { useStore } from '../../store/useStore';
 import { useColumnManager } from '../../hooks/useColumnManager';
 import { apiService } from '../../services/api';
 import { Toast } from '../common/Toast';
 import { ProgressOverlay } from '../common/ProgressOverlay';
 import { useI18n } from '../../i18n';
-import { AriaUtils, announcer } from '../../utils/accessibility';
+import { announcer } from '../../utils/accessibility';
 import { sanitizeFilename, rateLimiter, RATE_LIMITS } from '../../utils/security';
 export function SettingsModal({ onClose }) {
-    const modalRef = useRef(null);
     const { t } = useI18n();
     const { countries, filtered, setCountries } = useStore();
     const { columnConfigs, handleColumnsChange } = useColumnManager();
@@ -44,18 +44,6 @@ export function SettingsModal({ onClose }) {
             icon: '⚡'
         }
     ];
-    // Accessibility setup
-    useEffect(() => {
-        const container = modalRef.current;
-        if (!container)
-            return;
-        AriaUtils.setupModalAria(container);
-        announcer.announce('Settings dialog opened', 'assertive');
-        return () => {
-            AriaUtils.cleanupModalAria(container);
-            announcer.announce('Settings dialog closed', 'polite');
-        };
-    }, []);
     // Announce tab changes
     useEffect(() => {
         const tabNames = {
@@ -394,7 +382,7 @@ export function SettingsModal({ onClose }) {
                 throw new Error(`Unsupported export format: ${format}`);
         }
     };
-    return (_jsx(Modal, { open: true, onCancel: onClose, title: "Application Settings", subtitle: "Manage data refresh, columns, and exports", size: "large", "aria-describedby": "settings-description", children: _jsxs("div", { ref: modalRef, role: "dialog", "aria-labelledby": "modal-title", children: [_jsx("div", { id: "settings-description", className: "sr-only", children: "Settings dialog for managing application preferences including data refresh, column visibility, and export options." }), _jsxs("div", { className: "tabs", children: [_jsxs("div", { className: "tab-nav", children: [_jsx("button", { className: `tab-button ${activeTab === 'columns' ? 'active' : ''}`, onClick: () => setActiveTab('columns'), children: "\uD83D\uDCCB Columns" }), _jsx("button", { className: `tab-button ${activeTab === 'refresh' ? 'active' : ''}`, onClick: () => setActiveTab('refresh'), children: "\uD83D\uDD04 Data Refresh" }), _jsx("button", { className: `tab-button ${activeTab === 'export' ? 'active' : ''}`, onClick: () => setActiveTab('export'), children: "\uD83D\uDCE4 Export" })] }), _jsx("div", { className: `tab-content ${activeTab === 'refresh' ? 'active' : 'hidden'}`, children: _jsx("div", { className: "settings-tab-content", children: _jsxs("div", { className: "settings-section", children: [_jsx("h3", { children: "Refresh Data Sources" }), _jsx("p", { children: "Update compliance data from backend API and refresh local cache." }), _jsxs("div", { className: "refresh-controls", children: [_jsx(Button, { onClick: handleRefreshData, disabled: isRefreshing, size: "medium", variant: "primary", "aria-describedby": "refresh-help", children: isRefreshing ? 'Refreshing...' : 'Refresh All Data' }), _jsx("div", { id: "refresh-help", className: "help-text", children: "Fetches the latest compliance data from the API and updates your local view." })] }), refreshOperations.length > 0 && (_jsxs("div", { className: "refresh-operations", role: "region", "aria-label": "Refresh progress", children: [_jsx("h4", { children: "Refresh Progress" }), _jsxs("div", { className: "progress-bar", children: [_jsx("progress", { value: refreshProgress, max: 100, "aria-label": `Overall progress: ${refreshProgress}%` }), _jsxs("span", { className: "progress-text", children: [refreshProgress, "%"] })] }), _jsx("ul", { className: "operations-list", children: refreshOperations.map(op => (_jsxs("li", { className: `operation-item operation-${op.status}`, children: [_jsxs("div", { className: "operation-header", children: [_jsx("span", { className: "operation-name", children: op.name }), _jsxs("span", { className: "operation-status", "aria-label": `Status: ${op.status}`, children: [op.status === 'pending' && '⏳', op.status === 'running' && '🔄', op.status === 'completed' && '✅', op.status === 'error' && '❌'] })] }), _jsx("div", { className: "operation-description", children: op.description }), op.status === 'running' && (_jsx("progress", { value: op.progress, max: 100, "aria-label": `${op.name} progress: ${op.progress}%` }))] }, op.id))) })] }))] }) }) }), _jsx("div", { className: `tab-content ${activeTab === 'columns' ? 'active' : 'hidden'}`, children: _jsx("div", { className: "settings-tab-content", children: _jsxs("div", { className: "settings-section", children: [_jsx("h3", { children: "Column Visibility" }), _jsx("p", { children: "Show or hide specific columns in the countries table." }), _jsxs("div", { className: "column-controls", children: [_jsx("div", { className: "column-grid", children: columnConfigs.map(column => (_jsxs("div", { className: "column-item", children: [_jsx("input", { type: "checkbox", checked: column.visible, onChange: (e) => {
+    return (_jsx(DraggableModal, { isOpen: true, onClose: onClose, title: "Application Settings", subtitle: "Manage data refresh, columns, and exports", size: "large", "aria-describedby": "settings-description", children: _jsxs("div", { role: "dialog", "aria-labelledby": "modal-title", children: [_jsx("div", { id: "settings-description", className: "sr-only", children: "Settings dialog for managing application preferences including data refresh, column visibility, and export options." }), _jsxs("div", { className: "tabs", children: [_jsxs("div", { className: "tab-nav", children: [_jsx("button", { className: `tab-button ${activeTab === 'columns' ? 'active' : ''}`, onClick: () => setActiveTab('columns'), children: "\uD83D\uDCCB Columns" }), _jsx("button", { className: `tab-button ${activeTab === 'refresh' ? 'active' : ''}`, onClick: () => setActiveTab('refresh'), children: "\uD83D\uDD04 Data Refresh" }), _jsx("button", { className: `tab-button ${activeTab === 'export' ? 'active' : ''}`, onClick: () => setActiveTab('export'), children: "\uD83D\uDCE4 Export" })] }), _jsx("div", { className: `tab-content ${activeTab === 'refresh' ? 'active' : 'hidden'}`, children: _jsx("div", { className: "settings-tab-content", children: _jsxs("div", { className: "settings-section", children: [_jsx("h3", { children: "Refresh Data Sources" }), _jsx("p", { children: "Update compliance data from backend API and refresh local cache." }), _jsxs("div", { className: "refresh-controls", children: [_jsx(Button, { onClick: handleRefreshData, disabled: isRefreshing, size: "medium", variant: "primary", "aria-describedby": "refresh-help", children: isRefreshing ? 'Refreshing...' : 'Refresh All Data' }), _jsx("div", { id: "refresh-help", className: "help-text", children: "Fetches the latest compliance data from the API and updates your local view." })] }), refreshOperations.length > 0 && (_jsxs("div", { className: "refresh-operations", role: "region", "aria-label": "Refresh progress", children: [_jsx("h4", { children: "Refresh Progress" }), _jsxs("div", { className: "progress-bar", children: [_jsx("progress", { value: refreshProgress, max: 100, "aria-label": `Overall progress: ${refreshProgress}%` }), _jsxs("span", { className: "progress-text", children: [refreshProgress, "%"] })] }), _jsx("ul", { className: "operations-list", children: refreshOperations.map(op => (_jsxs("li", { className: `operation-item operation-${op.status}`, children: [_jsxs("div", { className: "operation-header", children: [_jsx("span", { className: "operation-name", children: op.name }), _jsxs("span", { className: "operation-status", "aria-label": `Status: ${op.status}`, children: [op.status === 'pending' && '⏳', op.status === 'running' && '🔄', op.status === 'completed' && '✅', op.status === 'error' && '❌'] })] }), _jsx("div", { className: "operation-description", children: op.description }), op.status === 'running' && (_jsx("progress", { value: op.progress, max: 100, "aria-label": `${op.name} progress: ${op.progress}%` }))] }, op.id))) })] }))] }) }) }), _jsx("div", { className: `tab-content ${activeTab === 'columns' ? 'active' : 'hidden'}`, children: _jsx("div", { className: "settings-tab-content", children: _jsxs("div", { className: "settings-section", children: [_jsx("h3", { children: "Column Visibility" }), _jsx("p", { children: "Show or hide specific columns in the countries table." }), _jsxs("div", { className: "column-controls", children: [_jsx("div", { className: "column-grid", children: columnConfigs.map(column => (_jsxs("div", { className: "column-item", children: [_jsx("input", { type: "checkbox", checked: column.visible, onChange: (e) => {
                                                                     const checked = e.target.checked;
                                                                     const newConfigs = columnConfigs.map(c => c.id === column.id ? { ...c, visible: checked } : c);
                                                                     handleColumnsChange(newConfigs);

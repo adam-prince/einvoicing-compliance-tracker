@@ -1,5 +1,5 @@
-import React, { useRef, useEffect } from 'react';
-import { Modal } from 'carbon-react';
+import React, { useEffect } from 'react';
+import { DraggableModal } from '../common/DraggableModal';
 import type { Country } from '@types';
 import { ProgressOverlay } from '../common/ProgressOverlay';
 import { SearchRedirect } from '../common/SearchRedirect';
@@ -17,8 +17,6 @@ interface CountryDetailProps {
 }
 
 export function CountryDetail({ country, onClose }: CountryDetailProps) {
-	const modalRef = useRef<HTMLDivElement | null>(null);
-	const previouslyFocusedRef = useRef<HTMLElement | null>(null);
 
 	const {
 		activeTab,
@@ -38,23 +36,6 @@ export function CountryDetail({ country, onClose }: CountryDetailProps) {
 		handleRefreshTimeline
 	} = useCountryDetail(country);
 
-	// Focus management & accessibility setup
-	useEffect(() => {
-		const container = modalRef.current;
-		if (!container) return;
-
-		// Set up modal ARIA attributes and focus management
-		AriaUtils.setupModalAria(container);
-		
-		// Announce modal opening
-		announcer.announce(`${country.name} country details dialog opened`, 'assertive');
-		
-		return () => {
-			// Cleanup modal ARIA and focus management
-			AriaUtils.cleanupModalAria(container);
-			announcer.announce('Country details dialog closed', 'polite');
-		};
-	}, [country.name]);
 
 	// Announce tab changes
 	useEffect(() => {
@@ -67,15 +48,15 @@ export function CountryDetail({ country, onClose }: CountryDetailProps) {
 	}, [activeTab]);
 
 	return (
-		<Modal 
-			open={true} 
-			onCancel={onClose} 
+		<DraggableModal 
+			isOpen={true} 
+			onClose={onClose} 
 			title="Country Details" 
 			subtitle={`${country.name} • ${country.continent} • ${country.isoCode3}`} 
 			size="xlarge"
 			aria-describedby="country-detail-description"
 		>
-			<div ref={modalRef} role="dialog" aria-labelledby="modal-title">
+			<div role="dialog" aria-labelledby="modal-title">
 				<div id="country-detail-description" className="sr-only">
 					Detailed information about {country.name} e-invoicing compliance status including overview, timeline, and news updates.
 				</div>
@@ -139,6 +120,6 @@ export function CountryDetail({ country, onClose }: CountryDetailProps) {
 					onClose={() => setToast({ visible: false, message: '' })} 
 				/>
 			</div>
-		</Modal>
+		</DraggableModal>
 	);
 }

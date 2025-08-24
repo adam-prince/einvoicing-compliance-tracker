@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Modal, Button } from 'carbon-react';
+import React, { useState, useEffect } from 'react';
+import { Button } from 'carbon-react';
 import { useStore } from '../../store/useStore';
 import { useI18n } from '../../i18n';
-import { focusManager, announcer } from '../../utils/accessibility';
+import { announcer } from '../../utils/accessibility';
+import { DraggableModal } from '../common/DraggableModal';
 
 interface LanguageAccessibilityModalProps {
 	onClose: () => void;
@@ -13,7 +14,6 @@ export const LanguageAccessibilityModal: React.FC<LanguageAccessibilityModalProp
 }) => {
 	const { t } = useI18n();
 	const { language, setLanguage } = useStore();
-	const modalRef = useRef<HTMLDivElement>(null);
 	const [highContrastMode, setHighContrastMode] = useState<boolean>(false);
 
 	// Load high contrast setting from localStorage
@@ -58,47 +58,19 @@ export const LanguageAccessibilityModal: React.FC<LanguageAccessibilityModalProp
 		return names[lang] || lang;
 	};
 
-	// Handle keyboard navigation
-	useEffect(() => {
-		const handleKeyDown = (event: KeyboardEvent) => {
-			if (event.key === 'Escape') {
-				onClose();
-			}
-		};
-
-		document.addEventListener('keydown', handleKeyDown);
-		return () => {
-			document.removeEventListener('keydown', handleKeyDown);
-		};
-	}, [onClose]);
-
-	// Focus management
-	useEffect(() => {
-		if (modalRef.current) {
-			focusManager.setFocus(modalRef.current);
-		}
-		return () => {
-			focusManager.restoreFocus();
-		};
-	}, []);
 
 	return (
-		<Modal
-			open={true}
-			onCancel={onClose}
+		<DraggableModal
+			isOpen={true}
+			onClose={onClose}
 			title="Language & Accessibility"
 			subtitle="Configure display language and accessibility features"
 			size="medium"
 			aria-describedby="language-accessibility-description"
 		>
-			<div
-				ref={modalRef}
-				role="dialog"
-				aria-labelledby="modal-title"
-			>
-				<div id="language-accessibility-description" className="sr-only">
-					Settings dialog for configuring display language and accessibility options including high contrast mode.
-				</div>
+			<div id="language-accessibility-description" className="sr-only">
+				Settings dialog for configuring display language and accessibility options including high contrast mode.
+			</div>
 
 				<div className="language-accessibility-content">
 					{/* Language Selection Section */}
@@ -166,16 +138,15 @@ export const LanguageAccessibilityModal: React.FC<LanguageAccessibilityModalProp
 					</div>
 				</div>
 
-				<div className="modal-actions">
-					<Button
-						onClick={onClose}
-						size="medium"
-						variant="primary"
-					>
-						Done
-					</Button>
-				</div>
+			<div className="modal-actions">
+				<Button
+					onClick={onClose}
+					size="medium"
+					variant="primary"
+				>
+					Done
+				</Button>
 			</div>
-		</Modal>
+		</DraggableModal>
 	);
 };

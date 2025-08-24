@@ -1,5 +1,6 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Modal, Button } from 'carbon-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Button } from 'carbon-react';
+import { DraggableModal } from '../common/DraggableModal';
 import type { Country } from '../../types';
 import { useStore } from '../../store/useStore';
 import { useColumnManager } from '../../hooks/useColumnManager';
@@ -7,7 +8,7 @@ import { apiService } from '../../services/api';
 import { Toast } from '../common/Toast';
 import { ProgressOverlay } from '../common/ProgressOverlay';
 import { useI18n } from '../../i18n';
-import { AriaUtils, announcer } from '../../utils/accessibility';
+import { announcer } from '../../utils/accessibility';
 import { sanitizeFilename, rateLimiter, RATE_LIMITS } from '../../utils/security';
 
 interface SettingsModalProps {
@@ -30,7 +31,6 @@ interface RefreshOperation {
 }
 
 export function SettingsModal({ onClose }: SettingsModalProps) {
-  const modalRef = useRef<HTMLDivElement | null>(null);
   const { t } = useI18n();
   const { countries, filtered, setCountries } = useStore();
   const { columnConfigs, handleColumnsChange } = useColumnManager();
@@ -68,19 +68,6 @@ export function SettingsModal({ onClose }: SettingsModalProps) {
     }
   ];
 
-  // Accessibility setup
-  useEffect(() => {
-    const container = modalRef.current;
-    if (!container) return;
-
-    AriaUtils.setupModalAria(container);
-    announcer.announce('Settings dialog opened', 'assertive');
-    
-    return () => {
-      AriaUtils.cleanupModalAria(container);
-      announcer.announce('Settings dialog closed', 'polite');
-    };
-  }, []);
 
   // Announce tab changes
   useEffect(() => {
@@ -462,15 +449,15 @@ export function SettingsModal({ onClose }: SettingsModalProps) {
   };
 
   return (
-    <Modal
-      open={true}
-      onCancel={onClose}
+    <DraggableModal
+      isOpen={true}
+      onClose={onClose}
       title="Application Settings"
       subtitle="Manage data refresh, columns, and exports"
       size="large"
       aria-describedby="settings-description"
     >
-      <div ref={modalRef} role="dialog" aria-labelledby="modal-title">
+      <div role="dialog" aria-labelledby="modal-title">
         <div id="settings-description" className="sr-only">
           Settings dialog for managing application preferences including data refresh, column visibility, and export options.
         </div>
@@ -718,6 +705,6 @@ export function SettingsModal({ onClose }: SettingsModalProps) {
           onClose={() => setToast({ visible: false, message: '', type: 'success' })}
         />
       </div>
-    </Modal>
+    </DraggableModal>
   );
 }
