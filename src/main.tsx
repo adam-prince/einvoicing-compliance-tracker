@@ -7,22 +7,33 @@ import { I18nProvider } from './i18n';
 import { useStore } from './store/useStore';
 
 function Root() {
-	// We use a tiny wrapper to read language from store once
-	// Note: store is safe here — we only need the value to pass to provider
-	const { language } = useStore();
-	return (
-		<I18nProvider language={language}>
-			<ErrorBoundary>
-				<App />
-			</ErrorBoundary>
-		</I18nProvider>
-	);
+	console.log('Root component rendering...');
+	try {
+		const { language } = useStore();
+		return (
+			<I18nProvider language={language}>
+				<ErrorBoundary>
+					<App />
+				</ErrorBoundary>
+			</I18nProvider>
+		);
+	} catch (error) {
+		console.error('Error in Root component:', error);
+		return <div>Error loading application: {String(error)}</div>;
+	}
 }
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-	<React.StrictMode>
-		<Root />
-	</React.StrictMode>
-);
+console.log('main.tsx executing...');
+document.title = 'E‑Invoicing Compliance Tracker';
 
+const rootElement = document.getElementById('root');
+console.log('Root element found:', rootElement);
 
+if (rootElement) {
+	const root = ReactDOM.createRoot(rootElement);
+	root.render(<Root />);
+	console.log('React app rendered successfully');
+} else {
+	console.error('Root element not found!');
+	document.body.innerHTML = '<h1 style="color: red;">Error: Root element not found</h1>';
+}

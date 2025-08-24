@@ -1,0 +1,306 @@
+/* Screen reader only content */
+.sr-only, 
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* Skip links */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: var(--sage-color-primary-500, #000);
+  color: var(--sage-color-white, #fff);
+  padding: 8px 16px;
+  text-decoration: none;
+  z-index: 10000;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 14px;
+  transition: top 0.2s ease-in-out;
+}
+
+.skip-link:focus {
+  top: 6px;
+}
+
+/* Focus indicators */
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+a:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--sage-color-primary-500, #0066cc);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .high-contrast {
+    border: 2px solid;
+    background: white;
+    color: black;
+  }
+  
+  button.high-contrast {
+    border: 3px solid black;
+    background: white;
+    color: black;
+  }
+  
+  button.high-contrast:hover {
+    background: black;
+    color: white;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Dark mode improvements */
+@media (prefers-color-scheme: dark) {
+  .auto-dark {
+    background-color: var(--sage-color-gray-900, #1a1a1a);
+    color: var(--sage-color-white, #ffffff);
+  }
+  
+  .auto-dark input,
+  .auto-dark select,
+  .auto-dark textarea {
+    background-color: var(--sage-color-gray-800, #2a2a2a);
+    color: var(--sage-color-white, #ffffff);
+    border-color: var(--sage-color-gray-600, #4a4a4a);
+  }
+}
+
+/* ARIA live region styles */
+[aria-live] {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* Focus trap helper */
+.focus-trap {
+  position: relative;
+}
+
+/* Better keyboard navigation for tables */
+table[role="table"] {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+table[role="table"] th,
+table[role="table"] td {
+  border: 1px solid var(--sage-color-gray-300, #ddd);
+  padding: 12px 8px;
+  text-align: left;
+}
+
+table[role="table"] th {
+  background-color: var(--sage-color-gray-100, #f5f5f5);
+  font-weight: 600;
+}
+
+table[role="table"] caption {
+  font-weight: 600;
+  margin-bottom: 8px;
+  text-align: left;
+}
+
+/* Status indicators with better accessibility */
+.status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.status-indicator::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.status-mandated::before {
+  background-color: var(--sage-color-success-500, #28a745);
+}
+
+.status-permitted::before {
+  background-color: var(--sage-color-warning-500, #ffc107);
+}
+
+.status-planned::before {
+  background-color: var(--sage-color-info-500, #17a2b8);
+}
+
+.status-none::before {
+  background-color: var(--sage-color-gray-400, #6c757d);
+}
+
+/* Screen reader text for status indicators */
+.status-mandated::after {
+  content: " (Required by law)";
+}
+
+.status-permitted::after {
+  content: " (Legally allowed)";
+}
+
+.status-planned::after {
+  content: " (Under development)";
+}
+
+.status-none::after {
+  content: " (Not implemented)";
+}
+
+@media screen {
+  .status-indicator::after {
+    position: absolute;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+}
+
+/* Progress bars with accessibility */
+.progress-bar {
+  position: relative;
+  background-color: var(--sage-color-gray-200, #e9ecef);
+  border-radius: 4px;
+  height: 8px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: var(--sage-color-primary-500, #007bff);
+  transition: width 0.3s ease;
+  border-radius: inherit;
+}
+
+.progress-text {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 4px;
+  font-size: 14px;
+}
+
+/* Modal and overlay improvements */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+.modal-content {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow: auto;
+  z-index: 1001;
+}
+
+/* Toast notifications with accessibility */
+.toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: var(--sage-color-gray-900, #343a40);
+  color: white;
+  padding: 12px 16px;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1050;
+  max-width: 350px;
+  animation: toast-slide-in 0.3s ease;
+}
+
+.toast[aria-live="assertive"] {
+  background-color: var(--sage-color-danger-500, #dc3545);
+}
+
+.toast[aria-live="polite"] {
+  background-color: var(--sage-color-success-500, #28a745);
+}
+
+@keyframes toast-slide-in {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast {
+    animation: none;
+  }
+}
+
+/* Button improvements */
+button[aria-expanded="true"] {
+  background-color: var(--sage-color-primary-100, #e3f2fd);
+}
+
+button[aria-pressed="true"] {
+  background-color: var(--sage-color-primary-500, #007bff);
+  color: white;
+}
+
+/* Table sorting indicators */
+th[aria-sort="ascending"]::after {
+  content: " ↑";
+  speak: " sorted ascending";
+}
+
+th[aria-sort="descending"]::after {
+  content: " ↓";
+  speak: " sorted descending";
+}
+
+th[aria-sort="none"]::after {
+  content: " ↕";
+  opacity: 0.5;
+  speak: " sortable";
+}

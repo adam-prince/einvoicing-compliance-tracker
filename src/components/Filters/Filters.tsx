@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
-import { Textbox, Select, Option } from 'carbon-react/lib';
+import React, { useEffect, useState } from 'react';
+import { Textbox, Select, Option } from 'carbon-react';
 import { useStore } from '../../store/useStore';
 import { useDebouncedValue } from '../../hooks/useDebouncedValue';
 import { useI18n } from '../../i18n';
+import { sanitizeSearchQuery } from '../../utils/security';
 
-export function Filters() {
+export const Filters = React.memo(function Filters() {
 	const { filters, setFilters } = useStore();
 	const { t } = useI18n();
 	const [search, setSearch] = useState(filters.search);
@@ -22,7 +23,10 @@ export function Filters() {
 						label={t('filters_search_countries')}
 						placeholder={t('filters_search_placeholder')}
 						value={search}
-						onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)}
+						onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+							const sanitizedValue = sanitizeSearchQuery(e.target.value);
+							setSearch(sanitizedValue);
+						}}
 						size="medium"
 					/>
 				</div>
@@ -67,4 +71,4 @@ export function Filters() {
 			</div>
 		</div>
 	);
-}
+});

@@ -1,7 +1,7 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import { createColumnHelper, flexRender, getCoreRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table';
-import { Button } from 'carbon-react/lib';
+import { Button } from 'carbon-react';
 import { Badge } from '../common/Badge';
 import { useStore } from '../../store/useStore';
 import { format } from 'date-fns';
@@ -83,7 +83,7 @@ const saveColumnConfig = (columns) => {
         console.warn('Failed to save column config:', error);
     }
 };
-export function CountryTable() {
+export const CountryTable = React.memo(function CountryTable() {
     const { filtered, setSelected } = useStore();
     const { t, displayRegionName } = useI18n();
     const [expanded, setExpanded] = useState({});
@@ -198,19 +198,19 @@ export function CountryTable() {
     if (filtered.length === 0) {
         return (_jsx("div", { className: "card", children: _jsx("div", { className: "table-loading", children: _jsx("div", { className: "skeleton-table", children: Array.from({ length: 5 }).map((_, i) => (_jsx("div", { className: "skeleton-row", children: _jsx("div", { className: "skeleton", style: { height: 48 } }) }, i))) }) }) }));
     }
-    return (_jsxs("div", { className: "card", children: [_jsx("div", { className: "table-container", role: "region", "aria-label": "E-invoicing compliance data", children: _jsxs("table", { role: "table", "aria-label": "Countries and their e-invoicing compliance status", children: [_jsx("colgroup", { children: columns.map((column) => (_jsx("col", { className: `col-${column.id}` }, column.id))) }), _jsx("thead", { children: table.getHeaderGroups().map(hg => (_jsx("tr", { role: "row", children: hg.headers.map(h => (_jsxs("th", { onClick: h.column.getToggleSortingHandler(), className: "sortable-header", role: "columnheader", "aria-sort": h.column.getIsSorted() === 'asc' ? 'ascending' :
-                                        h.column.getIsSorted() === 'desc' ? 'descending' :
-                                            'none', tabIndex: 0, onKeyDown: (e) => {
-                                        if (e.key === 'Enter' || e.key === ' ') {
-                                            e.preventDefault();
-                                            h.column.getToggleSortingHandler()?.(e);
-                                        }
-                                    }, children: [flexRender(h.column.columnDef.header, h.getContext()), h.column.getIsSorted() && (_jsx("span", { "aria-hidden": "true", children: h.column.getIsSorted() === 'asc' ? ' ↑' : ' ↓' }))] }, h.id))) }, hg.id))) }), _jsx("tbody", { children: table.getRowModel().rows.map(r => {
-                                const country = r.original;
-                                const isExpanded = expanded[country.id];
-                                return (_jsxs(React.Fragment, { children: [_jsx("tr", { className: "data-row", onClick: (e) => handleRowClick(e, country.id), role: "row", "aria-expanded": isExpanded, children: r.getVisibleCells().map((c) => (_jsx("td", { role: "gridcell", children: flexRender(c.column.columnDef.cell, c.getContext()) }, c.id))) }), isExpanded && (_jsxs("tr", { className: "expand-row", role: "row", "aria-label": `Implementation dates for ${country.name}`, children: [_jsx("td", {}), _jsx("td", {}), _jsx("td", { children: _jsxs("div", { className: "badge gray", title: "B2G implementation date", children: ["B2G: ", formatImpl(country.eInvoicing.b2g.implementationDate)] }) }), _jsx("td", { children: _jsxs("div", { className: "badge gray", title: "B2B implementation date", children: ["B2B: ", formatImpl(country.eInvoicing.b2b.implementationDate)] }) }), _jsx("td", { children: _jsxs("div", { className: "badge gray", title: "B2C implementation date", children: ["B2C: ", formatImpl(country.eInvoicing.b2c.implementationDate)] }) }), _jsx("td", {})] }))] }, r.id));
-                            }) })] }) }), showColumnManager && (_jsx(ColumnManager, { columns: columnConfigs, onColumnsChange: handleColumnsChange, onClose: () => setShowColumnManager(false) }))] }));
-}
+    return (_jsxs("div", { className: "country-table-container", children: [_jsx("div", { className: "table-wrapper", role: "region", "aria-label": "E-invoicing compliance data", children: _jsx("div", { className: "table-container", children: _jsxs("table", { role: "table", "aria-label": "Countries and their e-invoicing compliance status", className: "compliance-table", children: [_jsx("colgroup", { children: columns.map((column) => (_jsx("col", { className: `col-${column.id}` }, column.id))) }), _jsx("thead", { children: table.getHeaderGroups().map(hg => (_jsx("tr", { role: "row", children: hg.headers.map(h => (_jsxs("th", { onClick: h.column.getToggleSortingHandler(), className: "sortable-header", role: "columnheader", "aria-sort": h.column.getIsSorted() === 'asc' ? 'ascending' :
+                                            h.column.getIsSorted() === 'desc' ? 'descending' :
+                                                'none', tabIndex: 0, onKeyDown: (e) => {
+                                            if (e.key === 'Enter' || e.key === ' ') {
+                                                e.preventDefault();
+                                                h.column.getToggleSortingHandler()?.(e);
+                                            }
+                                        }, children: [flexRender(h.column.columnDef.header, h.getContext()), h.column.getIsSorted() && (_jsx("span", { "aria-hidden": "true", children: h.column.getIsSorted() === 'asc' ? ' ↑' : ' ↓' }))] }, h.id))) }, hg.id))) }), _jsx("tbody", { children: table.getRowModel().rows.map(r => {
+                                    const country = r.original;
+                                    const isExpanded = expanded[country.id];
+                                    return (_jsxs(React.Fragment, { children: [_jsx("tr", { className: "data-row", onClick: (e) => handleRowClick(e, country.id), role: "row", "aria-expanded": isExpanded, children: r.getVisibleCells().map((c) => (_jsx("td", { role: "gridcell", children: flexRender(c.column.columnDef.cell, c.getContext()) }, c.id))) }), isExpanded && (_jsxs("tr", { className: "expand-row", role: "row", "aria-label": `Implementation dates for ${country.name}`, children: [_jsx("td", {}), _jsx("td", {}), _jsx("td", { children: _jsxs("div", { className: "badge gray", title: "B2G implementation date", children: ["B2G: ", formatImpl(country.eInvoicing.b2g.implementationDate)] }) }), _jsx("td", { children: _jsxs("div", { className: "badge gray", title: "B2B implementation date", children: ["B2B: ", formatImpl(country.eInvoicing.b2b.implementationDate)] }) }), _jsx("td", { children: _jsxs("div", { className: "badge gray", title: "B2C implementation date", children: ["B2C: ", formatImpl(country.eInvoicing.b2c.implementationDate)] }) }), _jsx("td", {})] }))] }, r.id));
+                                }) })] }) }) }), showColumnManager && (_jsx(ColumnManager, { columns: columnConfigs, onColumnsChange: handleColumnsChange, onClose: () => setShowColumnManager(false) }))] }));
+});
 function formatImpl(dateIso) {
     if (!dateIso)
         return 'None';

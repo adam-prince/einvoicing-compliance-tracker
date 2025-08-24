@@ -1,6 +1,6 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { useState, useRef } from 'react';
-import { Button } from 'carbon-react/lib';
+import { Button } from 'carbon-react';
 import { useI18n } from '../../i18n';
 export function ColumnManager({ columns, onColumnsChange, onClose }) {
     const { t } = useI18n();

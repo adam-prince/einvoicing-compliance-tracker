@@ -1,8 +1,7 @@
-import { useEffect, useCallback } from 'react';
-import { CarbonProvider, GlobalStyle, Select, Option, Button } from 'carbon-react/lib';
-import type { Country, EInvoicingCompliance } from '@types';
+import { useEffect, useCallback, useState } from 'react';
+import { CarbonProvider, GlobalStyle, Select, Option, Button } from 'carbon-react';
+import type { Country, EInvoicingCompliance } from './types/index';
 import { useStore } from './store/useStore';
-import complianceData from './data/compliance-data.json';
 import { CountryTable } from './components/CountryTable/CountryTable';
 import { CountryDetail } from './components/CountryDetail/CountryDetail';
 import { Filters } from './components/Filters/Filters';
@@ -10,11 +9,15 @@ import { QuickStats } from './components/CountryTable/QuickStats';
 import { ExportButtons } from './components/CountryTable/ExportButtons';
 import { LoadingSpinner } from './components/common/LoadingSpinner';
 import { ErrorMessage } from './components/common/ErrorBoundary';
+import { SecurityHeaders } from './components/common/SecurityHeaders';
+import { SettingsModal } from './components/Settings/SettingsModal';
 import { loadSavedTheme } from './utils/theme';
-import { ComplianceDataService } from './services/complianceDataService';
 import { useI18n } from './i18n';
 import { useColumnManager } from './hooks/useColumnManager';
 import { ColumnManager } from './components/CountryTable/ColumnManager';
+import { gracefulShutdown, initializeCleanupHandlers } from './utils/cleanup';
+import { useCountries } from './hooks/useApi';
+import { apiService } from './services/api';
 
 interface ComplianceData {
 	isoCode3: string;
@@ -32,18 +35,21 @@ interface BasicCountry {
 }
 
 export function App() {
-	const { 
-		setCountries, 
-		setLoading, 
-		setError, 
-		countries, 
-		selected, 
-		setSelected, 
-		loading, 
-		error,
-		language,
-		setLanguage,
-	} = useStore();
+	console.log('App component rendering...');
+	try {
+		const { 
+			setCountries, 
+			setLoading, 
+			setError, 
+			countries, 
+			selected, 
+			setSelected, 
+			loading, 
+			error,
+			language,
+			setLanguage,
+		} = useStore();
+		console.log('App useStore loaded, countries count:', countries.length);
 	const { t } = useI18n();
 	const { 
 		columnConfigs, 
@@ -53,104 +59,79 @@ export function App() {
 		handleColumnsChange 
 	} = useColumnManager();
 
-	// Memoize data processing functions for better performance
-	const mergeCountriesWithCompliance = useCallback((basics: BasicCountry[], compliance: ComplianceData[]): Country[] => {
-		const complianceByIso3 = new Map<string, ComplianceData>(
-			compliance.map(c => [c.isoCode3 || c.name, c])
-		);
+	// Settings modal state
+	const [showSettings, setShowSettings] = useState(false);
+	const openSettings = useCallback(() => setShowSettings(true), []);
+	const closeSettings = useCallback(() => setShowSettings(false), []);
 
-		const result: Country[] = basics
-			.filter(b => 
-				b.continent && 
-				String(b.continent).trim().length > 0 && 
-				String(b.name).trim().toLowerCase() !== String(b.continent).trim().toLowerCase()
-			)
-			.map(b => {
-				const comp = complianceByIso3.get(b.isoCode3) || {} as any;
-				const e: EInvoicingCompliance = comp.eInvoicing || {
-					b2g: { status: 'none', formats: [], legislation: { name: '' } },
-					b2b: { status: 'none', formats: [], legislation: { name: '' } },
-					b2c: { status: 'none', formats: [], legislation: { name: '' } },
-					lastUpdated: new Date().toISOString(),
-				};
+	// Use the API to load countries data
+	const { data: countriesData, isLoading: apiLoading, error: apiError, refetch } = useCountries();
 
-				return {
-					id: b.isoCode3 || b.isoCode2 || b.name,
-					name: b.name,
-					isoCode2: b.isoCode2,
-					isoCode3: b.isoCode3,
-					continent: b.continent,
-					region: b.region,
-					eInvoicing: normalizeCompliance(e),
-				};
-			});
-
-		// Add compliance-only countries
-		for (const c of compliance) {
-			if (!result.find(r => r.isoCode3 === c.isoCode3)) {
-				result.push({
-					id: c.isoCode3,
-					name: c.name,
-					isoCode2: '',
-					isoCode3: c.isoCode3,
-					continent: c.continent || 'Unknown',
-					eInvoicing: normalizeCompliance(c.eInvoicing),
-				});
-			}
-		}
-
-		return result
-			.filter(c => c.continent && c.name.toLowerCase() !== String(c.continent).toLowerCase())
-			.sort((a, b) => a.name.localeCompare(b.name));
-	}, []);
-
-	const normalizeCompliance = useCallback((c: EInvoicingCompliance): EInvoicingCompliance => {
-		const safe = (x: any) => ({
-			status: x?.status ?? 'none',
-			implementationDate: x?.implementationDate,
-			formats: x?.formats ?? [],
-			legislation: x?.legislation ?? { name: '' }
-		});
-
-		return {
-			b2g: safe(c?.b2g),
-			b2b: safe(c?.b2b),
-			b2c: safe(c?.b2c),
-			lastUpdated: c?.lastUpdated ?? new Date().toISOString(),
-		};
-	}, []);
-
-	// Enhanced data loading with better error handling
-	const loadData = useCallback(async () => {
+	// Fallback to local data if API fails
+	const loadLocalDataFallback = useCallback(async () => {
 		setLoading(true);
 		setError('');
 
 		try {
-			const basics = (await import('./data/countries.json')).default as BasicCountry[];
+			// Import local data as fallback
+			const [countriesModule, complianceModule] = await Promise.all([
+				import('./data/countries.json'),
+				import('./data/compliance-data.json')
+			]);
 			
-			if (!Array.isArray(basics) || basics.length === 0) {
-				throw new Error('Invalid country data format');
-			}
-
-			const merged = mergeCountriesWithCompliance(basics, complianceData as ComplianceData[]);
+			const basics = countriesModule.default as any[];
+			const compliance = complianceModule.default as any[];
 			
-			if (merged.length === 0) {
-				throw new Error('No valid country data found');
+			// Basic data merging for fallback
+			if (basics && Array.isArray(basics) && basics.length > 0) {
+				// Convert basic countries to full country format
+				const countries: Country[] = basics.map(country => ({
+					id: country.isoCode3 || country.name,
+					name: country.name || 'Unknown',
+					isoCode2: country.isoCode2 || '',
+					isoCode3: country.isoCode3 || '',
+					continent: country.continent || 'Unknown',
+					region: country.region,
+					eInvoicing: {
+						b2g: { status: 'none', formats: [], legislation: { name: '' } },
+						b2b: { status: 'none', formats: [], legislation: { name: '' } },
+						b2c: { status: 'none', formats: [], legislation: { name: '' } },
+						lastUpdated: new Date().toISOString(),
+					}
+				}));
+				
+				setCountries(countries);
+				setError(''); // Clear error since we have data now
+			} else {
+				throw new Error('No local data available');
 			}
-
-			setCountries(merged);
 		} catch (e: any) {
-			console.error('Failed to load data:', e);
-			setError(e.message || 'Failed to load country data. Please try again.');
+			console.error('Failed to load fallback data:', e);
+			setError(e.message || 'Failed to load country data. Please check your connection.');
 		} finally {
 			setLoading(false);
 		}
-	}, [setCountries, setLoading, setError, mergeCountriesWithCompliance]);
+	}, [setCountries, setLoading, setError]);
 
-	// Initial data load
+	// Update store when API data changes, with automatic fallback
 	useEffect(() => {
-		loadData();
-	}, [loadData]);
+		if (countriesData) {
+			setCountries(countriesData);
+			setLoading(false);
+			setError('');
+		} else if (apiError) {
+			console.log('API failed, loading local data fallback...');
+			// Automatically trigger fallback when API fails
+			loadLocalDataFallback();
+		} else {
+			setLoading(apiLoading);
+		}
+	}, [countriesData, apiLoading, apiError, setCountries, setLoading, setError, loadLocalDataFallback]);
+
+	// Initialize cleanup handlers
+	useEffect(() => {
+		initializeCleanupHandlers();
+	}, []);
 
 	// Theme management and skip link translation
 	useEffect(() => {
@@ -215,36 +196,24 @@ export function App() {
 
 	// Retry function for error recovery
 	const retryLoad = useCallback(() => {
-		loadData();
-	}, [loadData]);
+		// Always try local data fallback on retry since API is not available
+		loadLocalDataFallback();
+	}, [loadLocalDataFallback]);
 
-	// Selective refresh: block only for filtered countries; refresh others in background
+	// Selective refresh: use API to refresh data
 	const refreshVisibleThenBackground = useCallback(async () => {
-		const service = ComplianceDataService.getInstance();
 		try {
 			setLoading(true);
-			// Foreground refresh for filtered (visible) countries
-			const visibleIds = new Set<string>((useStore.getState().filtered || []).map((c: Country) => c.isoCode3));
-			for (const id of visibleIds) {
-				await service.refreshComplianceData(id);
-			}
-			// Merge by reloading data (from service cache)
-			await loadData();
+			// Refresh data via API
+			await refetch();
+		} catch (error) {
+			console.error('Failed to refresh data:', error);
+			// Fallback to local data if API fails
+			await loadLocalDataFallback();
 		} finally {
 			setLoading(false);
-			// Background refresh for remaining countries
-			setTimeout(async () => {
-				const all = service.getAllAvailableCountries();
-				for (const id of all) {
-					if (! (useStore.getState().filtered || []).find((c: Country) => c.isoCode3 === id)) {
-						await service.refreshComplianceData(id);
-					}
-				}
-				// After background completes, silently refresh list if user hasn't navigated away
-				try { await loadData(); } catch {}
-			}, 0);
 		}
-	}, [loadData, setLoading]);
+	}, [refetch, loadLocalDataFallback, setLoading]);
 
 	// Show error state
 	if (error && !loading) {
@@ -258,84 +227,157 @@ export function App() {
 		);
 	}
 
-	return (
-		<CarbonProvider>
-			<GlobalStyle />
-			<div className="container">
-				<div className="row" style={{ justifyContent: 'space-between', alignItems: 'center' }}>
-					<div>
-						<h1 style={{ marginTop: 0 }}>{t('app_title')}</h1>
-						<p style={{ color: '#9aa4b2', marginTop: -8 }}>
-							{t('app_subtitle')}
-						</p>
-					</div>
-					<div className="row" aria-label="Application controls" style={{ gap: 16, alignItems: 'flex-start', flexWrap: 'wrap' }}>
-						<div style={{ minWidth: '180px' }}>
-							<Select
-								label={t('label_language')}
-								value={language}
-								onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setLanguage(e.target.value)}
-								aria-label="Select application language"
-								size="medium"
-								labelInline={false}
-							>
-								<Option value="en-GB" text="English (UK)" />
-								<Option value="en-US" text="English (US)" />
-								<Option value="fr-FR" text="Français" />
-								<Option value="de-DE" text="Deutsch" />
-								<Option value="es-ES" text="Español" />
-							</Select>
-						</div>
-						<div style={{ minWidth: '120px' }}>
-							<Button
-								onClick={openColumnManager}
-								size="medium"
-								variant="secondary"
-								aria-label={t('button_manage_columns') || 'Manage table columns'}
-								title={t('button_manage_columns') || 'Manage table columns'}
-							>
-								<span style={{ fontSize: '12px', marginRight: '6px' }}>⚙️</span>
-								{t('button_columns') || 'Columns'}
-							</Button>
-						</div>
-					</div>
-				</div>
-
-				{loading ? (
-					<LoadingSpinner message={t('loading_compliance')} />
-				) : (
-					<>
-						<main id="main" role="main" tabIndex={-1}>
-							<QuickStats />
-							<div className="spacer" />
-							<Filters />
-							<div className="spacer" />
-							<div className="row" style={{ justifyContent: 'space-between', marginBottom: 8 }}>
-								<div style={{ color: '#9aa4b2' }} aria-live="polite">
-									{t('filters_total_countries', { count: countries.length })}
-								</div>
-								<ExportButtons />
+	try {
+		return (
+			<CarbonProvider>
+				<GlobalStyle />
+				<SecurityHeaders />
+				<div className="app-container">
+					{/* Main Application Header */}
+					<header className="app-header" role="banner">
+						<div className="header-content">
+							<div className="header-title-section">
+								<h1 className="app-title">
+									{t('app_title') || 'E‑Invoicing Compliance Tracker'}
+								</h1>
+								<p className="app-subtitle">
+									{t('app_subtitle') || 'Track e-invoicing compliance requirements across countries'}
+								</p>
 							</div>
-							<CountryTable />
-						</main>
-					</>
-				)}
+							
+							<div className="header-controls" role="group" aria-label="Application controls">
+								<Button
+									onClick={openSettings}
+									size="small"
+									variant="primary"
+									aria-label={t('open_settings') || 'Open application settings'}
+									style={{
+										display: 'flex',
+										alignItems: 'center',
+										gap: '6px',
+										backgroundColor: '#0f62fe',
+										color: 'white',
+										border: '1px solid #0f62fe'
+									}}
+								>
+									<span aria-hidden="true">⚙️</span>
+									{t('settings') || 'Settings'}
+								</Button>
+								
+								<Button
+									onClick={gracefulShutdown}
+									size="small"
+									variant="secondary"
+									aria-label={t('exit_application') || 'Exit application and clean up data'}
+									style={{
+										display: 'flex',
+										alignItems: 'center',
+										gap: '6px',
+										backgroundColor: '#dc2626',
+										color: 'white',
+										border: '1px solid #dc2626'
+									}}
+								>
+									<span aria-hidden="true">🚪</span>
+									{t('exit') || 'Exit'}
+								</Button>
+							</div>
+						</div>
+					</header>
 
-				{selected && (
-					<CountryDetail 
-						country={selected} 
-						onClose={closeModal}
-					/>
-				)}
+					{/* Main Content Area */}
+					<div className="app-content">
+						{loading ? (
+							<div className="loading-container" role="status" aria-live="polite">
+								<LoadingSpinner />
+								<span className="sr-only">{t('loading_data') || 'Loading compliance data...'}</span>
+							</div>
+						) : (
+							<main id="main" role="main" tabIndex={-1} className="main-content">
+								{/* Skip to main content target */}
+								<div className="content-sections">
+									{/* Quick Statistics Section */}
+									<section aria-labelledby="stats-heading" className="stats-section">
+										<h2 id="stats-heading" className="sr-only">
+											{t('statistics') || 'Compliance Statistics'}
+										</h2>
+										<QuickStats />
+									</section>
+									
+									{/* Filters Section */}
+									<section id="filters" aria-labelledby="filters-heading" className="filters-section">
+										<h2 id="filters-heading" className="section-heading">
+											{t('filters') || 'Filters'}
+										</h2>
+										<Filters />
+									</section>
+									
+									{/* Export Controls Section */}
+									<section aria-labelledby="export-heading" className="export-section">
+										<h2 id="export-heading" className="sr-only">
+											{t('export_options') || 'Export Options'}
+										</h2>
+										<ExportButtons />
+									</section>
+									
+									{/* Country Data Table Section */}
+									<section id="table" aria-labelledby="table-heading" className="table-section">
+										<h2 id="table-heading" className="section-heading">
+											{t('countries_table') || 'Countries Compliance Data'}
+										</h2>
+										<CountryTable />
+									</section>
+								</div>
+							</main>
+						)}
+					</div>
 
-				{showColumnManager && (
-					<ColumnManager
-						columns={columnConfigs}
-						onColumnsChange={handleColumnsChange}
-						onClose={closeColumnManager}
-					/>
-				)}
+					{/* Modal Dialogs */}
+					{showSettings && (
+						<SettingsModal
+							onClose={closeSettings}
+						/>
+					)}
+
+					{showColumnManager && (
+						<ColumnManager
+							columns={columnConfigs}
+							onClose={closeColumnManager}
+							onColumnsChange={handleColumnsChange}
+						/>
+					)}
+
+					{selected && (
+						<CountryDetail
+							country={selected}
+							onClose={closeModal}
+						/>
+					)}
+				</div>
+			</CarbonProvider>
+		);
+		} catch (renderError) {
+			console.error('Error rendering App component:', renderError);
+			return (
+				<div style={{ padding: '2rem', fontFamily: 'Arial, sans-serif' }}>
+					<h1 style={{ color: 'red' }}>Application Error</h1>
+					<p>There was an error rendering the application:</p>
+					<pre style={{ background: '#f5f5f5', padding: '1rem', borderRadius: '4px' }}>
+						{String(renderError)}
+					</pre>
+				</div>
+			);
+		}
+	} catch (appError) {
+		console.error('Error in App component:', appError);
+		return (
+			<div style={{ padding: '2rem', fontFamily: 'Arial, sans-serif' }}>
+				<h1 style={{ color: 'red' }}>Application Initialization Error</h1>
+				<p>There was an error initializing the application:</p>
+				<pre style={{ background: '#f5f5f5', padding: '1rem', borderRadius: '4px' }}>
+					{String(appError)}
+				</pre>
 			</div>
-		</CarbonProvider>
-	);
+		);
+	}
 }

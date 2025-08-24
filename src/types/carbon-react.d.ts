@@ -1,4 +1,4 @@
-declare module 'carbon-react/lib' {
+declare module 'carbon-react' {
   import { ComponentType, ReactNode } from 'react';
 
   export interface ButtonProps {
@@ -10,6 +10,7 @@ declare module 'carbon-react/lib' {
     variant?: 'primary' | 'secondary' | 'tertiary';
     'aria-label'?: string;
     title?: string;
+    style?: React.CSSProperties;
   }
 
   export interface IconButtonProps {
@@ -102,6 +103,10 @@ declare module 'carbon-react/lib' {
   export const FlatTableCell: ComponentType<FlatTableCellProps>;
   export const CarbonProvider: ComponentType<{ children?: ReactNode }>;
   export const GlobalStyle: ComponentType<{}>;
+}
+
+declare module 'carbon-react/lib' {
+  export * from 'carbon-react';
 }
 
 declare module 'carbon-react/lib/icons' {

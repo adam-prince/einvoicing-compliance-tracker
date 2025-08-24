@@ -32,11 +32,11 @@ interface RefreshOperation {
 export function SettingsModal({ onClose }: SettingsModalProps) {
   const modalRef = useRef<HTMLDivElement | null>(null);
   const { t } = useI18n();
-  const { countries, filtered, setCountries } = useStore();
+  const { countries, filtered, setCountries, language, setLanguage } = useStore();
   const { columnConfigs, handleColumnsChange } = useColumnManager();
   
   // State management
-  const [activeTab, setActiveTab] = useState('refresh');
+  const [activeTab, setActiveTab] = useState('preferences');
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [refreshProgress, setRefreshProgress] = useState(0);
   const [refreshOperations, setRefreshOperations] = useState<RefreshOperation[]>([]);
@@ -44,6 +44,29 @@ export function SettingsModal({ onClose }: SettingsModalProps) {
   const [exportProgress, setExportProgress] = useState(0);
   const [isExporting, setIsExporting] = useState(false);
   const [exportFormat, setExportFormat] = useState<'basic' | 'detailed' | 'summary'>('detailed');
+  const [highContrastMode, setHighContrastMode] = useState(false);
+
+  // Load saved preferences
+  useEffect(() => {
+    const savedHighContrast = localStorage.getItem('high-contrast-mode') === 'true';
+    setHighContrastMode(savedHighContrast);
+    
+    // Apply high contrast mode to document
+    if (savedHighContrast) {
+      document.documentElement.classList.add('high-contrast');
+    }
+  }, []);
+
+  const handleHighContrastToggle = (enabled: boolean) => {
+    setHighContrastMode(enabled);
+    localStorage.setItem('high-contrast-mode', enabled.toString());
+    
+    if (enabled) {
+      document.documentElement.classList.add('high-contrast');
+    } else {
+      document.documentElement.classList.remove('high-contrast');
+    }
+  };
 
   // Export formats configuration
   const exportFormats: ExportFormat[] = [
@@ -477,10 +500,10 @@ export function SettingsModal({ onClose }: SettingsModalProps) {
         <div className="tabs">
           <div className="tab-nav">
             <button 
-              className={`tab-button ${activeTab === 'refresh' ? 'active' : ''}`}
-              onClick={() => setActiveTab('refresh')}
+              className={`tab-button ${activeTab === 'preferences' ? 'active' : ''}`}
+              onClick={() => setActiveTab('preferences')}
             >
-              🔄 Data Refresh
+              ⚙️ Preferences
             </button>
             <button 
               className={`tab-button ${activeTab === 'columns' ? 'active' : ''}`}
@@ -489,11 +512,61 @@ export function SettingsModal({ onClose }: SettingsModalProps) {
               📋 Columns
             </button>
             <button 
+              className={`tab-button ${activeTab === 'refresh' ? 'active' : ''}`}
+              onClick={() => setActiveTab('refresh')}
+            >
+              🔄 Data Refresh
+            </button>
+            <button 
               className={`tab-button ${activeTab === 'export' ? 'active' : ''}`}
               onClick={() => setActiveTab('export')}
             >
               📤 Export
             </button>
+          </div>
+          <div className={`tab-content ${activeTab === 'preferences' ? 'active' : 'hidden'}`}>
+            <div className="settings-tab-content">
+              <div className="settings-section">
+                <h3>Language & Accessibility</h3>
+                <p>Configure display language and accessibility features.</p>
+                
+                <div className="preferences-controls">
+                  <div className="preference-item">
+                    <label htmlFor="language-preference">Interface Language:</label>
+                    <select
+                      id="language-preference"
+                      value={language}
+                      onChange={(e) => setLanguage(e.target.value)}
+                      aria-describedby="language-help"
+                    >
+                      <option value="en-US">English (US)</option>
+                      <option value="en-UK">English (UK)</option>
+                      <option value="fr">Français</option>
+                      <option value="de">Deutsch</option>
+                      <option value="es">Español</option>
+                    </select>
+                    <div id="language-help" className="help-text">
+                      Choose your preferred display language for the interface.
+                    </div>
+                  </div>
+
+                  <div className="preference-item">
+                    <label>
+                      <input
+                        type="checkbox"
+                        checked={highContrastMode}
+                        onChange={(e) => handleHighContrastToggle(e.target.checked)}
+                        aria-describedby="contrast-help"
+                      />
+                      Enable High Contrast Mode
+                    </label>
+                    <div id="contrast-help" className="help-text">
+                      Increases color contrast for better visibility and accessibility compliance.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
           <div className={`tab-content ${activeTab === 'refresh' ? 'active' : 'hidden'}`}>
             <div className="settings-tab-content">

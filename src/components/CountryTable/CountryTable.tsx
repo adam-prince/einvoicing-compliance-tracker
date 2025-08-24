@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import { createColumnHelper, flexRender, getCoreRowModel, getSortedRowModel, useReactTable, SortingState, ColumnDef } from '@tanstack/react-table';
-import { Button, FlatTable, FlatTableHead, FlatTableHeader, FlatTableBody, FlatTableRow, FlatTableCell } from 'carbon-react/lib';
+import { Button, FlatTable, FlatTableHead, FlatTableHeader, FlatTableBody, FlatTableRow, FlatTableCell } from 'carbon-react';
 import type { Country } from '@types';
 import { Badge } from '../common/Badge';
 import { useStore } from '../../store/useStore';
@@ -154,7 +154,7 @@ const saveColumnConfig = (columns: ColumnConfig[]) => {
 	}
 };
 
-export function CountryTable() {
+export const CountryTable = React.memo(function CountryTable() {
 	const { filtered, setSelected } = useStore();
 	const { t, displayRegionName } = useI18n();
 	const [expanded, setExpanded] = useState<Record<string, boolean>>({});
@@ -348,14 +348,15 @@ export function CountryTable() {
 	}
 
 	return (
-		<div className="card">
-			<div className="table-container" role="region" aria-label="E-invoicing compliance data">
-				<table role="table" aria-label="Countries and their e-invoicing compliance status">
-					<colgroup>
-						{columns.map((column) => (
-							<col key={column.id} className={`col-${column.id}`} />
-						))}
-					</colgroup>
+		<div className="country-table-container">
+			<div className="table-wrapper" role="region" aria-label="E-invoicing compliance data">
+				<div className="table-container">
+					<table role="table" aria-label="Countries and their e-invoicing compliance status" className="compliance-table">
+						<colgroup>
+							{columns.map((column) => (
+								<col key={column.id} className={`col-${column.id}`} />
+							))}
+						</colgroup>
 					<thead>
 						{table.getHeaderGroups().map(hg => (
 							<tr key={hg.id} role="row">
@@ -439,7 +440,8 @@ export function CountryTable() {
 							);
 						})}
 					</tbody>
-				</table>
+					</table>
+				</div>
 			</div>
 			{showColumnManager && (
 				<ColumnManager
@@ -450,7 +452,7 @@ export function CountryTable() {
 			)}
 		</div>
 	);
-}
+});
 
 function formatImpl(dateIso?: string): string {
 	if (!dateIso) return 'None';

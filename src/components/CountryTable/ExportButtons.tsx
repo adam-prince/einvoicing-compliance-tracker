@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
-import { Button } from 'carbon-react/lib';
+import React, { useEffect, useState } from 'react';
+import { Button } from 'carbon-react';
 import { useStore } from '../../store/useStore';
-import ExcelJS from 'exceljs';
 import { ProgressOverlay } from '../common/ProgressOverlay';
+import { rateLimiter, RATE_LIMITS, sanitizeFilename } from '../../utils/security';
+import { apiService } from '../../services/api';
 
-export function ExportButtons() {
+export const ExportButtons = React.memo(function ExportButtons() {
 	const { filtered, countries } = useStore();
 
 	const [isCorsRefreshing, setIsCorsRefreshing] = useState(false);
@@ -34,10 +35,51 @@ export function ExportButtons() {
 	}, [nodeVisible]);
 
 	async function toExcel() {
-		const workbook = new ExcelJS.Workbook();
-		const sheet = workbook.addWorksheet('Countries');
-		sheet.columns = [
-			{ header: 'id', key: 'id' },
+		// Rate limiting check for export operations
+		const userId = 'current-user'; // In a real app, this would be the actual user ID
+		if (!rateLimiter.isAllowed(userId + '_export', RATE_LIMITS.export.maxRequests, RATE_LIMITS.export.windowMs)) {
+			alert('Export rate limit reached. Please wait before trying again.');
+			return;
+		}
+
+		try {
+			setOverlayMessage('Preparing Excel export...');
+			setNodeVisible(true);
+			setNodeProgress(10);
+
+			// Try API export first
+			try {
+				const blob = await apiService.exportToExcel({
+					filters: { countries: (filtered || countries).map(c => c.isoCode3) },
+					format: 'detailed'
+				});
+				
+				const url = URL.createObjectURL(blob);
+				const a = document.createElement('a');
+				a.href = url;
+				a.download = sanitizeFilename('compliance-data.xlsx');
+				document.body.appendChild(a);
+				a.click();
+				document.body.removeChild(a);
+				URL.revokeObjectURL(url);
+				
+				setNodeProgress(100);
+				setTimeout(() => setNodeVisible(false), 1000);
+				return;
+			} catch (apiError) {
+				console.warn('API export failed, falling back to local generation:', apiError);
+				setOverlayMessage('API unavailable, generating locally...');
+				setNodeProgress(30);
+			}
+
+			// Fallback to local Excel generation
+			const ExcelJS = await import('exceljs');
+			const workbook = new ExcelJS.Workbook();
+			const sheet = workbook.addWorksheet('Countries');
+			setNodeProgress(50);
+			
+			sheet.columns = [
+				{ header: 'id', key: 'id' },
 			{ header: 'name', key: 'name' },
 			{ header: 'isoCode2', key: 'isoCode2' },
 			{ header: 'isoCode3', key: 'isoCode3' },
@@ -112,11 +154,165 @@ export function ExportButtons() {
 		const url = URL.createObjectURL(new Blob([blob], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
 		const a = document.createElement('a');
 		a.href = url;
-		a.download = 'countries.xlsx';
+		// Sanitize filename to prevent path traversal attacks
+		const timestamp = new Date().toISOString().slice(0, 10);
+		a.download = sanitizeFilename(`einvoicing-compliance-${timestamp}.xlsx`);
 		document.body.appendChild(a);
 		a.click();
 		document.body.removeChild(a);
 		URL.revokeObjectURL(url);
+		} catch (error) {
+			console.error('Failed to export to Excel:', error);
+			alert('Failed to export to Excel. Please try again.');
+		} finally {
+			setNodeVisible(false);
+		}
+	}
+
+	async function toCSV() {
+		// Rate limiting check for export operations
+		const userId = 'current-user';
+		if (!rateLimiter.isAllowed(userId + '_export', RATE_LIMITS.export.maxRequests, RATE_LIMITS.export.windowMs)) {
+			alert('Export rate limit reached. Please wait before trying again.');
+			return;
+		}
+
+		try {
+			setOverlayMessage('Preparing CSV export...');
+			setNodeVisible(true);
+			setNodeProgress(10);
+
+			// Try API export first
+			try {
+				const blob = await apiService.exportToCSV({
+					filters: { countries: (filtered || countries).map(c => c.isoCode3) },
+					format: 'detailed'
+				});
+				
+				const url = URL.createObjectURL(blob);
+				const a = document.createElement('a');
+				a.href = url;
+				a.download = sanitizeFilename('compliance-data.csv');
+				document.body.appendChild(a);
+				a.click();
+				document.body.removeChild(a);
+				URL.revokeObjectURL(url);
+				
+				setNodeProgress(100);
+				setTimeout(() => setNodeVisible(false), 1000);
+				return;
+			} catch (apiError) {
+				console.warn('API CSV export failed, falling back to local generation:', apiError);
+				setOverlayMessage('API unavailable, generating locally...');
+				setNodeProgress(30);
+			}
+
+			// Fallback to local CSV generation
+			const exportData = filtered && filtered.length > 0 ? filtered : countries;
+			const headers = ['ID', 'Name', 'ISO2', 'ISO3', 'Continent', 'Region', 'B2G Status', 'B2B Status', 'B2C Status', 'Last Updated'];
+			
+			const csvContent = [
+				headers.join(','),
+				...exportData.map(country => [
+					country.id || '',
+					`"${country.name || ''}"`,
+					country.isoCode2 || '',
+					country.isoCode3 || '',
+					`"${country.continent || ''}"`,
+					`"${country.region || ''}"`,
+					country.eInvoicing?.b2g?.status || '',
+					country.eInvoicing?.b2b?.status || '',
+					country.eInvoicing?.b2c?.status || '',
+					country.eInvoicing?.lastUpdated || ''
+				].join(','))
+			].join('\n');
+
+			const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+			const url = URL.createObjectURL(blob);
+			const a = document.createElement('a');
+			a.href = url;
+			a.download = sanitizeFilename('compliance-data.csv');
+			document.body.appendChild(a);
+			a.click();
+			document.body.removeChild(a);
+			URL.revokeObjectURL(url);
+			
+			setNodeProgress(100);
+			setTimeout(() => setNodeVisible(false), 1000);
+		} catch (err: any) {
+			console.error('CSV export failed:', err);
+			alert('CSV export failed: ' + (err.message || 'Unknown error'));
+		} finally {
+			setNodeVisible(false);
+		}
+	}
+
+	async function toJSON() {
+		// Rate limiting check for export operations
+		const userId = 'current-user';
+		if (!rateLimiter.isAllowed(userId + '_export', RATE_LIMITS.export.maxRequests, RATE_LIMITS.export.windowMs)) {
+			alert('Export rate limit reached. Please wait before trying again.');
+			return;
+		}
+
+		try {
+			setOverlayMessage('Preparing JSON export...');
+			setNodeVisible(true);
+			setNodeProgress(10);
+
+			// Try API export first
+			try {
+				const response = await apiService.exportToJSON({
+					filters: { countries: (filtered || countries).map(c => c.isoCode3) },
+					format: 'detailed'
+				});
+				
+				const jsonContent = JSON.stringify(response.data, null, 2);
+				const blob = new Blob([jsonContent], { type: 'application/json;charset=utf-8;' });
+				const url = URL.createObjectURL(blob);
+				const a = document.createElement('a');
+				a.href = url;
+				a.download = sanitizeFilename('compliance-data.json');
+				document.body.appendChild(a);
+				a.click();
+				document.body.removeChild(a);
+				URL.revokeObjectURL(url);
+				
+				setNodeProgress(100);
+				setTimeout(() => setNodeVisible(false), 1000);
+				return;
+			} catch (apiError) {
+				console.warn('API JSON export failed, falling back to local generation:', apiError);
+				setOverlayMessage('API unavailable, generating locally...');
+				setNodeProgress(30);
+			}
+
+			// Fallback to local JSON generation
+			const exportData = filtered && filtered.length > 0 ? filtered : countries;
+			const jsonContent = JSON.stringify({
+				exportDate: new Date().toISOString(),
+				totalCount: exportData.length,
+				countries: exportData
+			}, null, 2);
+
+			const blob = new Blob([jsonContent], { type: 'application/json;charset=utf-8;' });
+			const url = URL.createObjectURL(blob);
+			const a = document.createElement('a');
+			a.href = url;
+			a.download = sanitizeFilename('compliance-data.json');
+			document.body.appendChild(a);
+			a.click();
+			document.body.removeChild(a);
+			URL.revokeObjectURL(url);
+			
+			setNodeProgress(100);
+			setTimeout(() => setNodeVisible(false), 1000);
+		} catch (err: any) {
+			console.error('JSON export failed:', err);
+			alert('JSON export failed: ' + (err.message || 'Unknown error'));
+		} finally {
+			setNodeVisible(false);
+		}
 	}
 
 	async function runCorsRefresh() {
@@ -153,38 +349,45 @@ export function ExportButtons() {
 			<Button onClick={toExcel} size="small" variant="secondary">
 				Export Excel
 			</Button>
+			<Button onClick={toCSV} size="small" variant="secondary">
+				Export CSV
+			</Button>
+			<Button onClick={toJSON} size="small" variant="secondary">
+				Export JSON
+			</Button>
 			<Button 
 				onClick={async () => {
 					try {
-						setOverlayMessage('Searching for updates, please wait (server)...');
-						await fetch('http://localhost:4321/refresh-web', { method: 'POST' });
-						setNodeProgress(5);
+						setOverlayMessage('Refreshing data via API...');
 						setNodeVisible(true);
-						// Wait for overlay poller to close then run CORS
-						const waitForNode = async () => new Promise<void>(resolve => {
-							const check = () => {
-								if (!nodeVisible) return resolve();
-								setTimeout(check, 500);
-							};
-							setTimeout(check, 500);
-						});
-						await waitForNode();
-						// Sync UN countries list via local API (non-blocking if API not available)
-						// UN country sync removed per request
-						setOverlayMessage('Searching for updates, please wait (browser)...');
-						await runCorsRefresh();
-						setOverlayMessage('Updates complete. Reloading...');
-						setTimeout(() => location.reload(), 600);
-					} catch {
-						alert('Please start the local API once: npm run api');
+						setNodeProgress(50);
+						
+						// Use API health check first
+						const health = await apiService.healthCheck();
+						if (health.success) {
+							// API is available, refresh the page to reload data
+							setOverlayMessage('API available. Reloading...');
+							setNodeProgress(100);
+							setTimeout(() => location.reload(), 600);
+						} else {
+							// Fallback to local refresh method
+							setOverlayMessage('API unavailable. Using local refresh...');
+							await runCorsRefresh();
+							setOverlayMessage('Updates complete. Reloading...');
+							setTimeout(() => location.reload(), 600);
+						}
+					} catch (error) {
+						console.error('Refresh failed:', error);
+						alert('Refresh failed. Please check your connection.');
+						setNodeVisible(false);
 					}
 				}}
 				size="small"
 				variant="primary"
 			>
-				Refresh details
+				Refresh Data
 			</Button>
 			<ProgressOverlay visible={nodeVisible || isCorsRefreshing} message={overlayMessage} progress={nodeVisible ? nodeProgress : corsProgress} />
 		</div>
 	);
-}
+});
