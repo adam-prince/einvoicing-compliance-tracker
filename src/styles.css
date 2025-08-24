@@ -1144,78 +1144,95 @@ table .details-button,
 	margin-left: 4px;
 }
 
-/* Fix Carbon React Modal Background - Multiple selectors to ensure coverage */
+/* Force Carbon React Modal to display properly */
 .carbon-modal,
 div[role="dialog"],
 .carbon-modal__inner,
 .carbon-modal__content,
 div[data-role="modal"],
-div[aria-modal="true"] {
+div[aria-modal="true"],
+[class*="Modal"],
+[class*="modal"],
+div[class*="Modal__"],
+div[class*="modal__"],
+div[class*="Modal-"],
+div[class*="modal-"] {
 	background: white !important;
 	color: var(--text) !important;
 }
 
-.carbon-modal {
-	border: 1px solid var(--border) !important;
-	border-radius: 12px !important;
-	box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
-}
-
+/* Create proper modal backdrop overlay */
+.modal-backdrop,
 .carbon-modal-backdrop,
 div[data-backdrop="modal"] {
-	background: rgba(0,0,0,0.45) !important;
-}
-
-/* Additional Carbon React Modal selectors */
-.carbon-modal-dialog,
-.carbon-modal__dialog,
-.modal-dialog {
-	background: white !important;
-	border-radius: 12px !important;
-	border: 1px solid var(--border) !important;
-	box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
-}
-
-/* Ensure modal content has proper background */
-.carbon-modal .modal-body,
-.carbon-modal .modal-content,
-.carbon-modal__body,
-div[role="dialog"] > div {
-	background: white !important;
-	color: var(--text) !important;
-}
-
-/* Force all modal-related divs to have white background */
-div[role="dialog"] {
-	background: white !important;
-	border: 1px solid var(--border) !important;
-	border-radius: 12px !important;
-	box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
-	max-width: 90vw;
-	max-height: 90vh;
-	overflow: auto;
-}
-
-/* Modal backdrop overlay */
-div[role="dialog"]::backdrop,
-div[aria-modal="true"]::backdrop {
-	background: rgba(0,0,0,0.45) !important;
-}
-
-/* Ensure Modal Centering */
-.carbon-modal-wrapper,
-.modal-wrapper {
 	position: fixed !important;
 	top: 0 !important;
 	left: 0 !important;
 	right: 0 !important;
 	bottom: 0 !important;
-	background: rgba(0,0,0,0.45) !important;
+	background: rgba(0,0,0,0.6) !important;
 	display: flex !important;
 	align-items: center !important;
 	justify-content: center !important;
 	z-index: 9999 !important;
 	padding: 20px !important;
+}
+
+/* Ensure all modals are properly centered and sized */
+.modal,
+.carbon-modal,
+.carbon-modal-dialog,
+.carbon-modal__dialog,
+.modal-dialog,
+div[role="dialog"] {
+	position: relative !important;
+	background: white !important;
+	border: 1px solid var(--border) !important;
+	border-radius: 12px !important;
+	box-shadow: 0 10px 30px rgba(0,0,0,0.3) !important;
+	max-width: min(95vw, 1200px) !important;
+	min-width: 600px !important;
+	max-height: 95vh !important;
+	width: auto !important;
+	margin: 0 !important;
+	display: flex !important;
+	flex-direction: column !important;
+}
+
+/* Modal content area should scroll */
+.modal-content,
+.carbon-modal__body,
+.carbon-modal .modal-body {
+	background: white !important;
+	color: var(--text) !important;
+	padding: 20px !important;
+	flex: 1 !important;
+	overflow-y: auto !important;
+	min-height: 0 !important;
+}
+
+/* Modal header should be sticky */
+.modal-header,
+.modal-header-sticky,
+.carbon-modal__header {
+	background: white !important;
+	border-bottom: 1px solid var(--border) !important;
+	padding: 16px 20px !important;
+	position: sticky !important;
+	top: 0 !important;
+	z-index: 10 !important;
+	flex-shrink: 0 !important;
+}
+
+/* Responsive modal sizing */
+@media (max-width: 768px) {
+	.modal,
+	.carbon-modal,
+	div[role="dialog"] {
+		min-width: 90vw !important;
+		max-width: 95vw !important;
+		margin: 0 !important;
+	}
 }
 
 /* Carbon React Component fixes */
@@ -1247,6 +1264,379 @@ div[class*="modal__"],
 div[class*="Modal-"],
 div[class*="modal-"] {
 	background: white !important;
+}
+
+/* Specific Carbon React Modal positioning fixes */
+.cds--modal,
+.cds--modal-container,
+.bx--modal,
+.bx--modal-container,
+div[class*="cds--modal"],
+div[class*="bx--modal"] {
+	position: fixed !important;
+	top: 0 !important;
+	left: 0 !important;
+	right: 0 !important;
+	bottom: 0 !important;
+	display: flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	background: rgba(0,0,0,0.6) !important;
+	z-index: 9999 !important;
+	padding: 20px !important;
+}
+
+.cds--modal-inner,
+.bx--modal-inner,
+div[class*="cds--modal-inner"],
+div[class*="bx--modal-inner"] {
+	position: relative !important;
+	background: white !important;
+	border: 1px solid var(--border) !important;
+	border-radius: 12px !important;
+	box-shadow: 0 10px 30px rgba(0,0,0,0.3) !important;
+	max-width: min(95vw, 1200px) !important;
+	min-width: 600px !important;
+	max-height: 95vh !important;
+	width: auto !important;
+	margin: 0 !important;
+	display: flex !important;
+	flex-direction: column !important;
+	transform: none !important;
+}
+
+/* Modal content structure fixes */
+.cds--modal-content,
+.bx--modal-content,
+.cds--modal-body,
+.bx--modal-body,
+div[class*="cds--modal-content"],
+div[class*="bx--modal-content"],
+div[class*="cds--modal-body"],
+div[class*="bx--modal-body"] {
+	background: white !important;
+	color: var(--text) !important;
+	padding: 20px !important;
+	flex: 1 !important;
+	overflow-y: auto !important;
+	min-height: 0 !important;
+}
+
+.cds--modal-header,
+.bx--modal-header,
+div[class*="cds--modal-header"],
+div[class*="bx--modal-header"] {
+	background: white !important;
+	border-bottom: 1px solid var(--border) !important;
+	padding: 16px 20px !important;
+	position: sticky !important;
+	top: 0 !important;
+	z-index: 10 !important;
+	flex-shrink: 0 !important;
+}
+
+/* Fix modal backdrop for React 18 portals */
+.ReactModalPortal [data-testid="modal-backdrop"],
+.ReactModalPortal .modal-backdrop,
+.ReactModal__Overlay {
+	position: fixed !important;
+	top: 0 !important;
+	left: 0 !important;
+	right: 0 !important;
+	bottom: 0 !important;
+	background: rgba(0,0,0,0.6) !important;
+	display: flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	z-index: 9999 !important;
+	padding: 20px !important;
+}
+
+.ReactModal__Content {
+	position: relative !important;
+	background: white !important;
+	border: 1px solid var(--border) !important;
+	border-radius: 12px !important;
+	box-shadow: 0 10px 30px rgba(0,0,0,0.3) !important;
+	max-width: min(95vw, 1200px) !important;
+	min-width: 600px !important;
+	max-height: 95vh !important;
+	width: auto !important;
+	margin: 0 !important;
+	display: flex !important;
+	flex-direction: column !important;
+	inset: auto !important;
+	transform: none !important;
+}
+
+/* Force all modal elements to center properly */
+dialog,
+dialog[open] {
+	position: fixed !important;
+	top: 50% !important;
+	left: 50% !important;
+	transform: translate(-50%, -50%) !important;
+	background: white !important;
+	border: 1px solid var(--border) !important;
+	border-radius: 12px !important;
+	box-shadow: 0 10px 30px rgba(0,0,0,0.3) !important;
+	max-width: min(95vw, 1200px) !important;
+	min-width: 600px !important;
+	max-height: 95vh !important;
+	width: auto !important;
+	padding: 0 !important;
+	margin: 0 !important;
+	z-index: 9999 !important;
+	display: flex !important;
+	flex-direction: column !important;
+}
+
+dialog::backdrop {
+	background: rgba(0,0,0,0.6) !important;
+	position: fixed !important;
+	top: 0 !important;
+	left: 0 !important;
+	right: 0 !important;
+	bottom: 0 !important;
+}
+
+/* Force scroll behavior for modal body content */
+.modal-body-scroll,
+.modal-content-scroll,
+.country-detail-content,
+.settings-content {
+	overflow-y: auto !important;
+	max-height: calc(95vh - 120px) !important;
+	padding: 20px !important;
+}
+
+/* Ensure tabs are sticky at top of modal content */
+.modal-tabs,
+.detail-tabs,
+.tab-nav {
+	position: sticky !important;
+	top: 0 !important;
+	z-index: 5 !important;
+	background: white !important;
+	border-bottom: 1px solid var(--border) !important;
+	margin-bottom: 0 !important;
+}
+
+/* Fix modal layout for proper sticky tab behavior */
+div[role="dialog"] {
+	display: flex !important;
+	flex-direction: column !important;
+	height: 100% !important;
+	max-height: 95vh !important;
+}
+
+.tabs-sticky,
+.tabs.tabs-sticky {
+	position: sticky !important;
+	top: 0 !important;
+	z-index: 10 !important;
+	background: white !important;
+	border-bottom: 1px solid var(--border) !important;
+	margin: 0 !important;
+	flex-shrink: 0 !important;
+}
+
+.modal-content {
+	flex: 1 !important;
+	overflow-y: auto !important;
+	padding: 20px !important;
+	min-height: 0 !important;
+}
+
+/* Ensure Carbon React Modal dialog has proper flex layout */
+.cds--modal-content,
+.bx--modal-content {
+	display: flex !important;
+	flex-direction: column !important;
+	height: 100% !important;
+	padding: 0 !important;
+}
+
+/* Fix modal body to allow for sticky tabs */
+.cds--modal-body,
+.bx--modal-body {
+	display: flex !important;
+	flex-direction: column !important;
+	flex: 1 !important;
+	overflow: hidden !important;
+	padding: 0 !important;
+}
+
+/* Style individual tabs */
+.tabs {
+	display: flex !important;
+	background: white !important;
+	border-bottom: 1px solid var(--border) !important;
+	margin: 0 !important;
+	padding: 0 16px !important;
+}
+
+.tab {
+	padding: 12px 20px !important;
+	cursor: pointer !important;
+	border: none !important;
+	background: none !important;
+	color: var(--muted) !important;
+	font-size: 14px !important;
+	font-weight: 500 !important;
+	border-bottom: 3px solid transparent !important;
+	transition: all 0.2s ease !important;
+}
+
+.tab.active {
+	color: var(--primary) !important;
+	border-bottom-color: var(--primary) !important;
+	background: rgba(59, 130, 246, 0.05) !important;
+}
+
+.tab:hover {
+	background: var(--panel-2) !important;
+	color: var(--text) !important;
+}
+
+/* Override any Carbon React modal positioning */
+[class*="Modal"][open],
+[class*="modal"][open] {
+	position: fixed !important;
+	top: 50% !important;
+	left: 50% !important;
+	transform: translate(-50%, -50%) !important;
+	inset: auto !important;
+	margin: 0 !important;
+}
+
+/* Language & Accessibility Modal Styles */
+.language-accessibility-content {
+	padding: 20px 0;
+	max-height: calc(95vh - 120px);
+	overflow-y: auto;
+}
+
+.language-selection {
+	margin-top: 16px;
+}
+
+.language-selection label {
+	display: block;
+	margin-bottom: 8px;
+	font-weight: 600;
+	color: var(--text);
+}
+
+.language-select {
+	width: 100%;
+	padding: 12px 16px;
+	border: 1px solid var(--border);
+	border-radius: 8px;
+	background: white;
+	font-size: 14px;
+	color: var(--text);
+	cursor: pointer;
+	transition: border-color 0.2s ease;
+}
+
+.language-select:focus {
+	outline: none;
+	border-color: var(--primary);
+	box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.language-select:hover {
+	border-color: var(--primary);
+}
+
+.accessibility-controls {
+	margin-top: 16px;
+}
+
+.accessibility-option {
+	margin-bottom: 24px;
+}
+
+.checkbox-label {
+	display: flex;
+	align-items: flex-start;
+	cursor: pointer;
+	margin-bottom: 8px;
+}
+
+.accessibility-checkbox {
+	width: 20px;
+	height: 20px;
+	margin-right: 12px;
+	margin-top: 2px;
+	cursor: pointer;
+	accent-color: var(--primary);
+}
+
+.checkbox-text {
+	font-size: 14px;
+	font-weight: 500;
+	color: var(--text);
+	line-height: 1.5;
+}
+
+.accessibility-info {
+	background: var(--panel-2);
+	border: 1px solid var(--border);
+	border-radius: 8px;
+	padding: 16px;
+	margin-top: 24px;
+}
+
+.accessibility-info h4 {
+	margin: 0 0 12px 0;
+	font-size: 16px;
+	font-weight: 600;
+	color: var(--text);
+}
+
+.accessibility-info ul {
+	margin: 0;
+	padding-left: 20px;
+	color: var(--muted);
+}
+
+.accessibility-info li {
+	margin-bottom: 6px;
+	line-height: 1.5;
+}
+
+/* High contrast mode styles */
+.high-contrast {
+	--text: #000000;
+	--background: #ffffff;
+	--border: #000000;
+	--panel: #ffffff;
+	--panel-2: #f5f5f5;
+	--muted: #333333;
+	--primary: #0000ff;
+	--focus-ring: #0000ff;
+}
+
+.high-contrast .badge {
+	border-width: 2px;
+	font-weight: 700;
+}
+
+.high-contrast button {
+	border-width: 2px;
+	font-weight: 600;
+}
+
+.high-contrast .details-button {
+	border-width: 2px !important;
+}
+
+.high-contrast .accessibility-checkbox {
+	width: 24px;
+	height: 24px;
+	border: 2px solid #000000;
 }
 
 /* Custom Tabs Styling */

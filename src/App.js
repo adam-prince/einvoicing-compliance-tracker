@@ -6,11 +6,11 @@ import { CountryTable } from './components/CountryTable/CountryTable';
 import { CountryDetail } from './components/CountryDetail/CountryDetail';
 import { Filters } from './components/Filters/Filters';
 import { QuickStats } from './components/CountryTable/QuickStats';
-import { ExportButtons } from './components/CountryTable/ExportButtons';
 import { LoadingSpinner } from './components/common/LoadingSpinner';
 import { ErrorMessage } from './components/common/ErrorBoundary';
 import { SecurityHeaders } from './components/common/SecurityHeaders';
 import { SettingsModal } from './components/Settings/SettingsModal';
+import { LanguageAccessibilityModal } from './components/Settings/LanguageAccessibilityModal';
 import { loadSavedTheme } from './utils/theme';
 import { useI18n } from './i18n';
 import { useColumnManager } from './hooks/useColumnManager';
@@ -28,6 +28,10 @@ export function App() {
         const [showSettings, setShowSettings] = useState(false);
         const openSettings = useCallback(() => setShowSettings(true), []);
         const closeSettings = useCallback(() => setShowSettings(false), []);
+        // Language/Accessibility modal state
+        const [showLanguageModal, setShowLanguageModal] = useState(false);
+        const openLanguageModal = useCallback(() => setShowLanguageModal(true), []);
+        const closeLanguageModal = useCallback(() => setShowLanguageModal(false), []);
         // Use the API to load countries data
         const { data: countriesData, isLoading: apiLoading, error: apiError, refetch } = useCountries();
         // Fallback to local data if API fails
@@ -172,7 +176,14 @@ export function App() {
             return (_jsx("div", { className: "container", children: _jsx(ErrorMessage, { message: error, onRetry: retryLoad }) }));
         }
         try {
-            return (_jsxs(CarbonProvider, { children: [_jsx(GlobalStyle, {}), _jsx(SecurityHeaders, {}), _jsxs("div", { className: "app-container", children: [_jsx("header", { className: "app-header", role: "banner", children: _jsxs("div", { className: "header-content", children: [_jsxs("div", { className: "header-title-section", children: [_jsx("h1", { className: "app-title", children: t('app_title') || 'E‑Invoicing Compliance Tracker' }), _jsx("p", { className: "app-subtitle", children: t('app_subtitle') || 'Track e-invoicing compliance requirements across countries' })] }), _jsxs("div", { className: "header-controls", role: "group", "aria-label": "Application controls", children: [_jsxs(Button, { onClick: openSettings, size: "small", variant: "primary", "aria-label": t('open_settings') || 'Open application settings', style: {
+            return (_jsxs(CarbonProvider, { children: [_jsx(GlobalStyle, {}), _jsx(SecurityHeaders, {}), _jsxs("div", { className: "app-container", children: [_jsx("header", { className: "app-header", role: "banner", children: _jsxs("div", { className: "header-content", children: [_jsxs("div", { className: "header-title-section", children: [_jsx("h1", { className: "app-title", children: t('app_title') || 'E‑Invoicing Compliance Tracker' }), _jsx("p", { className: "app-subtitle", children: t('app_subtitle') || 'Track e-invoicing compliance requirements across countries' })] }), _jsxs("div", { className: "header-controls", role: "group", "aria-label": "Application controls", children: [_jsxs(Button, { onClick: openLanguageModal, size: "small", variant: "secondary", "aria-label": t('open_language_settings') || 'Open language and accessibility settings', style: {
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '6px',
+                                                        backgroundColor: '#059669',
+                                                        color: 'white',
+                                                        border: '1px solid #059669'
+                                                    }, children: [_jsx("span", { "aria-hidden": "true", children: "\uD83C\uDF10" }), t('language') || 'Language'] }), _jsxs(Button, { onClick: openSettings, size: "small", variant: "primary", "aria-label": t('open_settings') || 'Open application settings', style: {
                                                         display: 'flex',
                                                         alignItems: 'center',
                                                         gap: '6px',
@@ -186,7 +197,7 @@ export function App() {
                                                         backgroundColor: '#dc2626',
                                                         color: 'white',
                                                         border: '1px solid #dc2626'
-                                                    }, children: [_jsx("span", { "aria-hidden": "true", children: "\uD83D\uDEAA" }), t('exit') || 'Exit'] })] })] }) }), _jsx("div", { className: "app-content", children: loading ? (_jsxs("div", { className: "loading-container", role: "status", "aria-live": "polite", children: [_jsx(LoadingSpinner, {}), _jsx("span", { className: "sr-only", children: t('loading_data') || 'Loading compliance data...' })] })) : (_jsx("main", { id: "main", role: "main", tabIndex: -1, className: "main-content", children: _jsxs("div", { className: "content-sections", children: [_jsxs("section", { "aria-labelledby": "stats-heading", className: "stats-section", children: [_jsx("h2", { id: "stats-heading", className: "sr-only", children: t('statistics') || 'Compliance Statistics' }), _jsx(QuickStats, {})] }), _jsxs("section", { id: "filters", "aria-labelledby": "filters-heading", className: "filters-section", children: [_jsx("h2", { id: "filters-heading", className: "section-heading", children: t('filters') || 'Filters' }), _jsx(Filters, {})] }), _jsxs("section", { "aria-labelledby": "export-heading", className: "export-section", children: [_jsx("h2", { id: "export-heading", className: "sr-only", children: t('export_options') || 'Export Options' }), _jsx(ExportButtons, {})] }), _jsxs("section", { id: "table", "aria-labelledby": "table-heading", className: "table-section", children: [_jsx("h2", { id: "table-heading", className: "section-heading", children: t('countries_table') || 'Countries Compliance Data' }), _jsx(CountryTable, {})] })] }) })) }), showSettings && (_jsx(SettingsModal, { onClose: closeSettings })), showColumnManager && (_jsx(ColumnManager, { columns: columnConfigs, onClose: closeColumnManager, onColumnsChange: handleColumnsChange })), selected && (_jsx(CountryDetail, { country: selected, onClose: closeModal }))] })] }));
+                                                    }, children: [_jsx("span", { "aria-hidden": "true", children: "\uD83D\uDEAA" }), t('exit') || 'Exit'] })] })] }) }), _jsx("div", { className: "app-content", children: loading ? (_jsxs("div", { className: "loading-container", role: "status", "aria-live": "polite", children: [_jsx(LoadingSpinner, {}), _jsx("span", { className: "sr-only", children: t('loading_data') || 'Loading compliance data...' })] })) : (_jsx("main", { id: "main", role: "main", tabIndex: -1, className: "main-content", children: _jsxs("div", { className: "content-sections", children: [_jsxs("section", { "aria-labelledby": "stats-heading", className: "stats-section", children: [_jsx("h2", { id: "stats-heading", className: "sr-only", children: t('statistics') || 'Compliance Statistics' }), _jsx(QuickStats, {})] }), _jsxs("section", { id: "filters", "aria-labelledby": "filters-heading", className: "filters-section", children: [_jsx("h2", { id: "filters-heading", className: "section-heading", children: t('filters') || 'Filters' }), _jsx(Filters, {})] }), _jsxs("section", { id: "table", "aria-labelledby": "table-heading", className: "table-section", children: [_jsx("h2", { id: "table-heading", className: "section-heading", children: t('countries_table') || 'Countries Compliance Data' }), _jsx(CountryTable, {})] })] }) })) }), showLanguageModal && (_jsx(LanguageAccessibilityModal, { onClose: closeLanguageModal })), showSettings && (_jsx(SettingsModal, { onClose: closeSettings })), showColumnManager && (_jsx(ColumnManager, { columns: columnConfigs, onClose: closeColumnManager, onColumnsChange: handleColumnsChange })), selected && (_jsx(CountryDetail, { country: selected, onClose: closeModal }))] })] }));
         }
         catch (renderError) {
             console.error('Error rendering App component:', renderError);

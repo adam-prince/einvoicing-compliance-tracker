@@ -6,11 +6,11 @@ import { CountryTable } from './components/CountryTable/CountryTable';
 import { CountryDetail } from './components/CountryDetail/CountryDetail';
 import { Filters } from './components/Filters/Filters';
 import { QuickStats } from './components/CountryTable/QuickStats';
-import { ExportButtons } from './components/CountryTable/ExportButtons';
 import { LoadingSpinner } from './components/common/LoadingSpinner';
 import { ErrorMessage } from './components/common/ErrorBoundary';
 import { SecurityHeaders } from './components/common/SecurityHeaders';
 import { SettingsModal } from './components/Settings/SettingsModal';
+import { LanguageAccessibilityModal } from './components/Settings/LanguageAccessibilityModal';
 import { loadSavedTheme } from './utils/theme';
 import { useI18n } from './i18n';
 import { useColumnManager } from './hooks/useColumnManager';
@@ -63,6 +63,11 @@ export function App() {
 	const [showSettings, setShowSettings] = useState(false);
 	const openSettings = useCallback(() => setShowSettings(true), []);
 	const closeSettings = useCallback(() => setShowSettings(false), []);
+	
+	// Language/Accessibility modal state
+	const [showLanguageModal, setShowLanguageModal] = useState(false);
+	const openLanguageModal = useCallback(() => setShowLanguageModal(true), []);
+	const closeLanguageModal = useCallback(() => setShowLanguageModal(false), []);
 
 	// Use the API to load countries data
 	const { data: countriesData, isLoading: apiLoading, error: apiError, refetch } = useCountries();
@@ -247,6 +252,24 @@ export function App() {
 							
 							<div className="header-controls" role="group" aria-label="Application controls">
 								<Button
+									onClick={openLanguageModal}
+									size="small"
+									variant="secondary"
+									aria-label={t('open_language_settings') || 'Open language and accessibility settings'}
+									style={{
+										display: 'flex',
+										alignItems: 'center',
+										gap: '6px',
+										backgroundColor: '#059669',
+										color: 'white',
+										border: '1px solid #059669'
+									}}
+								>
+									<span aria-hidden="true">🌐</span>
+									{t('language') || 'Language'}
+								</Button>
+								
+								<Button
 									onClick={openSettings}
 									size="small"
 									variant="primary"
@@ -312,14 +335,6 @@ export function App() {
 										<Filters />
 									</section>
 									
-									{/* Export Controls Section */}
-									<section aria-labelledby="export-heading" className="export-section">
-										<h2 id="export-heading" className="sr-only">
-											{t('export_options') || 'Export Options'}
-										</h2>
-										<ExportButtons />
-									</section>
-									
 									{/* Country Data Table Section */}
 									<section id="table" aria-labelledby="table-heading" className="table-section">
 										<h2 id="table-heading" className="section-heading">
@@ -333,6 +348,12 @@ export function App() {
 					</div>
 
 					{/* Modal Dialogs */}
+					{showLanguageModal && (
+						<LanguageAccessibilityModal
+							onClose={closeLanguageModal}
+						/>
+					)}
+					
 					{showSettings && (
 						<SettingsModal
 							onClose={closeSettings}
