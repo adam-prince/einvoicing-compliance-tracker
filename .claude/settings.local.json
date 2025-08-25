@@ -34,7 +34,8 @@
       "Bash(powershell:*)",
       "Bash(PORT=3002 node backend/test-server.js)",
       "Bash(npm update)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(rg:*)"
     ],
     "deny": [],
     "ask": []

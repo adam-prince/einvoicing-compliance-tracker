@@ -1,6 +1,7 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { getFormatSpecifications, getLegislationDocuments } from '../../data/formatSpecifications';
 import { useI18n } from '../../i18n';
+import { EnhancedLink } from '../common/EnhancedLink';
 export function OverviewTab({ country, linkStatuses, onSmartLink }) {
     const { t, formatDate } = useI18n();
     // Enhanced format rendering with corrected country-specific data
@@ -33,17 +34,7 @@ export function OverviewTab({ country, linkStatuses, onSmartLink }) {
                     const buttonKey = `${index}-${specIndex}`;
                     const status = linkStatuses[spec.url] || 'unknown';
                     const isDead = status === 'not-found';
-                    const handleClick = () => {
-                        onSmartLink(spec.url, `${spec.name} ${spec.version ? 'v' + spec.version : ''} specification`, spec.authority || 'Format Authority', country.isoCode3);
-                    };
-                    formatButtons.push(_jsxs("button", { onClick: handleClick, className: `format-spec-button ${isDead ? 'button-amber' : ''}`, title: `${isDead ? 'Unavailable link' : (status === 'ok' ? 'Validated link' : 'Status unknown')} — ${(spec.description || spec.name)}${isDead ? '' : ' - Click to view official specification'}`, "aria-describedby": isDead ? `dead-link-hint-${buttonKey}` : undefined, children: [_jsx("span", { className: `status-dot ${isDead ? 'dot-dead' : (status === 'ok' ? 'dot-ok' : 'dot-unknown')}`, "aria-hidden": "true" }), _jsxs("span", { className: "sr-only", children: ["Link status: ", isDead ? 'unavailable' : (status === 'ok' ? 'validated' : 'unknown')] }), _jsx("span", { className: "format-name", children: spec.name }), spec.version && _jsxs("span", { className: "format-version", children: ["v", spec.version] }), _jsx("span", { className: "format-authority", children: spec.authority }), _jsx("span", { className: "external-link-icon", children: "\u2197" }), isDead && (_jsx("span", { id: `dead-link-hint-${buttonKey}`, style: {
-                                    position: 'absolute',
-                                    left: -9999,
-                                    top: 'auto',
-                                    width: 1,
-                                    height: 1,
-                                    overflow: 'hidden'
-                                }, children: "Original link not available. Opens a web search in a new tab." }))] }, buttonKey));
+                    formatButtons.push(_jsxs("div", { className: `format-spec-button ${isDead ? 'button-amber' : ''}`, children: [_jsx("span", { className: `status-dot ${isDead ? 'dot-dead' : (status === 'ok' ? 'dot-ok' : 'dot-unknown')}`, "aria-hidden": "true" }), _jsxs("span", { className: "sr-only", children: ["Link status: ", isDead ? 'unavailable' : (status === 'ok' ? 'validated' : 'unknown')] }), _jsx("span", { className: "format-name", children: spec.name }), spec.version && _jsxs("span", { className: "format-version", children: ["v", spec.version] }), _jsx("span", { className: "format-authority", children: spec.authority }), _jsx(EnhancedLink, { url: spec.url, title: `${spec.name} ${spec.version ? 'v' + spec.version : ''} specification`, countryCode: country.isoCode3, linkType: "standard", className: "enhanced-link-in-button", style: { color: 'inherit', textDecoration: 'none' }, children: _jsx("span", { className: "external-link-icon", children: "\u2197" }) })] }, buttonKey));
                 });
             }
             else {
@@ -64,10 +55,7 @@ export function OverviewTab({ country, linkStatuses, onSmartLink }) {
             return (_jsx("div", { className: "legislation-buttons-container", children: documents.map((doc, index) => {
                     const status = linkStatuses[doc.url] || 'unknown';
                     const isDead = status === 'not-found';
-                    const handleClick = () => {
-                        onSmartLink(doc.url, doc.name, 'Government Document', country.isoCode3);
-                    };
-                    return (_jsxs("button", { onClick: handleClick, className: `legislation-button ${isDead ? 'button-amber' : ''}`, title: `${isDead ? 'Unavailable link' : (status === 'ok' ? 'Validated link' : 'Status unknown')} — ${doc.name}`, children: [_jsx("span", { className: `status-dot ${isDead ? 'dot-dead' : (status === 'ok' ? 'dot-ok' : 'dot-unknown')}`, "aria-hidden": "true" }), _jsxs("span", { className: "sr-only", children: ["Link status: ", isDead ? 'unavailable' : (status === 'ok' ? 'validated' : 'unknown')] }), _jsx("span", { className: "legislation-name", children: doc.name }), doc.language && doc.language !== 'Multi-language' && (_jsx("span", { className: "legislation-language", children: doc.language })), doc.language === 'Multi-language' && (_jsx("span", { className: "legislation-language", children: "All Languages" })), _jsx("span", { className: "legislation-type", children: doc.type }), _jsx("span", { className: "external-link-icon", children: "\u2197" })] }, index));
+                    return (_jsxs("div", { className: `legislation-button ${isDead ? 'button-amber' : ''}`, title: `${isDead ? 'Unavailable link' : (status === 'ok' ? 'Validated link' : 'Status unknown')} — ${doc.name}`, children: [_jsx("span", { className: `status-dot ${isDead ? 'dot-dead' : (status === 'ok' ? 'dot-ok' : 'dot-unknown')}`, "aria-hidden": "true" }), _jsxs("span", { className: "sr-only", children: ["Link status: ", isDead ? 'unavailable' : (status === 'ok' ? 'validated' : 'unknown')] }), _jsx("span", { className: "legislation-name", children: doc.name }), doc.language && doc.language !== 'Multi-language' && (_jsx("span", { className: "legislation-language", children: doc.language })), doc.language === 'Multi-language' && (_jsx("span", { className: "legislation-language", children: "All Languages" })), _jsx("span", { className: "legislation-type", children: doc.type }), _jsx(EnhancedLink, { url: doc.url, title: doc.name, countryCode: country.isoCode3, linkType: "legislation", className: "enhanced-link-in-button", style: { color: 'inherit', textDecoration: 'none' }, children: _jsx("span", { className: "external-link-icon", children: "\u2197" }) })] }, index));
                 }) }));
         }
         else {
@@ -85,10 +73,7 @@ export function OverviewTab({ country, linkStatuses, onSmartLink }) {
                 return (_jsx("div", { className: "legislation-buttons-container", children: candidateLinks.map((l, idx) => {
                         const status = linkStatuses[l.url] || 'unknown';
                         const isDead = status === 'not-found';
-                        const handleClick = () => {
-                            onSmartLink(l.url, `${legislationName} (${l.label})`, 'Government Legislation', country.isoCode3);
-                        };
-                        return (_jsxs("button", { onClick: handleClick, className: `legislation-button ${isDead ? 'button-amber' : ''}`, title: `${isDead ? 'Unavailable link' : (status === 'ok' ? 'Validated link' : 'Status unknown')} — ${legislationName} (${l.label})`, children: [_jsx("span", { className: `status-dot ${isDead ? 'dot-dead' : (status === 'ok' ? 'dot-ok' : 'dot-unknown')}`, "aria-hidden": "true" }), _jsxs("span", { className: "sr-only", children: ["Link status: ", isDead ? 'unavailable' : (status === 'ok' ? 'validated' : 'unknown')] }), _jsx("span", { className: "legislation-name", children: legislationName }), _jsx("span", { className: "legislation-type", children: l.label }), _jsx("span", { className: "external-link-icon", children: "\u2197" })] }, idx));
+                        return (_jsxs("div", { className: `legislation-button ${isDead ? 'button-amber' : ''}`, title: `${isDead ? 'Unavailable link' : (status === 'ok' ? 'Validated link' : 'Status unknown')} — ${legislationName} (${l.label})`, children: [_jsx("span", { className: `status-dot ${isDead ? 'dot-dead' : (status === 'ok' ? 'dot-ok' : 'dot-unknown')}`, "aria-hidden": "true" }), _jsxs("span", { className: "sr-only", children: ["Link status: ", isDead ? 'unavailable' : (status === 'ok' ? 'validated' : 'unknown')] }), _jsx("span", { className: "legislation-name", children: legislationName }), _jsx("span", { className: "legislation-type", children: l.label }), _jsx(EnhancedLink, { url: l.url, title: `${legislationName} (${l.label})`, countryCode: country.isoCode3, linkType: "legislation", className: "enhanced-link-in-button", style: { color: 'inherit', textDecoration: 'none' }, children: _jsx("span", { className: "external-link-icon", children: "\u2197" }) })] }, idx));
                     }) }));
             }
             // As a last resort, offer a search link

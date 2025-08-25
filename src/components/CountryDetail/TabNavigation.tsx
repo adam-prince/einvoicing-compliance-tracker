@@ -31,42 +31,44 @@ export function TabNavigation({ activeTab, onTabChange }: TabNavigationProps) {
 	};
 
 	return (
-		<div className="tabs tabs-sticky" role="tablist" aria-label="Country details tabs">
-			<div
-				className={`tab ${activeTab === 'overview' ? 'active' : ''}`}
-				onClick={() => onTabChange('overview')}
-				role="tab"
-				id="tab-overview"
-				aria-selected={activeTab === 'overview'}
-				aria-controls="panel-overview"
-				tabIndex={activeTab === 'overview' ? 0 : -1}
-				onKeyDown={(e) => handleKeyDown(e, 'overview')}
-			>
-				{t('tabs_overview')}
-			</div>
-			<div
-				className={`tab ${activeTab === 'timeline' ? 'active' : ''}`}
-				onClick={() => onTabChange('timeline')}
-				role="tab"
-				id="tab-timeline"
-				aria-selected={activeTab === 'timeline'}
-				aria-controls="panel-timeline"
-				tabIndex={activeTab === 'timeline' ? 0 : -1}
-				onKeyDown={(e) => handleKeyDown(e, 'timeline')}
-			>
-				{t('timeline_title')}
-			</div>
-			<div
-				className={`tab ${activeTab === 'news' ? 'active' : ''}`}
-				onClick={() => onTabChange('news')}
-				role="tab"
-				id="tab-news"
-				aria-selected={activeTab === 'news'}
-				aria-controls="panel-news"
-				tabIndex={activeTab === 'news' ? 0 : -1}
-				onKeyDown={(e) => handleKeyDown(e, 'news')}
-			>
-				{t('news_title')}
+		<div className="tab-navigation tabs-sticky" role="tablist" aria-label="Country details tabs">
+			<div className="tab-container">
+				<div
+					className={`tab-button ${activeTab === 'overview' ? 'active' : ''}`}
+					onClick={() => onTabChange('overview')}
+					role="tab"
+					id="tab-overview"
+					aria-selected={activeTab === 'overview'}
+					aria-controls="panel-overview"
+					tabIndex={activeTab === 'overview' ? 0 : -1}
+					onKeyDown={(e) => handleKeyDown(e, 'overview')}
+				>
+					{t('tabs_overview')}
+				</div>
+				<div
+					className={`tab-button ${activeTab === 'timeline' ? 'active' : ''}`}
+					onClick={() => onTabChange('timeline')}
+					role="tab"
+					id="tab-timeline"
+					aria-selected={activeTab === 'timeline'}
+					aria-controls="panel-timeline"
+					tabIndex={activeTab === 'timeline' ? 0 : -1}
+					onKeyDown={(e) => handleKeyDown(e, 'timeline')}
+				>
+					{t('timeline_title')}
+				</div>
+				<div
+					className={`tab-button ${activeTab === 'news' ? 'active' : ''}`}
+					onClick={() => onTabChange('news')}
+					role="tab"
+					id="tab-news"
+					aria-selected={activeTab === 'news'}
+					aria-controls="panel-news"
+					tabIndex={activeTab === 'news' ? 0 : -1}
+					onKeyDown={(e) => handleKeyDown(e, 'news')}
+				>
+					{t('news_title')}
+				</div>
 			</div>
 		</div>
 	);

@@ -48,21 +48,25 @@ export function App() {
                 const compliance = complianceModule.default;
                 // Basic data merging for fallback
                 if (basics && Array.isArray(basics) && basics.length > 0) {
-                    // Convert basic countries to full country format
-                    const countries = basics.map(country => ({
-                        id: country.isoCode3 || country.name,
-                        name: country.name || 'Unknown',
-                        isoCode2: country.isoCode2 || '',
-                        isoCode3: country.isoCode3 || '',
-                        continent: country.continent || 'Unknown',
-                        region: country.region,
-                        eInvoicing: {
-                            b2g: { status: 'none', formats: [], legislation: { name: '' } },
-                            b2b: { status: 'none', formats: [], legislation: { name: '' } },
-                            b2c: { status: 'none', formats: [], legislation: { name: '' } },
-                            lastUpdated: new Date().toISOString(),
-                        }
-                    }));
+                    // Convert basic countries to full country format and merge with compliance data
+                    const countries = basics.map(country => {
+                        // Find matching compliance data for this country
+                        const complianceMatch = compliance.find((c) => c.id === country.isoCode3);
+                        return {
+                            id: country.isoCode3 || country.name,
+                            name: country.name || 'Unknown',
+                            isoCode2: country.isoCode2 || '',
+                            isoCode3: country.isoCode3 || '',
+                            continent: country.continent || 'Unknown',
+                            region: country.region,
+                            eInvoicing: complianceMatch ? complianceMatch.eInvoicing : {
+                                b2g: { status: 'none', formats: [], legislation: { name: '' } },
+                                b2b: { status: 'none', formats: [], legislation: { name: '' } },
+                                b2c: { status: 'none', formats: [], legislation: { name: '' } },
+                                lastUpdated: new Date().toISOString(),
+                            }
+                        };
+                    });
                     setCountries(countries);
                     setError(''); // Clear error since we have data now
                 }

@@ -89,5 +89,7 @@ export default {
     // Toast messages
     toast_background_refresh_complete: 'Actualización de detalles en segundo plano ahora completada',
     toast_link_broken: 'El enlace parece roto. Abriendo búsqueda para: {title}',
-    toast_popup_blocked: 'Ventana emergente bloqueada. Abriendo búsqueda en su lugar.'
+    toast_popup_blocked: 'Ventana emergente bloqueada. Abriendo búsqueda en su lugar.',
+    // Table headers
+    countries_table: 'Datos de Cumplimiento de Países'
 };

@@ -3,6 +3,7 @@ import type { Country } from '@types';
 import { getFormatSpecifications, getLegislationDocuments } from '../../data/formatSpecifications';
 import { useI18n } from '../../i18n';
 import { sanitizeUrl, sanitizeText } from '../../utils/security';
+import { EnhancedLink } from '../common/EnhancedLink';
 
 interface OverviewTabProps {
 	country: Country;
@@ -46,40 +47,24 @@ export function OverviewTab({ country, linkStatuses, onSmartLink }: OverviewTabP
 					const status = linkStatuses[spec.url] || 'unknown';
 					const isDead = status === 'not-found';
 
-					const handleClick = () => {
-						onSmartLink(spec.url, `${spec.name} ${spec.version ? 'v' + spec.version : ''} specification`, spec.authority || 'Format Authority', country.isoCode3);
-					};
-
 					formatButtons.push(
-						<button
-							key={buttonKey}
-							onClick={handleClick}
-							className={`format-spec-button ${isDead ? 'button-amber' : ''}`}
-							title={`${isDead ? 'Unavailable link' : (status === 'ok' ? 'Validated link' : 'Status unknown')} — ${(spec.description || spec.name)}${isDead ? '' : ' - Click to view official specification'}`}
-							aria-describedby={isDead ? `dead-link-hint-${buttonKey}` : undefined}
-						>
+						<div key={buttonKey} className={`format-spec-button ${isDead ? 'button-amber' : ''}`}>
 							<span className={`status-dot ${isDead ? 'dot-dead' : (status === 'ok' ? 'dot-ok' : 'dot-unknown')}`} aria-hidden="true" />
 							<span className="sr-only">Link status: {isDead ? 'unavailable' : (status === 'ok' ? 'validated' : 'unknown')}</span>
 							<span className="format-name">{spec.name}</span>
 							{spec.version && <span className="format-version">v{spec.version}</span>}
 							<span className="format-authority">{spec.authority}</span>
-							<span className="external-link-icon">↗</span>
-							{isDead && (
-								<span
-									id={`dead-link-hint-${buttonKey}`}
-									style={{
-										position: 'absolute',
-										left: -9999,
-										top: 'auto',
-										width: 1,
-										height: 1,
-										overflow: 'hidden'
-									}}
-								>
-									Original link not available. Opens a web search in a new tab.
-								</span>
-							)}
-						</button>
+							<EnhancedLink
+								url={spec.url}
+								title={`${spec.name} ${spec.version ? 'v' + spec.version : ''} specification`}
+								countryCode={country.isoCode3}
+								linkType="standard"
+								className="enhanced-link-in-button"
+								style={{ color: 'inherit', textDecoration: 'none' }}
+							>
+								<span className="external-link-icon">↗</span>
+							</EnhancedLink>
+						</div>
 					);
 				});
 			} else {
@@ -112,14 +97,9 @@ export function OverviewTab({ country, linkStatuses, onSmartLink }: OverviewTabP
 						const status = linkStatuses[doc.url] || 'unknown';
 						const isDead = status === 'not-found';
 
-						const handleClick = () => {
-							onSmartLink(doc.url, doc.name, 'Government Document', country.isoCode3);
-						};
-
 						return (
-							<button
+							<div
 								key={index}
-								onClick={handleClick}
 								className={`legislation-button ${isDead ? 'button-amber' : ''}`}
 								title={`${isDead ? 'Unavailable link' : (status === 'ok' ? 'Validated link' : 'Status unknown')} — ${doc.name}`}
 							>
@@ -133,8 +113,17 @@ export function OverviewTab({ country, linkStatuses, onSmartLink }: OverviewTabP
 									<span className="legislation-language">All Languages</span>
 								)}
 								<span className="legislation-type">{doc.type}</span>
-								<span className="external-link-icon">↗</span>
-							</button>
+								<EnhancedLink
+									url={doc.url}
+									title={doc.name}
+									countryCode={country.isoCode3}
+									linkType="legislation"
+									className="enhanced-link-in-button"
+									style={{ color: 'inherit', textDecoration: 'none' }}
+								>
+									<span className="external-link-icon">↗</span>
+								</EnhancedLink>
+							</div>
 						);
 					})}
 				</div>
@@ -154,14 +143,9 @@ export function OverviewTab({ country, linkStatuses, onSmartLink }: OverviewTabP
 							const status = linkStatuses[l.url] || 'unknown';
 							const isDead = status === 'not-found';
 
-							const handleClick = () => {
-								onSmartLink(l.url, `${legislationName} (${l.label})`, 'Government Legislation', country.isoCode3);
-							};
-
 							return (
-								<button
+								<div
 									key={idx}
-									onClick={handleClick}
 									className={`legislation-button ${isDead ? 'button-amber' : ''}`}
 									title={`${isDead ? 'Unavailable link' : (status === 'ok' ? 'Validated link' : 'Status unknown')} — ${legislationName} (${l.label})`}
 								>
@@ -169,8 +153,17 @@ export function OverviewTab({ country, linkStatuses, onSmartLink }: OverviewTabP
 									<span className="sr-only">Link status: {isDead ? 'unavailable' : (status === 'ok' ? 'validated' : 'unknown')}</span>
 									<span className="legislation-name">{legislationName}</span>
 									<span className="legislation-type">{l.label}</span>
-									<span className="external-link-icon">↗</span>
-								</button>
+									<EnhancedLink
+										url={l.url}
+										title={`${legislationName} (${l.label})`}
+										countryCode={country.isoCode3}
+										linkType="legislation"
+										className="enhanced-link-in-button"
+										style={{ color: 'inherit', textDecoration: 'none' }}
+									>
+										<span className="external-link-icon">↗</span>
+									</EnhancedLink>
+								</div>
 							);
 						})}
 					</div>

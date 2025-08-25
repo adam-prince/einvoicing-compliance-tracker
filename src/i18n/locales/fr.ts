@@ -89,7 +89,9 @@ export default {
 	// Toast messages
 	toast_background_refresh_complete: 'Actualisation des détails en arrière-plan maintenant terminée',
 	toast_link_broken: 'Le lien semble cassé. Ouverture de la recherche pour : {title}',
-	toast_popup_blocked: 'Pop-up bloqué. Ouverture de la recherche à la place.'
+	toast_popup_blocked: 'Pop-up bloqué. Ouverture de la recherche à la place.',
+	// Table headers
+	countries_table: 'Données de conformité des pays'
 };
 
 

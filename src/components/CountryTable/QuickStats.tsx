@@ -12,14 +12,24 @@ export function QuickStats() {
 		for (const c of filtered) {
 			const statuses = [c.eInvoicing.b2g.status, c.eInvoicing.b2b.status, c.eInvoicing.b2c.status];
 			
-			// Count each country only once per category, with priority: mandatory > planned > permitted > none
+			// Count countries in ALL applicable categories
+			// If a country has any mandates (B2G, B2B, or B2C), count in mandated
 			if (statuses.includes('mandated')) {
 				mandated++;
-			} else if (statuses.includes('planned')) {
+			}
+			
+			// If a country has any planned implementations, count in planned
+			if (statuses.includes('planned')) {
 				planned++;
-			} else if (statuses.includes('permitted')) {
+			}
+			
+			// If a country has any permitted status (including conditional), count in permitted
+			if (statuses.includes('permitted') || statuses.includes('permitted-conditional')) {
 				permitted++;
-			} else {
+			}
+			
+			// Only count in 'none' if ALL statuses are 'none'
+			if (statuses.every(status => status === 'none' || status === undefined)) {
 				none++;
 			}
 		}
@@ -35,15 +45,15 @@ export function QuickStats() {
 			</div>
 			<div className="item">
 				<div className="value">{stats.mandated}</div>
-				<div className="label">{t('kpi_any_mandate') || 'Any Mandate'}</div>
+				<div className="label">{t('kpi_any_mandate') || 'With Mandates'}</div>
 			</div>
 			<div className="item">
 				<div className="value">{stats.planned}</div>
-				<div className="label">{t('status_planned')}</div>
+				<div className="label">{t('kpi_any_planned') || 'Any Planned'}</div>
 			</div>
 			<div className="item">
 				<div className="value">{stats.permitted}</div>
-				<div className="label">{t('kpi_permitted_only') || 'Permitted Only'}</div>
+				<div className="label">{t('kpi_any_permitted') || 'Any Permitted'}</div>
 			</div>
 		</div>
 	);

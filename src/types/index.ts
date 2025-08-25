@@ -17,7 +17,7 @@ export interface EInvoicingCompliance {
 }
 
 export interface ComplianceStatus {
-	status: 'mandated' | 'permitted' | 'none' | 'planned';
+	status: 'mandated' | 'permitted' | 'permitted-conditional' | 'none' | 'planned';
 	implementationDate?: string; // ISO string for serialization
 	formats: InvoiceFormat[];
 	legislation: LegislationInfo;
@@ -26,6 +26,7 @@ export interface ComplianceStatus {
 	legislationFinalisedDate?: string;
 	lastDraftDate?: string;
 	phases?: TimelinePhase[];
+	conditions?: string; // For describing conditions like "with receiver permission"
 }
 
 export interface InvoiceFormat {
@@ -63,7 +64,7 @@ export interface TimelinePhase {
 }
 
 export interface PeriodicReporting {
-	status: 'mandated' | 'permitted' | 'none' | 'planned';
+	status: 'mandated' | 'permitted' | 'permitted-conditional' | 'none' | 'planned';
 	frequency?: 'monthly' | 'quarterly' | 'bi-monthly' | 'semiannual' | 'annual' | 'other';
 	implementationDate?: string; // first period start or first due date
 	legislation?: LegislationInfo; // links to VAT return/DRR sources

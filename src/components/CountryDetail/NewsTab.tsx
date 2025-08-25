@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button } from 'carbon-react';
 import { LoadingSpinner } from '../common/LoadingSpinner';
+import { EnhancedLink } from '../common/EnhancedLink';
 import { useI18n } from '../../i18n';
 
 interface NewsItem {
@@ -127,19 +128,22 @@ export function NewsTab({
 								</div>
 
 								<div style={{ marginTop: 8 }}>
-									<Button
-										onClick={() => onSmartLink(
-											item.url || generateSourceUrl(item.sourceType, item.source, countryCode, item.title),
-											item.title,
-											item.source,
-											countryCode
-										)}
-										size="small"
-										variant="tertiary"
-										aria-label={`More info about: ${item.title}. Opens source ${item.source} in a new tab with smart link handling.`}
+									<EnhancedLink
+										url={item.url || generateSourceUrl(item.sourceType, item.source, countryCode, item.title)}
+										title={item.title}
+										countryCode={countryCode}
+										linkType="news"
+										lastUpdated={item.date}
 									>
-										{t('news_more_info')}
-									</Button>
+										<Button
+											size="small"
+											variant="tertiary"
+											aria-label={`More info about: ${item.title}. Opens source ${item.source} in a new tab with smart link handling.`}
+											style={{ pointerEvents: 'none' }}
+										>
+											{t('news_more_info')}
+										</Button>
+									</EnhancedLink>
 								</div>
 							</div>
 						))

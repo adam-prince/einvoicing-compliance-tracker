@@ -237,19 +237,103 @@ export function useCountryDetail(country) {
         const newsData = [];
         let newsId = 1;
         const getDaysAgo = (days) => new Date(now.getTime() - days * 24 * 60 * 60 * 1000).toISOString();
-        // Simple mock data - in a real app this would come from an API
-        for (let i = 0; i < 10; i++) {
+        // Expanded news sources with more diverse organizations
+        const newsSources = [
+            // Government and official sources
+            { name: 'Tax Authority', sourceType: 'Official', weight: 0.3 },
+            { name: 'Finance Ministry', sourceType: 'Government', weight: 0.25 },
+            { name: 'Digital Government Office', sourceType: 'Government', weight: 0.2 },
+            // GENA members and e-invoicing networks
+            { name: 'GENA Global E-invoicing Network', sourceType: 'GENA', weight: 0.15 },
+            { name: 'GENA Technology Partners', sourceType: 'GENA', weight: 0.12 },
+            { name: 'DBNAlliance Network', sourceType: 'Industry', weight: 0.13 },
+            // Industry and consulting sources
+            { name: 'The Invoicing Hub', sourceType: 'Industry', weight: 0.14 },
+            { name: 'VATCalc Compliance', sourceType: 'VATCalc', weight: 0.12 },
+            { name: 'International Trade Association', sourceType: 'Industry', weight: 0.11 },
+            { name: 'Supply Chain Digital Alliance', sourceType: 'Industry', weight: 0.10 },
+            { name: 'E-commerce Trade Council', sourceType: 'Industry', weight: 0.09 },
+            // Consulting and advisory
+            { name: 'Tax Compliance Advisory', sourceType: 'Consulting', weight: 0.08 },
+            { name: 'Digital Transformation Partners', sourceType: 'Consulting', weight: 0.07 },
+            { name: 'Business Process Excellence', sourceType: 'Consulting', weight: 0.06 }
+        ];
+        // Generate varied news content templates
+        const newsTemplates = [
+            {
+                titleTemplate: 'New E-invoicing Requirements Announced for {country}',
+                summaryTemplate: 'Latest regulatory updates introduce new compliance requirements for electronic invoicing in {country}, affecting businesses across various sectors.',
+                relevanceBySource: { 'Official': 'high', 'Government': 'high', 'GENA': 'medium', 'default': 'medium' }
+            },
+            {
+                titleTemplate: 'Digital Invoice Format Standards Updated in {country}',
+                summaryTemplate: 'Technical specifications for digital invoice formats have been revised, with new validation rules and data requirements coming into effect.',
+                relevanceBySource: { 'Industry': 'high', 'VATCalc': 'high', 'GENA': 'high', 'default': 'medium' }
+            },
+            {
+                titleTemplate: '{country} Extends E-invoicing Implementation Timeline',
+                summaryTemplate: 'Businesses in {country} receive extended deadlines for electronic invoicing compliance following industry consultation and feedback.',
+                relevanceBySource: { 'Government': 'high', 'Official': 'high', 'default': 'medium' }
+            },
+            {
+                titleTemplate: 'Industry Survey: E-invoicing Adoption Rates in {country}',
+                summaryTemplate: 'Recent industry analysis reveals current adoption patterns and challenges faced by businesses implementing electronic invoicing solutions.',
+                relevanceBySource: { 'Industry': 'medium', 'Consulting': 'medium', 'default': 'low' }
+            },
+            {
+                titleTemplate: 'Cross-Border E-invoicing Standards for {country}',
+                summaryTemplate: 'International harmonization efforts continue with new interoperability standards for cross-border electronic invoice exchange.',
+                relevanceBySource: { 'GENA': 'high', 'Industry': 'high', 'default': 'medium' }
+            },
+            {
+                titleTemplate: 'VAT Compliance Updates Impact E-invoicing in {country}',
+                summaryTemplate: 'Changes to VAT reporting requirements create new obligations for electronic invoice data capture and transmission processes.',
+                relevanceBySource: { 'VATCalc': 'high', 'Official': 'high', 'default': 'medium' }
+            },
+            {
+                titleTemplate: 'Technology Platform Certifications for {country} E-invoicing',
+                summaryTemplate: 'New certification processes established for service providers and technology platforms supporting electronic invoicing compliance.',
+                relevanceBySource: { 'Industry': 'medium', 'Government': 'medium', 'default': 'low' }
+            },
+            {
+                titleTemplate: 'Small Business E-invoicing Support Programs in {country}',
+                summaryTemplate: 'Government and industry initiatives provide resources and assistance for small businesses transitioning to electronic invoicing systems.',
+                relevanceBySource: { 'Government': 'medium', 'Industry': 'medium', 'default': 'low' }
+            }
+        ];
+        // Generate diverse news items
+        for (let i = 0; i < 16; i++) {
+            const source = newsSources[i % newsSources.length];
+            const template = newsTemplates[i % newsTemplates.length];
+            const daysAgo = (i * 11) + Math.floor(Math.random() * 10); // More varied timing
+            // Determine relevance based on source type and template
+            let relevance = 'low';
+            if (template.relevanceBySource[source.sourceType]) {
+                relevance = template.relevanceBySource[source.sourceType];
+            }
+            else {
+                relevance = template.relevanceBySource.default;
+            }
             newsData.push({
                 id: (newsId++).toString(),
-                date: getDaysAgo(i * 15),
-                title: `E-invoicing Update ${i + 1} for ${countryName}`,
-                summary: `Latest developments in e-invoicing compliance for ${countryName}.`,
-                source: 'Compliance News',
-                sourceType: 'Official',
-                relevance: i < 3 ? 'high' : i < 6 ? 'medium' : 'low'
+                date: getDaysAgo(daysAgo),
+                title: template.titleTemplate.replace('{country}', countryName),
+                summary: template.summaryTemplate.replace('{country}', countryName),
+                source: source.name,
+                sourceType: source.sourceType,
+                relevance: relevance
             });
         }
-        return newsData.slice(0, 30);
+        // Sort by relevance and date, with some randomization for realism
+        return newsData
+            .sort((a, b) => {
+            const relevanceOrder = { 'high': 3, 'medium': 2, 'low': 1 };
+            const relevanceDiff = relevanceOrder[b.relevance] - relevanceOrder[a.relevance];
+            if (relevanceDiff !== 0)
+                return relevanceDiff;
+            return new Date(b.date).getTime() - new Date(a.date).getTime();
+        })
+            .slice(0, 12); // Return top 12 most relevant items
     }, []);
     const handleRefreshTimeline = useCallback(async () => {
         if (!isMountedRef.current)

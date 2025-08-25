@@ -1,6 +1,7 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { Button } from 'carbon-react';
 import { LoadingSpinner } from '../common/LoadingSpinner';
+import { EnhancedLink } from '../common/EnhancedLink';
 import { useI18n } from '../../i18n';
 export function NewsTab({ newsItems, loadingNews, onRefreshNews, onSmartLink, countryCode, generateSourceUrl }) {
     const { t, formatDate } = useI18n();
@@ -45,5 +46,5 @@ export function NewsTab({ newsItems, loadingNews, onRefreshNews, onSmartLink, co
                                 fontSize: 11,
                                 color: 'var(--muted)',
                                 marginTop: 12
-                            }, children: [_jsxs("div", { className: "news-source", children: [_jsx("strong", { children: t('news_source') }), " ", item.source] }), _jsx("div", { className: "news-date", children: formatDate(item.date) })] }), _jsx("div", { style: { marginTop: 8 }, children: _jsx(Button, { onClick: () => onSmartLink(item.url || generateSourceUrl(item.sourceType, item.source, countryCode, item.title), item.title, item.source, countryCode), size: "small", variant: "tertiary", "aria-label": `More info about: ${item.title}. Opens source ${item.source} in a new tab with smart link handling.`, children: t('news_more_info') }) })] }, item.id)))) : (_jsxs("div", { className: "no-news", style: { textAlign: 'center', padding: 48, color: 'var(--muted)' }, children: [_jsx("p", { style: { margin: '8px 0', fontSize: 14 }, children: t('no_news_available') }), _jsx("p", { style: { fontSize: 12, color: 'var(--muted)' }, children: t('check_back_later') })] })) }))] }));
+                            }, children: [_jsxs("div", { className: "news-source", children: [_jsx("strong", { children: t('news_source') }), " ", item.source] }), _jsx("div", { className: "news-date", children: formatDate(item.date) })] }), _jsx("div", { style: { marginTop: 8 }, children: _jsx(EnhancedLink, { url: item.url || generateSourceUrl(item.sourceType, item.source, countryCode, item.title), title: item.title, countryCode: countryCode, linkType: "news", lastUpdated: item.date, children: _jsx(Button, { size: "small", variant: "tertiary", "aria-label": `More info about: ${item.title}. Opens source ${item.source} in a new tab with smart link handling.`, style: { pointerEvents: 'none' }, children: t('news_more_info') }) }) })] }, item.id)))) : (_jsxs("div", { className: "no-news", style: { textAlign: 'center', padding: 48, color: 'var(--muted)' }, children: [_jsx("p", { style: { margin: '8px 0', fontSize: 14 }, children: t('no_news_available') }), _jsx("p", { style: { fontSize: 12, color: 'var(--muted)' }, children: t('check_back_later') })] })) }))] }));
 }

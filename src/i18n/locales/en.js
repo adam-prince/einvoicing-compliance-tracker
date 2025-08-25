@@ -95,5 +95,7 @@ export default {
     // Toast messages
     toast_background_refresh_complete: 'Background refresh details now complete',
     toast_link_broken: 'Link appears broken. Opening search for: {title}',
-    toast_popup_blocked: 'Popup blocked. Opening search instead.'
+    toast_popup_blocked: 'Popup blocked. Opening search instead.',
+    // Table headers
+    countries_table: 'Countries Compliance Data'
 };
