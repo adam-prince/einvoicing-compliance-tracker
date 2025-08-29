@@ -1,13 +1,46 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
+import { portManager } from './src/utils/port-manager';
 
 export default defineConfig({
 	plugins: [react()],
 	server: {
-		strictPort: true,
-		port: 5173,
+		strictPort: false,
+		port: 3001, // Use fixed port for now to avoid conflicts
 		open: false,
+		proxy: {
+			'/api': {
+				target: 'http://localhost:3003',
+				changeOrigin: true,
+				configure: (proxy, _options) => {
+					proxy.on('error', (err, _req, _res) => {
+						console.log('🚨 API Proxy error:', err);
+					});
+					proxy.on('proxyReq', (proxyReq, req, _res) => {
+						console.log('📤 Proxying API request:', req.method, req.url, '→', proxyReq.path);
+					});
+					proxy.on('proxyRes', (proxyRes, req, _res) => {
+						console.log('📥 API Proxy response:', req.method, req.url, '→', proxyRes.statusCode);
+					});
+				},
+			},
+			'/health': {
+				target: 'http://localhost:3003',
+				changeOrigin: true,
+				configure: (proxy, _options) => {
+					proxy.on('error', (err, _req, _res) => {
+						console.log('🚨 Health Proxy error:', err);
+					});
+					proxy.on('proxyReq', (proxyReq, req, _res) => {
+						console.log('📤 Proxying health request:', req.method, req.url, '→', proxyReq.path);
+					});
+					proxy.on('proxyRes', (proxyRes, req, _res) => {
+						console.log('📥 Health Proxy response:', req.method, req.url, '→', proxyRes.statusCode);
+					});
+				},
+			},
+		},
 	},
 	resolve: {
 		alias: {
@@ -52,6 +85,6 @@ export default defineConfig({
 		__APP_VERSION__: JSON.stringify(process.env.npm_package_version || '1.0.0'),
 		__BUILD_DATE__: JSON.stringify(new Date().toISOString()),
 	},
-})
+});
 
 

@@ -20,6 +20,7 @@ import newsRoutes from './routes/news';
 import exportRoutes from './routes/export';
 import searchRoutes from './routes/search';
 import customLinksRoutes from './routes/customLinks';
+import customContentRoutes from './routes/customContent';
 
 // Load environment variables
 dotenv.config();
@@ -114,6 +115,7 @@ app.use('/api/v1/news', newsRoutes);
 app.use('/api/v1/export', exportRoutes);
 app.use('/api/v1/search', searchRoutes);
 app.use('/api/v1/custom-links', customLinksRoutes);
+app.use('/api/v1/custom-content', customContentRoutes);
 
 // API root endpoint
 app.get('/api/v1', (req, res) => {
@@ -131,6 +133,7 @@ app.get('/api/v1', (req, res) => {
         export: '/api/v1/export',
         search: '/api/v1/search',
         customLinks: '/api/v1/custom-links',
+        customContent: '/api/v1/custom-content',
       },
     },
   });

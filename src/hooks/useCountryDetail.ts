@@ -76,6 +76,52 @@ export function useCountryDetail(country: Country) {
 		loadTimeline();
 	}, [country.isoCode3, country.name, complianceService]);
 
+	// Check URL statuses for format specifications on mount
+	useEffect(() => {
+		const checkFormatUrls = async () => {
+			if (!country.eInvoicing) return;
+			
+			const urlsToCheck: string[] = [];
+			
+			// Collect URLs from all channels (b2g, b2b, b2c)
+			['b2g', 'b2b', 'b2c'].forEach(channel => {
+				const channelData = country.eInvoicing[channel as keyof typeof country.eInvoicing];
+				if (channelData && channelData.formats) {
+					channelData.formats.forEach((format: any) => {
+						// Import format specifications to get URLs
+						import('../data/formatSpecifications').then(({ getFormatSpecifications }) => {
+							const specs = getFormatSpecifications(format.name || format);
+							specs.forEach(spec => {
+								if (spec.url && !urlsToCheck.includes(spec.url)) {
+									urlsToCheck.push(spec.url);
+								}
+							});
+						});
+					});
+				}
+			});
+
+			// Check each URL and update status
+			const newStatuses: Record<string, 'ok' | 'not-found' | 'unknown'> = {};
+			for (const url of urlsToCheck) {
+				try {
+					const status = await checkUrl(url);
+					newStatuses[url] = status;
+				} catch (error) {
+					newStatuses[url] = 'unknown';
+				}
+			}
+			
+			if (Object.keys(newStatuses).length > 0 && isMountedRef.current) {
+				setLinkStatuses(prev => ({ ...prev, ...newStatuses }));
+			}
+		};
+
+		// Delay URL checking to avoid blocking initial render
+		const timer = setTimeout(checkFormatUrls, 500);
+		return () => clearTimeout(timer);
+	}, [country.eInvoicing, checkUrl]);
+
 	// Load news data when news tab is activated
 	useEffect(() => {
 		if (activeTab === 'news' && isMountedRef.current) {
@@ -101,6 +147,7 @@ export function useCountryDetail(country: Country) {
 		if (!url) return 'unknown';
 		
 		const normalizedUrl = sanitizeUrl(url);
+		
 		// Check for obviously broken URL patterns first
 		if (normalizedUrl.includes('404') || normalizedUrl.includes('not-found') ||
 			normalizedUrl.includes('error') || normalizedUrl.includes('missing')) {
@@ -115,6 +162,22 @@ export function useCountryDetail(country: Country) {
 		];
 		if (knownBrokenPatterns.some(pattern => normalizedUrl.includes(pattern))) {
 			return 'not-found';
+		}
+		
+		// Check for known working URL patterns
+		const knownWorkingPatterns = [
+			'docs.peppol.eu', // PEPPOL documentation
+			'docs.oasis-open.org', // OASIS specifications
+			'unece.org', // UN/CEFACT specifications
+			'european-standard.eu', // European standards
+			'ec.europa.eu', // European Commission
+			'eur-lex.europa.eu', // EU legal documents
+			'cenfr.gouv.fr' // French official sites that work
+		];
+		
+		// Return 'ok' for known working domains
+		if (knownWorkingPatterns.some(pattern => normalizedUrl.includes(pattern))) {
+			return 'ok';
 		}
 		
 		return 'unknown';
