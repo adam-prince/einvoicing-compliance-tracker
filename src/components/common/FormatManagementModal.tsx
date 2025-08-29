@@ -54,7 +54,7 @@ export function FormatManagementModal({
 		return Object.keys(newErrors).length === 0;
 	}, [formData]);
 
-	const handleSubmit = useCallback((e: React.FormEvent) => {
+	const handleSubmit = useCallback(async (e: React.FormEvent) => {
 		e.preventDefault();
 		
 		if (!validateForm()) {

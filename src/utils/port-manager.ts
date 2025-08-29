@@ -57,16 +57,24 @@ class PortManager {
   /**
    * Read backend port from config file if available
    */
-  private getBackendPortFromConfig(): number | null {
+  private async getBackendPortFromConfig(): Promise<number | null> {
     try {
-      // Try to read port config file created by backend
-      const configPath = new URL('../../port-config.json', import.meta.url);
-      const response = fetch(configPath.href);
-      // This won't work in browser context, so fallback to discovery
-      return null;
-    } catch {
-      return null;
+      // In development, the port config file should be available via Vite's public directory
+      // Try to fetch it as a static resource
+      const response = await fetch('/port-config.json', {
+        cache: 'no-store', // Always get fresh config
+        signal: AbortSignal.timeout(2000)
+      });
+      
+      if (response.ok) {
+        const config = await response.json();
+        console.log('📖 [PORT] Loaded backend port from config:', config.backend);
+        return config.backend;
+      }
+    } catch (error) {
+      console.warn('⚠️ [PORT] Could not read port config file:', error.message);
     }
+    return null;
   }
 
   /**
@@ -77,7 +85,7 @@ class PortManager {
     
     try {
       // Try to read backend port from config file first, fallback to discovery
-      let backendPort = this.getBackendPortFromConfig();
+      let backendPort = await this.getBackendPortFromConfig();
       if (!backendPort) {
         backendPort = await this.findAvailablePort(3003);
       }

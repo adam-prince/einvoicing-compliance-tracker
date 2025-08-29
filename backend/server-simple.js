@@ -3,7 +3,7 @@ const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
-const { configureOptimalBackendPort } = require('./port-utils');
+const { PortManager } = require('./enhanced-port-manager');
 
 const app = express();
 
@@ -726,29 +726,54 @@ app.use((req, res) => {
   });
 });
 
-// Start server with dynamic port discovery
+// Start server with enhanced port management
 async function startServer() {
+  const portManager = new PortManager();
+  
   try {
-    const PORT = process.env.PORT || await configureOptimalBackendPort();
+    const PORT = process.env.PORT || await portManager.getBackendPort();
     
-    // Write port configuration to file for frontend to read
-    const portConfig = {
-      backend: PORT,
-      timestamp: new Date().toISOString()
-    };
-    fs.writeFileSync(path.join(__dirname, '..', 'port-config.json'), JSON.stringify(portConfig, null, 2));
-    console.log(`[CONFIG] Port configuration written: backend=${PORT}`);
+    console.log(`[SERVER] Starting E-Invoicing Compliance API on port ${PORT}`);
     
-    const server = app.listen(PORT, '0.0.0.0', () => {
-      console.log(`[START] E-Invoicing Compliance API running on port ${PORT}`);
-      console.log(`[API] API Documentation: http://localhost:${PORT}/api/v1`);
-      console.log(`[HEALTH] Health Check: http://localhost:${PORT}/health`);
+    const server = app.listen(PORT, '127.0.0.1', () => {
+      console.log(`[START] ✅ E-Invoicing Compliance API running on port ${PORT}`);
+      console.log(`[API] 📚 API Documentation: http://localhost:${PORT}/api/v1`);
+      console.log(`[HEALTH] 💓 Health Check: http://localhost:${PORT}/health`);
+      console.log(`[READY] 🚀 Server is ready and stable`);
+    });
+    
+    // Enhanced error handling to prevent unexpected shutdowns
+    server.on('error', (error) => {
+      console.error('❌ Server error:', error);
+      if (error.code === 'EADDRINUSE') {
+        console.log('🔄 Port in use, retrying with different port...');
+        setTimeout(async () => {
+          try {
+            await startServer();
+          } catch (retryError) {
+            console.error('❌ Failed to restart server:', retryError);
+          }
+        }, 1000);
+      }
+    });
+    
+    // Prevent server from shutting down unexpectedly
+    server.on('close', () => {
+      console.log('⚠️ Server closed unexpectedly');
     });
     
     return server;
   } catch (error) {
     console.error('❌ Failed to start server:', error);
-    process.exit(1);
+    console.log('🔄 Retrying in 2 seconds...');
+    setTimeout(async () => {
+      try {
+        await startServer();
+      } catch (retryError) {
+        console.error('❌ Failed to restart after error:', retryError);
+        process.exit(1);
+      }
+    }, 2000);
   }
 }
 
