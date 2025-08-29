@@ -62,7 +62,7 @@ export function EnhancedLink({
   const linkContent = children || title;
 
   return (
-    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+    <>
       <a
         href={actualUrl}
         title={hasCustomLink ? `Custom link: ${title}` : title}
@@ -70,8 +70,11 @@ export function EnhancedLink({
         style={{
           ...style,
           position: 'relative',
-          textDecoration: hasCustomLink ? 'underline' : 'none',
-          color: hasCustomLink ? 'var(--primary)' : 'inherit',
+          textDecoration: 'none',
+          color: 'inherit',
+          display: 'flex',
+          alignItems: 'center',
+          flex: 1
         }}
         target={target}
         rel={rel}
@@ -95,12 +98,17 @@ export function EnhancedLink({
       <Button
         variant="tertiary"
         size="small"
-        onClick={() => setShowModal(true)}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setShowModal(true);
+        }}
         style={{
           minHeight: '20px',
           padding: '2px 6px',
           color: hasCustomLink ? 'var(--primary)' : 'var(--muted)',
-          fontSize: '12px'
+          fontSize: '12px',
+          marginLeft: '8px'
         }}
         disabled={isLoading}
         title={hasCustomLink ? "Edit custom link" : "Provide better link"}
@@ -108,15 +116,17 @@ export function EnhancedLink({
         ✏️
       </Button>
 
-      <CustomLinkModal
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
-        countryCode={countryCode}
-        originalUrl={originalUrl}
-        linkType={linkType}
-        title={title}
-        onSuccess={handleCustomLinkSuccess}
-      />
-    </div>
+      {showModal && (
+        <CustomLinkModal
+          isOpen={showModal}
+          onClose={() => setShowModal(false)}
+          countryCode={countryCode}
+          originalUrl={originalUrl}
+          linkType={linkType}
+          title={title}
+          onSuccess={handleCustomLinkSuccess}
+        />
+      )}
+    </>
   );
 }

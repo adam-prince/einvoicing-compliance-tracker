@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:clean": "node scripts/clean-dev.cjs && vite",
+    "dev:fresh": "node scripts/clean-dev.cjs --force-clean && vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "test": "vitest",
@@ -14,7 +16,8 @@
     "sync-countries": "echo Country sync disabled",
     "refresh": "node scripts/refresh-specs.cjs",
     "refresh:web": "node scripts/update-from-web.cjs",
-    "api": "node scripts/api.cjs"
+    "api": "node scripts/api.cjs",
+    "clean": "node scripts/clean-dev.cjs"
   },
   "dependencies": {
     "@sage/design-tokens": "^4.35.0",

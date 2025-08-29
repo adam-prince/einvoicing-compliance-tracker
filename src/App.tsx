@@ -22,7 +22,6 @@ import { apiService } from './services/api';
 interface ComplianceData {
 	isoCode3: string;
 	name: string;
-	continent?: string;
 	eInvoicing: EInvoicingCompliance;
 }
 
@@ -30,8 +29,6 @@ interface BasicCountry {
 	name: string;
 	isoCode2: string;
 	isoCode3: string;
-	continent: string;
-	region?: string;
 }
 
 export function App() {
@@ -72,23 +69,102 @@ export function App() {
 	// Use the API to load countries data
 	const { data: countriesData, isLoading: apiLoading, error: apiError, refetch } = useCountries();
 
+	// DIRECT DATA LOADING - Load immediately on mount, no waiting
+	useEffect(() => {
+		console.log('🚀 DIRECT DATA LOAD TRIGGERED - Loading local data immediately');
+		
+		const loadDataDirectly = async () => {
+			try {
+				console.log('📁 Directly importing data files...');
+				
+				// Import data synchronously to avoid async issues
+				const countriesResponse = await fetch('/src/data/countries.json');
+				const complianceResponse = await fetch('/src/data/compliance-data.json');
+				
+				if (!countriesResponse.ok || !complianceResponse.ok) {
+					throw new Error('Failed to fetch data files');
+				}
+				
+				const countriesRaw = await countriesResponse.json();
+				const complianceRaw = await complianceResponse.json();
+				
+				console.log('📊 DIRECT LOAD - Raw data:', {
+					countries: countriesRaw?.length || 0,
+					compliance: complianceRaw?.length || 0
+				});
+
+				if (Array.isArray(countriesRaw) && countriesRaw.length > 0) {
+					const countries: Country[] = countriesRaw.map(country => {
+						const complianceMatch = complianceRaw.find((c: any) => c.id === country.isoCode3);
+						
+						return {
+							id: country.isoCode3 || country.name,
+							name: country.name || 'Unknown',
+							isoCode2: country.isoCode2 || '',
+							isoCode3: country.isoCode3 || '',
+							eInvoicing: complianceMatch ? complianceMatch.eInvoicing : {
+								b2g: { status: 'none', formats: [], legislation: { name: '' } },
+								b2b: { status: 'none', formats: [], legislation: { name: '' } },
+								b2c: { status: 'none', formats: [], legislation: { name: '' } },
+								lastUpdated: new Date().toISOString(),
+							}
+						};
+					});
+
+					console.log('🎯 DIRECT LOAD - Processed countries:', countries.length);
+					console.log('🏪 DIRECT LOAD - Calling setCountries...');
+					setCountries(countries);
+					setLoading(false);
+					setError('');
+					console.log('✅ DIRECT DATA LOAD COMPLETE');
+				}
+			} catch (error) {
+				console.error('❌ DIRECT DATA LOAD FAILED:', error);
+				// Fall back to the original import method
+				loadLocalDataFallback();
+			}
+		};
+
+		// Load immediately
+		loadDataDirectly();
+	}, []);
+
 	// Fallback to local data if API fails
 	const loadLocalDataFallback = useCallback(async () => {
+		console.log('🔄 STARTING loadLocalDataFallback...');
 		setLoading(true);
 		setError('');
 
 		try {
+			console.log('📦 Importing local data modules...');
 			// Import local data as fallback
 			const [countriesModule, complianceModule] = await Promise.all([
-				import('./data/countries.json'),
-				import('./data/compliance-data.json')
+				import('@data/countries.json'),
+				import('@data/compliance-data.json')
 			]);
 			
 			const basics = countriesModule.default as any[];
 			const compliance = complianceModule.default as any[];
 			
+			console.log('📊 RAW DATA LOADED:', {
+				basics: {
+					type: typeof basics,
+					isArray: Array.isArray(basics),
+					length: basics?.length || 0,
+					firstItem: basics?.[0] || null
+				},
+				compliance: {
+					type: typeof compliance,
+					isArray: Array.isArray(compliance),
+					length: compliance?.length || 0,
+					firstItem: compliance?.[0] || null
+				}
+			});
+			
 			// Basic data merging for fallback
 			if (basics && Array.isArray(basics) && basics.length > 0) {
+				console.log('🔗 MERGING data for', basics.length, 'countries...');
+				
 				// Convert basic countries to full country format and merge with compliance data
 				const countries: Country[] = basics.map(country => {
 					// Find matching compliance data for this country
@@ -99,8 +175,6 @@ export function App() {
 						name: country.name || 'Unknown',
 						isoCode2: country.isoCode2 || '',
 						isoCode3: country.isoCode3 || '',
-						continent: country.continent || 'Unknown',
-						region: country.region,
 						eInvoicing: complianceMatch ? complianceMatch.eInvoicing : {
 							b2g: { status: 'none', formats: [], legislation: { name: '' } },
 							b2b: { status: 'none', formats: [], legislation: { name: '' } },
@@ -109,38 +183,163 @@ export function App() {
 						}
 					};
 				});
+
+				// Calculate and log statistics
+				const stats = {
+					totalCountries: countries.length,
+					mandatedB2G: countries.filter(c => c.eInvoicing.b2g.status === 'mandated').length,
+					mandatedB2B: countries.filter(c => c.eInvoicing.b2b.status === 'mandated').length,
+					mandatedB2C: countries.filter(c => c.eInvoicing.b2c.status === 'mandated').length,
+					permitted: countries.filter(c => 
+						c.eInvoicing.b2g.status === 'permitted' || 
+						c.eInvoicing.b2b.status === 'permitted' || 
+						c.eInvoicing.b2c.status === 'permitted'
+					).length,
+					planned: countries.filter(c => 
+						c.eInvoicing.b2g.status === 'planned' || 
+						c.eInvoicing.b2b.status === 'planned' || 
+						c.eInvoicing.b2c.status === 'planned'
+					).length,
+					withCompliance: countries.filter(c => 
+						c.eInvoicing.b2g.status !== 'none' || 
+						c.eInvoicing.b2b.status !== 'none' || 
+						c.eInvoicing.b2c.status !== 'none'
+					).length
+				};
+
+				console.log('📈 FINAL STATISTICS:', stats);
+				console.log('🌍 SAMPLE COUNTRIES:', countries.slice(0, 5).map(c => ({ 
+					id: c.id, 
+					name: c.name, 
+					b2g: c.eInvoicing.b2g.status,
+					b2b: c.eInvoicing.b2b.status,
+					b2c: c.eInvoicing.b2c.status
+				})));
 				
+				console.log('🎯 CALLING setCountries with', countries.length, 'countries...');
 				setCountries(countries);
 				setError(''); // Clear error since we have data now
+				
+				console.log('✅ LOCAL DATA SUCCESSFULLY SET!');
 			} else {
+				console.error('❌ No basic countries data available:', { basics, isArray: Array.isArray(basics), length: basics?.length });
 				throw new Error('No local data available');
 			}
 		} catch (e: any) {
-			console.error('Failed to load fallback data:', e);
+			console.error('❌ FAILED to load fallback data:', e);
 			setError(e.message || 'Failed to load country data. Please check your connection.');
 		} finally {
 			setLoading(false);
+			console.log('🏁 loadLocalDataFallback COMPLETED');
 		}
 	}, [setCountries, setLoading, setError]);
 
 	// Update store when API data changes, with automatic fallback
 	useEffect(() => {
+		console.log('📡 API DATA EFFECT TRIGGERED:', {
+			hasCountriesData: !!countriesData,
+			countriesDataLength: countriesData?.length || 0,
+			apiLoading,
+			hasApiError: !!apiError,
+			apiErrorMessage: typeof apiError === 'string' ? apiError : (apiError?.message || 'none')
+		});
+
 		if (countriesData) {
+			console.log('✅ USING API DATA:', countriesData.length, 'countries');
+			console.log('🎯 CALLING setCountries from API data...');
 			setCountries(countriesData);
 			setLoading(false);
 			setError('');
 		} else if (apiError) {
-			console.log('API failed, loading local data fallback...');
+			console.log('❌ API FAILED, loading local data fallback...', apiError);
 			// Automatically trigger fallback when API fails
 			loadLocalDataFallback();
 		} else {
+			console.log('⏳ API still loading, setting loading state:', apiLoading);
 			setLoading(apiLoading);
 		}
 	}, [countriesData, apiLoading, apiError, setCountries, setLoading, setError, loadLocalDataFallback]);
 
-	// Initialize cleanup handlers
+	// Emergency fallback: Load local data immediately on mount
+	useEffect(() => {
+		console.log('🚨 EMERGENCY FALLBACK EFFECT TRIGGERED');
+		
+		const emergencyLoad = async () => {
+			console.log('🚨 Starting emergency local data load...');
+			await loadLocalDataFallback();
+		};
+
+		// Load local data immediately, don't wait for API
+		emergencyLoad();
+	}, [loadLocalDataFallback]);
+
+	// Initialize cleanup handlers and load fallback data immediately
 	useEffect(() => {
 		initializeCleanupHandlers();
+		
+		// Load local data immediately as a backstop, in case API is slow or unavailable
+		const loadFallbackImmediately = async () => {
+			console.log('📊 Attempting to load local data fallback...');
+			console.log('📊 Current state:', { 
+				hasCountriesData: !!countriesData, 
+				countriesCount: countriesData?.length || 0,
+				isApiLoading: apiLoading,
+				apiError: !!apiError 
+			});
+			
+			// Always load local data if we don't have any countries
+			if (!countriesData || countriesData.length === 0) {
+				console.log('📊 Loading local data as immediate fallback...');
+				await loadLocalDataFallback();
+			}
+		};
+		
+		// Reduced delay to load data faster
+		const timer = setTimeout(loadFallbackImmediately, 1000);
+		
+		return () => clearTimeout(timer);
+	}, [countriesData, apiLoading, apiError, loadLocalDataFallback]);
+
+	// Test API connection on startup (only once)
+	useEffect(() => {
+		let isExecuted = false;
+		
+		const testApiConnection = async () => {
+			if (isExecuted) {
+				console.log('🚫 API test already executed, skipping...');
+				return;
+			}
+			isExecuted = true;
+			
+			console.log('🧪 Testing API connection on startup...');
+			console.log('📍 Environment debug:', {
+				VITE_API_URL: import.meta.env.VITE_API_URL,
+				NODE_ENV: import.meta.env.NODE_ENV,
+				MODE: import.meta.env.MODE
+			});
+			
+			// Test through API service only (don't test direct connection)
+			try {
+				console.log('🔍 API service test...');
+				const health = await apiService.healthCheck();
+				console.log('✅ API service result:', health);
+				
+				if (health.success) {
+					console.log('✨ API is available and working!');
+				} else {
+					console.warn('⚠️ API health check returned success: false');
+				}
+			} catch (error) {
+				console.error('❌ API service test failed:', error);
+			}
+		};
+		
+		// Only run once with a small delay
+		const timeoutId = setTimeout(testApiConnection, 1000);
+		
+		return () => {
+			clearTimeout(timeoutId);
+		};
 	}, []);
 
 	// Theme management and skip link translation

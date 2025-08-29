@@ -2,33 +2,45 @@
 setlocal enableextensions enabledelayedexpansion
 cd /d "%~dp0"
 
-echo Installing dependencies (this may take a moment)...
-call npm install --no-fund --no-audit
-if errorlevel 1 (
-  echo npm install failed. Press any key to exit.
-  pause >nul
-  exit /b 1
+echo [START] E-Invoicing Compliance Tracker Startup
+echo =========================================
+
+REM Check if backend is already running
+echo [CHECK] Checking if backend server is already running...
+curl -s http://localhost:3003/health >nul 2>&1
+if %errorlevel% equ 0 (
+    echo [OK] Backend server is already running on port 3003
+) else (
+    echo [START] Starting backend API server...
+    start "E-Invoicing Backend" cmd /k "node backend/server-simple.js"
+    echo [WAIT] Waiting for backend to start...
+    timeout /t 5 /nobreak >nul
 )
 
-rem Skipping UN Member States sync per user request.
-
-echo Building production bundle...
-call npm run build
-if errorlevel 1 (
-  echo Build failed. Press any key to exit.
-  pause >nul
-  exit /b 1
+REM Check if frontend dev server is already running  
+echo [CHECK] Checking if frontend server is already running...
+curl -s http://localhost:3001 >nul 2>&1
+if %errorlevel% equ 0 (
+    echo [OK] Frontend server is already running on port 3001
+    echo [BROWSER] Opening browser...
+    start "" "http://localhost:3001"
+) else (
+    echo [START] Starting development server...
+    start "E-Invoicing Tracker" cmd /k "npm run dev"
+    echo [WAIT] Waiting for frontend to start...
+    timeout /t 8 /nobreak >nul
+    echo [BROWSER] Opening browser...
+    start "" "http://localhost:3001"
 )
 
-echo Starting local API (for automated refresh)...
-start "E-Invoicing API" cmd /c "npm run api"
-
-echo Starting preview server on http://localhost:5173/ ...
-start "E-Invoicing Tracker" cmd /c "npm run preview -- --open --port 5173"
-rem Also attempt to open default browser in case --open fails
-start "" "http://localhost:5173/"
-
-echo Server starting in a new window. You can close this window.
+echo [OK] E-Invoicing Compliance Tracker is starting up!
+echo [INFO] Instructions:
+echo    - Frontend: http://localhost:3001
+echo    - Backend API: http://localhost:3003  
+echo    - Use the Exit button in the app to properly shut down
+echo.
+echo [INFO] You can close this window now.
+pause
 exit /b 0
 
 

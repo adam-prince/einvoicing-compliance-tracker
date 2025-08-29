@@ -83,8 +83,6 @@ export const ExportButtons = React.memo(function ExportButtons() {
 			{ header: 'name', key: 'name' },
 			{ header: 'isoCode2', key: 'isoCode2' },
 			{ header: 'isoCode3', key: 'isoCode3' },
-			{ header: 'continent', key: 'continent' },
-			{ header: 'region', key: 'region' },
 			{ header: 'b2g_status', key: 'b2g_status' },
 			{ header: 'b2g_implementationDate', key: 'b2g_implementationDate' },
 			{ header: 'b2g_lastChangeDate', key: 'b2g_lastChangeDate' },
@@ -109,8 +107,6 @@ export const ExportButtons = React.memo(function ExportButtons() {
 				name: c.name,
 				isoCode2: c.isoCode2,
 				isoCode3: c.isoCode3,
-				continent: c.continent,
-				region: c.region ?? '',
 				b2g_status: c.eInvoicing.b2g.status,
 				b2g_implementationDate: c.eInvoicing.b2g.implementationDate ?? '',
 				b2g_lastChangeDate: (c.eInvoicing.b2g as any).lastChangeDate ?? '',
@@ -209,7 +205,7 @@ export const ExportButtons = React.memo(function ExportButtons() {
 
 			// Fallback to local CSV generation
 			const exportData = filtered && filtered.length > 0 ? filtered : countries;
-			const headers = ['ID', 'Name', 'ISO2', 'ISO3', 'Continent', 'Region', 'B2G Status', 'B2B Status', 'B2C Status', 'Last Updated'];
+			const headers = ['ID', 'Name', 'ISO2', 'ISO3', 'B2G Status', 'B2B Status', 'B2C Status', 'Last Updated'];
 			
 			const csvContent = [
 				headers.join(','),
@@ -218,8 +214,6 @@ export const ExportButtons = React.memo(function ExportButtons() {
 					`"${country.name || ''}"`,
 					country.isoCode2 || '',
 					country.isoCode3 || '',
-					`"${country.continent || ''}"`,
-					`"${country.region || ''}"`,
 					country.eInvoicing?.b2g?.status || '',
 					country.eInvoicing?.b2b?.status || '',
 					country.eInvoicing?.b2c?.status || '',

@@ -38,21 +38,6 @@ export const DraggableModal: React.FC<DraggableModalProps> = ({
 		xlarge: { width: '1200px', maxWidth: '95vw' }
 	};
 
-	// Center modal initially
-	const centerModal = useCallback(() => {
-		if (modalRef.current && isInitialPosition) {
-			const modal = modalRef.current;
-			const rect = modal.getBoundingClientRect();
-			const centerX = (window.innerWidth - rect.width) / 2;
-			const centerY = (window.innerHeight - rect.height) / 2;
-			
-			setModalPosition({
-				x: Math.max(20, centerX),
-				y: Math.max(20, centerY)
-			});
-			setIsInitialPosition(false);
-		}
-	}, [isInitialPosition]);
 
 	// Handle drag start
 	const handleDragStart = useCallback((e: React.MouseEvent) => {
@@ -134,8 +119,19 @@ export const DraggableModal: React.FC<DraggableModalProps> = ({
 	// Focus management
 	useEffect(() => {
 		if (isOpen && modalRef.current) {
-			// Center modal on first open
-			centerModal();
+			// Simple centering logic - only run once when modal first opens
+			if (isInitialPosition) {
+				const modal = modalRef.current;
+				if (modal) {
+					// Simple center calculation without complex nested modal detection
+					const rect = modal.getBoundingClientRect();
+					const centerX = Math.max(20, (window.innerWidth - rect.width) / 2);
+					const centerY = Math.max(20, (window.innerHeight - rect.height) / 2);
+					
+					setModalPosition({ x: centerX, y: centerY });
+					setIsInitialPosition(false);
+				}
+			}
 			
 			// Focus management
 			const firstFocusable = modalRef.current.querySelector(
@@ -156,9 +152,9 @@ export const DraggableModal: React.FC<DraggableModalProps> = ({
 				focusManager.restoreFocus();
 			};
 		}
-	}, [isOpen, title, centerModal]);
+	}, [isOpen, title, isInitialPosition]);
 
-	// Reset position when modal reopens
+	// Reset position state when modal reopens (but not position itself)
 	useEffect(() => {
 		if (isOpen) {
 			setIsInitialPosition(true);

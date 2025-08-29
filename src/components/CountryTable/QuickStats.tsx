@@ -49,7 +49,7 @@ export function QuickStats() {
 			</div>
 			<div className="item">
 				<div className="value">{stats.planned}</div>
-				<div className="label">{t('kpi_any_planned') || 'Any Planned'}</div>
+				<div className="label">{t('kpi_any_planned') || 'Any Plans'}</div>
 			</div>
 			<div className="item">
 				<div className="value">{stats.permitted}</div>

@@ -3,8 +3,6 @@ export interface Country {
 	name: string;
 	isoCode2: string;
 	isoCode3: string;
-	continent: string;
-	region?: string;
 	eInvoicing: EInvoicingCompliance;
 }
 
@@ -99,8 +97,6 @@ export interface ErrorResponse {
 export interface FilterQuery {
 	page?: number;
 	limit?: number;
-	continent?: string;
-	region?: string;
 	search?: string;
 	status?: string;
 	type?: string;

@@ -5,8 +5,23 @@ import { Country, FilterQuery, ApiResponse } from '../models/types';
 import { logger } from '../utils/logger';
 
 // Import the data (in a real application, this would come from a database)
-import countriesData from '../data/countries.json';
-import complianceData from '../data/compliance-data.json';
+import * as fs from 'fs';
+import * as path from 'path';
+
+// Load JSON data safely
+const loadJsonData = (filePath: string) => {
+  try {
+    const fullPath = path.resolve(__dirname, filePath);
+    const data = fs.readFileSync(fullPath, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    console.error(`Error loading ${filePath}:`, error);
+    return [];
+  }
+};
+
+const countriesData = loadJsonData('../data/countries.json');
+const complianceData = loadJsonData('../data/compliance-data.json');
 
 // Validation schemas
 const getCountriesSchema = Joi.object({

@@ -3,7 +3,6 @@ import type { Country } from '@types';
 
 interface FilterState {
 	search: string;
-	continent: string;
 	status: string;
 	lastChangeAfter: string;
 }
@@ -32,7 +31,6 @@ interface AppState {
 
 const defaultFilters: FilterState = {
 	search: '',
-	continent: '',
 	status: '',
 	lastChangeAfter: ''
 };
@@ -46,8 +44,7 @@ const loadSavedFilters = (): FilterState => {
 			// Ensure all required filter properties exist
 			return {
 				search: parsed.search || '',
-				continent: parsed.continent || '',
-				status: parsed.status || '',
+					status: parsed.status || '',
 				lastChangeAfter: parsed.lastChangeAfter || ''
 			};
 		}
@@ -82,12 +79,6 @@ const applyFilters = (countries: Country[], filters: FilterState): Country[] => 
 			}
 		}
 		
-		// Continent filter
-		if (filters.continent && filters.continent !== 'all') {
-			if (country.continent !== filters.continent) {
-				return false;
-			}
-		}
 		
 		// Status filter - checks if any of B2G, B2B, B2C matches the selected status
 		if (filters.status && filters.status !== 'all') {
@@ -130,13 +121,25 @@ export const useStore = create<AppState>((set, get) => ({
 	
 	// Actions
 	setCountries: (countries: Country[]) => {
+		console.log('🏪 STORE setCountries called with:', countries.length, 'countries');
+		console.log('🏪 Sample store countries:', countries.slice(0, 3).map(c => ({ id: c.id, name: c.name })));
+		
 		const { filters } = get();
 		const filtered = applyFilters(countries, filters);
+		
+		console.log('🏪 After filtering:', {
+			originalCount: countries.length,
+			filteredCount: filtered.length,
+			filters: filters
+		});
+		
 		set({ 
 			countries, 
 			filtered,
 			error: ''
 		});
+		
+		console.log('✅ STORE UPDATE COMPLETE - UI should now show', filtered.length, 'countries');
 	},
 	
 	setSelected: (selected: Country | undefined) => {

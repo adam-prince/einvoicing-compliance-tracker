@@ -52,7 +52,7 @@ export function CountryDetail({ country, onClose }: CountryDetailProps) {
 			isOpen={true} 
 			onClose={onClose} 
 			title="Country Details" 
-			subtitle={`${country.name} • ${country.continent} • ${country.isoCode3}`} 
+			subtitle={`${country.name} • ${country.isoCode3}`} 
 			size="xlarge"
 			aria-describedby="country-detail-description"
 		>

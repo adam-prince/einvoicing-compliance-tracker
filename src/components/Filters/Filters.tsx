@@ -39,21 +39,6 @@ export const Filters = React.memo(function Filters() {
 						size="medium"
 					/>
 				</div>
-				<div style={{ minWidth: '160px', flex: '0 1 160px' }}>
-					<Select 
-						label={t('filters_continent')}
-						value={filters.continent || 'all'} 
-						onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFilters({ continent: e.target.value === 'all' ? '' : e.target.value })}
-						size="medium"
-					>
-						<Option value="all" text={t('filters_all_continents')} />
-						<Option value="Europe" text={t('filters_continent_europe')} />
-						<Option value="Asia" text={t('filters_continent_asia')} />
-						<Option value="Africa" text={t('filters_continent_africa')} />
-						<Option value="Americas" text={t('filters_continent_americas')} />
-						<Option value="Oceania" text={t('filters_continent_oceania')} />
-					</Select>
-				</div>
 				<div style={{ minWidth: '140px', flex: '0 1 140px' }}>
 					<Select 
 						label={t('filters_status')}

@@ -116,15 +116,14 @@ const DetailsButton = React.memo(({
 
 DetailsButton.displayName = 'DetailsButton';
 
-// Default column configurations - Details first, Country second, Continent third
+// Default column configurations - Details first, Country second
 const getDefaultColumnConfigs = (t: any): ColumnConfig[] => [
 	{ id: 'details', label: t('button_details') || 'Details', visible: true, order: 0 },
 	{ id: 'name', label: t('table_country') || 'Country', visible: true, order: 1 },
-	{ id: 'continent', label: t('table_continent') || 'Continent', visible: true, order: 2 },
-	{ id: 'b2g', label: 'B2G', visible: true, order: 3 },
-	{ id: 'b2b', label: 'B2B', visible: true, order: 4 },
-	{ id: 'b2c', label: 'B2C', visible: true, order: 5 },
-	{ id: 'periodic', label: t('table_periodic') || 'Periodic E-reporting', visible: true, order: 6 }
+	{ id: 'b2g', label: 'B2G', visible: true, order: 2 },
+	{ id: 'b2b', label: 'B2B', visible: true, order: 3 },
+	{ id: 'b2c', label: 'B2C', visible: true, order: 4 },
+	{ id: 'periodic', label: t('table_periodic') || 'Periodic E-reporting', visible: true, order: 5 }
 ];
 
 // Load column config from localStorage
@@ -161,7 +160,6 @@ export const CountryTable = React.memo(function CountryTable() {
 	const [showColumnManager, setShowColumnManager] = useState(false);
 	const [columnConfigs, setColumnConfigs] = useState<ColumnConfig[]>(() => loadColumnConfig(t));
 	const [sorting, setSorting] = useState<SortingState>([
-		{ id: 'continent', desc: false },
 		{ id: 'name', desc: false }
 	]);
 
@@ -237,15 +235,6 @@ export const CountryTable = React.memo(function CountryTable() {
 					</div>
 				);
 			}
-		}),
-		continent: columnHelper.accessor('continent', { 
-			id: 'continent',
-			header: t('table_continent') || 'Continent', 
-			cell: info => (
-				<span className="continent-cell" title={info.getValue()}>
-					{info.getValue()}
-				</span>
-			)
 		}),
 		b2g: columnHelper.display({ 
 			id: 'b2g', 
@@ -416,7 +405,6 @@ export const CountryTable = React.memo(function CountryTable() {
 											role="row"
 											aria-label={`Implementation dates for ${country.name}`}
 										>
-											<td></td>
 											<td></td>
 											<td>
 												<div className="badge gray" title="B2G implementation date">

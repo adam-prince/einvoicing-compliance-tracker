@@ -1,5 +1,473 @@
 [
   {
+    "id": "FRA",
+    "name": "France",
+    "isoCode2": "FR",
+    "isoCode3": "FRA",
+    "continent": "Europe",
+    "eInvoicing": {
+      "b2g": {
+        "status": "mandated",
+        "implementationDate": "2020-01-01",
+        "formats": [
+          {
+            "name": "Chorus Pro",
+            "type": "XML",
+            "isHybrid": false
+          },
+          {
+            "name": "UBL",
+            "type": "UBL",
+            "isHybrid": false
+          }
+        ],
+        "legislation": {
+          "name": "French B2G E-invoicing Mandate",
+          "summary": "All companies must send electronic invoices to public sector entities."
+        }
+      },
+      "b2b": {
+        "status": "planned",
+        "implementationDate": "2026-09-01",
+        "formats": [
+          {
+            "name": "Peppol BIS",
+            "type": "UBL",
+            "isHybrid": false
+          }
+        ],
+        "legislation": {
+          "name": "French B2B E-invoicing Reform",
+          "summary": "Mandatory B2B e-invoicing with pilot starting 2025, full rollout 2026-2027."
+        }
+      },
+      "b2c": {
+        "status": "permitted",
+        "formats": [],
+        "legislation": {
+          "name": ""
+        }
+      },
+      "lastUpdated": "2024-08-26"
+    }
+  },
+  {
+    "id": "DEU",
+    "name": "Germany",
+    "isoCode2": "DE",
+    "isoCode3": "DEU",
+    "continent": "Europe",
+    "eInvoicing": {
+      "b2g": {
+        "status": "mandated",
+        "implementationDate": "2019-01-01",
+        "formats": [
+          {
+            "name": "XRechnung",
+            "type": "XML",
+            "isHybrid": false
+          },
+          {
+            "name": "ZUGFeRD",
+            "type": "PDF",
+            "isHybrid": true
+          }
+        ],
+        "legislation": {
+          "name": "German B2G E-invoicing Directive",
+          "summary": "Public sector entities must receive structured e-invoices compliant with EN 16931."
+        }
+      },
+      "b2b": {
+        "status": "planned",
+        "implementationDate": "2025-01-01",
+        "formats": [
+          {
+            "name": "XRechnung",
+            "type": "XML",
+            "isHybrid": false
+          },
+          {
+            "name": "ZUGFeRD",
+            "type": "PDF",
+            "isHybrid": true
+          }
+        ],
+        "legislation": {
+          "name": "German B2B E-invoicing Mandate",
+          "summary": "Mandatory B2B e-invoicing starts Jan 2025 for receiving, issuing mandatory 2027-2028."
+        }
+      },
+      "b2c": {
+        "status": "permitted",
+        "formats": [],
+        "legislation": {
+          "name": ""
+        }
+      },
+      "lastUpdated": "2024-08-26"
+    }
+  },
+  {
+    "id": "ESP",
+    "name": "Spain",
+    "isoCode2": "ES",
+    "isoCode3": "ESP",
+    "continent": "Europe",
+    "eInvoicing": {
+      "b2g": {
+        "status": "mandated",
+        "implementationDate": "2023-03-18",
+        "formats": [
+          {
+            "name": "Facturae",
+            "type": "XML",
+            "isHybrid": false
+          },
+          {
+            "name": "UBL",
+            "type": "UBL",
+            "isHybrid": false
+          }
+        ],
+        "legislation": {
+          "name": "Spanish B2G E-invoicing Mandate",
+          "summary": "All businesses must issue e-invoices for public sector transactions."
+        }
+      },
+      "b2b": {
+        "status": "permitted",
+        "formats": [],
+        "legislation": {
+          "name": ""
+        }
+      },
+      "b2c": {
+        "status": "permitted",
+        "formats": [],
+        "legislation": {
+          "name": ""
+        }
+      },
+      "lastUpdated": "2024-08-26"
+    }
+  },
+  {
+    "id": "ROU",
+    "name": "Romania",
+    "isoCode2": "RO",
+    "isoCode3": "ROU",
+    "continent": "Europe",
+    "eInvoicing": {
+      "b2g": {
+        "status": "mandated",
+        "implementationDate": "2024-01-01",
+        "formats": [
+          {
+            "name": "RO e-Factura",
+            "type": "XML",
+            "isHybrid": false
+          }
+        ],
+        "legislation": {
+          "name": "Romanian E-invoicing Mandate",
+          "summary": "Mandatory for all VAT-registered businesses in B2B and B2G transactions."
+        }
+      },
+      "b2b": {
+        "status": "mandated",
+        "implementationDate": "2024-01-01",
+        "formats": [
+          {
+            "name": "RO e-Factura",
+            "type": "XML",
+            "isHybrid": false
+          }
+        ],
+        "legislation": {
+          "name": "Romanian E-invoicing Mandate",
+          "summary": "Mandatory for all VAT-registered businesses through RO e-Factura platform."
+        }
+      },
+      "b2c": {
+        "status": "permitted",
+        "formats": [],
+        "legislation": {
+          "name": ""
+        }
+      },
+      "lastUpdated": "2024-08-26"
+    }
+  },
+  {
+    "id": "LVA",
+    "name": "Latvia",
+    "isoCode2": "LV",
+    "isoCode3": "LVA",
+    "continent": "Europe",
+    "eInvoicing": {
+      "b2g": {
+        "status": "planned",
+        "implementationDate": "2025-01-01",
+        "formats": [
+          {
+            "name": "Peppol BIS",
+            "type": "UBL",
+            "isHybrid": false
+          }
+        ],
+        "legislation": {
+          "name": "Latvian B2G E-invoicing Mandate",
+          "summary": "Mandatory e-invoicing for all public sector transactions starting January 2025."
+        }
+      },
+      "b2b": {
+        "status": "planned",
+        "implementationDate": "2026-01-01",
+        "formats": [
+          {
+            "name": "Peppol BIS",
+            "type": "UBL",
+            "isHybrid": false
+          }
+        ],
+        "legislation": {
+          "name": "Latvian B2B E-invoicing Extension",
+          "summary": "B2B e-invoicing extends to all transactions from January 2026."
+        }
+      },
+      "b2c": {
+        "status": "permitted",
+        "formats": [],
+        "legislation": {
+          "name": ""
+        }
+      },
+      "lastUpdated": "2024-08-26"
+    }
+  },
+  {
+    "id": "PRT",
+    "name": "Portugal",
+    "isoCode2": "PT",
+    "isoCode3": "PRT",
+    "continent": "Europe",
+    "eInvoicing": {
+      "b2g": {
+        "status": "planned",
+        "implementationDate": "2024-12-31",
+        "formats": [
+          {
+            "name": "eSPap",
+            "type": "XML",
+            "isHybrid": false
+          }
+        ],
+        "legislation": {
+          "name": "Portuguese B2G E-invoicing Mandate",
+          "summary": "Mandatory for micro and small businesses through eSPap platform by Dec 2024."
+        }
+      },
+      "b2b": {
+        "status": "permitted",
+        "formats": [],
+        "legislation": {
+          "name": ""
+        }
+      },
+      "b2c": {
+        "status": "permitted",
+        "formats": [],
+        "legislation": {
+          "name": ""
+        }
+      },
+      "lastUpdated": "2024-08-26"
+    }
+  },
+  {
+    "id": "GRC",
+    "name": "Greece",
+    "isoCode2": "GR",
+    "isoCode3": "GRC",
+    "continent": "Europe",
+    "eInvoicing": {
+      "b2g": {
+        "status": "planned",
+        "implementationDate": "2025-01-01",
+        "formats": [
+          {
+            "name": "myDATA",
+            "type": "XML",
+            "isHybrid": false
+          }
+        ],
+        "legislation": {
+          "name": "Greek B2G E-invoicing Extension",
+          "summary": "Broader B2G obligation for central and local administration from Jan 2025."
+        }
+      },
+      "b2b": {
+        "status": "planned",
+        "implementationDate": "2027-01-01",
+        "formats": [
+          {
+            "name": "myDATA",
+            "type": "XML",
+            "isHybrid": false
+          }
+        ],
+        "legislation": {
+          "name": "Greek B2B E-invoicing based on myDATA",
+          "summary": "E-invoicing based on existing myDATA system by January 2027."
+        }
+      },
+      "b2c": {
+        "status": "permitted",
+        "formats": [],
+        "legislation": {
+          "name": ""
+        }
+      },
+      "lastUpdated": "2024-08-26"
+    }
+  },
+  {
+    "id": "POL",
+    "name": "Poland",
+    "isoCode2": "PL",
+    "isoCode3": "POL",
+    "continent": "Europe",
+    "eInvoicing": {
+      "b2g": {
+        "status": "permitted",
+        "formats": [],
+        "legislation": {
+          "name": ""
+        }
+      },
+      "b2b": {
+        "status": "planned",
+        "implementationDate": "2026-02-01",
+        "formats": [
+          {
+            "name": "Polish KSeF",
+            "type": "XML",
+            "isHybrid": false
+          }
+        ],
+        "legislation": {
+          "name": "Polish B2B E-invoicing Mandate",
+          "summary": "Mandatory B2B e-invoicing for large taxpayers Feb 2026, all others April 2026."
+        }
+      },
+      "b2c": {
+        "status": "permitted",
+        "formats": [],
+        "legislation": {
+          "name": ""
+        }
+      },
+      "lastUpdated": "2024-08-26"
+    }
+  },
+  {
+    "id": "SVK",
+    "name": "Slovakia",
+    "isoCode2": "SK",
+    "isoCode3": "SVK",
+    "continent": "Europe",
+    "eInvoicing": {
+      "b2g": {
+        "status": "planned",
+        "implementationDate": "2025-01-01",
+        "formats": [
+          {
+            "name": "IS EFA",
+            "type": "XML",
+            "isHybrid": false
+          }
+        ],
+        "legislation": {
+          "name": "Slovak E-invoicing via IS EFA",
+          "summary": "B2G e-invoicing mandated via IS EFA system starting January 2025."
+        }
+      },
+      "b2b": {
+        "status": "planned",
+        "implementationDate": "2027-01-01",
+        "formats": [
+          {
+            "name": "Peppol BIS",
+            "type": "UBL",
+            "isHybrid": false
+          }
+        ],
+        "legislation": {
+          "name": "Slovak B2B E-invoicing Rollout",
+          "summary": "B2B e-invoice rollout planned for January 2027."
+        }
+      },
+      "b2c": {
+        "status": "planned",
+        "implementationDate": "2025-01-01",
+        "formats": [],
+        "legislation": {
+          "name": "Slovak B2C E-invoicing",
+          "summary": "B2C e-invoicing also mandated via IS EFA system starting January 2025."
+        }
+      },
+      "lastUpdated": "2024-08-26"
+    }
+  },
+  {
+    "id": "SRB",
+    "name": "Serbia",
+    "isoCode2": "RS",
+    "isoCode3": "SRB",
+    "continent": "Europe",
+    "eInvoicing": {
+      "b2g": {
+        "status": "mandated",
+        "implementationDate": "2023-01-01",
+        "formats": [
+          {
+            "name": "Serbian E-invoice",
+            "type": "XML",
+            "isHybrid": false
+          }
+        ],
+        "legislation": {
+          "name": "Serbian E-invoicing Regulation",
+          "summary": "Mandatory B2G e-invoicing implemented January 2023."
+        }
+      },
+      "b2b": {
+        "status": "mandated",
+        "implementationDate": "2023-01-01",
+        "formats": [
+          {
+            "name": "Serbian E-invoice",
+            "type": "XML",
+            "isHybrid": false
+          }
+        ],
+        "legislation": {
+          "name": "Serbian B2B E-invoicing Regulation",
+          "summary": "Mandatory B2B e-invoicing since January 2023."
+        }
+      },
+      "b2c": {
+        "status": "permitted",
+        "formats": [],
+        "legislation": {
+          "name": ""
+        }
+      },
+      "lastUpdated": "2024-08-26"
+    }
+  },
+  {
     "id": "ITA",
     "name": "Italy",
     "isoCode2": "IT",
@@ -15,41 +483,11 @@
             "type": "XML",
             "version": "1.2",
             "isHybrid": false
-          },
-          {
-            "name": "UBL",
-            "type": "UBL",
-            "isHybrid": false
-          },
-          {
-            "name": "CII",
-            "type": "CII",
-            "isHybrid": false
           }
         ],
         "legislation": {
           "name": "FatturaPA",
-          "officialLink": "https://www.fatturapa.gov.it/",
-          "specificationLink": "https://www.fatturapa.gov.it/export/fatturazione/it/c-1.htm",
-          "summary": "Electronic invoicing mandatory for public administrations.",
-          "specifications": [
-            {
-              "name": "docs.oasis-open.org",
-              "version": "1.79.1",
-              "publishedDate": "2017-05-26T00:00:00.000Z",
-              "url": "https://docs.oasis-open.org/ubl/os-UBL-2.3/UBL-2.3.html"
-            },
-            {
-              "name": "unece.org",
-              "url": "https://unece.org/trade/uncefact/uncefact-cross-industry-invoice"
-            },
-            {
-              "name": "fnfe-mpe.org",
-              "version": "1.07.3",
-              "publishedDate": "2015-05-03T00:00:00.000Z",
-              "url": "https://fnfe-mpe.org/factur-x/factur-x_en/"
-            }
-          ]
+          "summary": "Electronic invoicing mandatory for public administrations."
         }
       },
       "b2b": {
@@ -61,40 +499,11 @@
             "type": "XML",
             "version": "1.2",
             "isHybrid": false
-          },
-          {
-            "name": "UBL",
-            "type": "UBL",
-            "isHybrid": false
-          },
-          {
-            "name": "CII",
-            "type": "CII",
-            "isHybrid": false
           }
         ],
         "legislation": {
-          "name": "Legge di Bilancio 2018",
-          "officialLink": "https://www.gazzettaufficiale.it/",
-          "summary": "B2B e-invoicing mandatory from 2019.",
-          "specifications": [
-            {
-              "name": "docs.oasis-open.org",
-              "version": "1.79.1",
-              "publishedDate": "2017-05-26T00:00:00.000Z",
-              "url": "https://docs.oasis-open.org/ubl/os-UBL-2.3/UBL-2.3.html"
-            },
-            {
-              "name": "unece.org",
-              "url": "https://unece.org/trade/uncefact/uncefact-cross-industry-invoice"
-            },
-            {
-              "name": "fnfe-mpe.org",
-              "version": "1.07.3",
-              "publishedDate": "2015-05-03T00:00:00.000Z",
-              "url": "https://fnfe-mpe.org/factur-x/factur-x_en/"
-            }
-          ]
+          "name": "Italian B2B E-invoicing",
+          "summary": "Mandatory B2B and B2C e-invoicing through SDI system."
         }
       },
       "b2c": {
@@ -109,309 +518,11 @@
           }
         ],
         "legislation": {
-          "name": "Legge di Bilancio 2018",
-          "specifications": [
-            {
-              "name": "docs.oasis-open.org",
-              "version": "1.79.1",
-              "publishedDate": "2017-05-26T00:00:00.000Z",
-              "url": "https://docs.oasis-open.org/ubl/os-UBL-2.3/UBL-2.3.html"
-            },
-            {
-              "name": "unece.org",
-              "url": "https://unece.org/trade/uncefact/uncefact-cross-industry-invoice"
-            },
-            {
-              "name": "fnfe-mpe.org",
-              "version": "1.07.3",
-              "publishedDate": "2015-05-03T00:00:00.000Z",
-              "url": "https://fnfe-mpe.org/factur-x/factur-x_en/"
-            }
-          ]
+          "name": "Italian B2C E-invoicing",
+          "summary": "Mandatory B2C e-invoicing through SDI system."
         }
       },
-      "lastUpdated": "2024-07-01"
-    }
-  },
-  {
-    "id": "FRA",
-    "name": "France",
-    "isoCode2": "FR",
-    "isoCode3": "FRA",
-    "continent": "Europe",
-    "eInvoicing": {
-      "b2g": {
-        "status": "mandated",
-        "formats": [
-          {
-            "name": "Chorus Pro",
-            "type": "XML",
-            "isHybrid": false
-          }
-        ],
-        "legislation": {
-          "name": "Chorus Pro",
-          "officialLink": "https://chorus-pro.gouv.fr/",
-          "specificationLink": "https://entreprises.service-public.fr/vosdroits/F35242",
-          "specifications": [
-            {
-              "name": "legifrance.gouv.fr",
-              "url": "https://www.legifrance.gouv.fr/"
-            },
-            {
-              "name": "impots.gouv.fr",
-              "url": "https://www.impots.gouv.fr/"
-            },
-            {
-              "name": "docs.oasis-open.org",
-              "version": "1.79.1",
-              "publishedDate": "2017-05-26T00:00:00.000Z",
-              "url": "https://docs.oasis-open.org/ubl/os-UBL-2.3/UBL-2.3.html"
-            },
-            {
-              "name": "unece.org",
-              "url": "https://unece.org/trade/uncefact/uncefact-cross-industry-invoice"
-            },
-            {
-              "name": "fnfe-mpe.org",
-              "version": "1.07.3",
-              "publishedDate": "2015-05-03T00:00:00.000Z",
-              "url": "https://fnfe-mpe.org/factur-x/factur-x_en/"
-            }
-          ]
-        }
-      },
-      "b2b": {
-        "status": "planned",
-        "implementationDate": "2026-01-01",
-        "formats": [
-          {
-            "name": "Factur-X",
-            "type": "Factur-X",
-            "isHybrid": true
-          },
-          {
-            "name": "UBL",
-            "type": "UBL",
-            "isHybrid": false
-          },
-          {
-            "name": "CII",
-            "type": "CII",
-            "isHybrid": false
-          }
-        ],
-        "legislation": {
-          "name": "Ordonnance n° 2021-1190",
-          "officialLink": "https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000044125207",
-          "specificationLink": "https://www.impots.gouv.fr/e-facturation-2026",
-          "specifications": [
-            {
-              "name": "Factur-X (FNFE-MPE)",
-              "version": "1.07.3",
-              "publishedDate": "2025-05-15T00:00:00.000Z",
-              "url": "https://fnfe-mpe.org/factur-x/factur-x_en/"
-            },
-            {
-              "name": "legifrance.gouv.fr",
-              "url": "https://www.legifrance.gouv.fr/"
-            },
-            {
-              "name": "impots.gouv.fr",
-              "url": "https://www.impots.gouv.fr/"
-            },
-            {
-              "name": "docs.oasis-open.org",
-              "version": "1.79.1",
-              "publishedDate": "2017-05-26T00:00:00.000Z",
-              "url": "https://docs.oasis-open.org/ubl/os-UBL-2.3/UBL-2.3.html"
-            },
-            {
-              "name": "unece.org",
-              "url": "https://unece.org/trade/uncefact/uncefact-cross-industry-invoice"
-            }
-          ]
-        },
-        "lastChangeDate": "2025-05-15T00:00:00.000Z",
-        "legislationFinalisedDate": "2024-12-20T00:00:00.000Z",
-        "phases": [
-          {
-            "name": "Reception mandatory for all businesses",
-            "startDate": "2026-09-01T00:00:00.000Z",
-            "criteria": "All businesses must be able to receive e-invoices"
-          },
-          {
-            "name": "Issuing – large businesses",
-            "startDate": "2026-09-01T00:00:00.000Z",
-            "criteria": "Large businesses must issue e‑invoices to large businesses and submit e‑reporting"
-          },
-          {
-            "name": "Issuing – all remaining businesses",
-            "startDate": "2027-09-01T00:00:00.000Z",
-            "criteria": "All remaining businesses must issue e‑invoices and e‑reports"
-          }
-        ]
-      },
-      "b2c": {
-        "status": "none",
-        "formats": [],
-        "legislation": {
-          "name": "",
-          "specifications": [
-            {
-              "name": "legifrance.gouv.fr",
-              "url": "https://www.legifrance.gouv.fr/"
-            },
-            {
-              "name": "impots.gouv.fr",
-              "url": "https://www.impots.gouv.fr/"
-            },
-            {
-              "name": "docs.oasis-open.org",
-              "version": "1.79.1",
-              "publishedDate": "2017-05-26T00:00:00.000Z",
-              "url": "https://docs.oasis-open.org/ubl/os-UBL-2.3/UBL-2.3.html"
-            },
-            {
-              "name": "unece.org",
-              "url": "https://unece.org/trade/uncefact/uncefact-cross-industry-invoice"
-            },
-            {
-              "name": "fnfe-mpe.org",
-              "version": "1.07.3",
-              "publishedDate": "2015-05-03T00:00:00.000Z",
-              "url": "https://fnfe-mpe.org/factur-x/factur-x_en/"
-            }
-          ]
-        }
-      },
-      "lastUpdated": "2024-07-01"
-    }
-  },
-  {
-    "id": "DEU",
-    "name": "Germany",
-    "isoCode2": "DE",
-    "isoCode3": "DEU",
-    "continent": "Europe",
-    "eInvoicing": {
-      "b2g": {
-        "status": "mandated",
-        "formats": [
-          {
-            "name": "XRechnung",
-            "type": "XML",
-            "isHybrid": false
-          }
-        ],
-        "legislation": {
-          "name": "E-Rechnungsverordnung",
-          "specifications": [
-            {
-              "name": "xeinkauf.de",
-              "version": "25.6",
-              "publishedDate": "2025-07-14T00:00:00.000Z",
-              "url": "https://xeinkauf.de/xrechnung/"
-            },
-            {
-              "name": "docs.oasis-open.org",
-              "version": "1.79.1",
-              "publishedDate": "2017-05-26T00:00:00.000Z",
-              "url": "https://docs.oasis-open.org/ubl/os-UBL-2.3/UBL-2.3.html"
-            },
-            {
-              "name": "unece.org",
-              "url": "https://unece.org/trade/uncefact/uncefact-cross-industry-invoice"
-            },
-            {
-              "name": "fnfe-mpe.org",
-              "version": "1.07.3",
-              "publishedDate": "2015-05-03T00:00:00.000Z",
-              "url": "https://fnfe-mpe.org/factur-x/factur-x_en/"
-            }
-          ]
-        }
-      },
-      "b2b": {
-        "status": "planned",
-        "implementationDate": "2027-01-01",
-        "formats": [
-          {
-            "name": "XRechnung",
-            "type": "XML",
-            "isHybrid": false
-          },
-          {
-            "name": "ZUGFeRD",
-            "type": "Other",
-            "isHybrid": true
-          },
-          {
-            "name": "UBL",
-            "type": "UBL",
-            "isHybrid": false
-          }
-        ],
-        "legislation": {
-          "name": "Wachstumschancengesetz",
-          "specifications": [
-            {
-              "name": "xeinkauf.de",
-              "version": "25.6",
-              "publishedDate": "2025-07-14T00:00:00.000Z",
-              "url": "https://xeinkauf.de/xrechnung/"
-            },
-            {
-              "name": "docs.oasis-open.org",
-              "version": "1.79.1",
-              "publishedDate": "2017-05-26T00:00:00.000Z",
-              "url": "https://docs.oasis-open.org/ubl/os-UBL-2.3/UBL-2.3.html"
-            },
-            {
-              "name": "unece.org",
-              "url": "https://unece.org/trade/uncefact/uncefact-cross-industry-invoice"
-            },
-            {
-              "name": "fnfe-mpe.org",
-              "version": "1.07.3",
-              "publishedDate": "2015-05-03T00:00:00.000Z",
-              "url": "https://fnfe-mpe.org/factur-x/factur-x_en/"
-            }
-          ]
-        }
-      },
-      "b2c": {
-        "status": "none",
-        "formats": [],
-        "legislation": {
-          "name": "",
-          "specifications": [
-            {
-              "name": "xeinkauf.de",
-              "version": "25.6",
-              "publishedDate": "2025-07-14T00:00:00.000Z",
-              "url": "https://xeinkauf.de/xrechnung/"
-            },
-            {
-              "name": "docs.oasis-open.org",
-              "version": "1.79.1",
-              "publishedDate": "2017-05-26T00:00:00.000Z",
-              "url": "https://docs.oasis-open.org/ubl/os-UBL-2.3/UBL-2.3.html"
-            },
-            {
-              "name": "unece.org",
-              "url": "https://unece.org/trade/uncefact/uncefact-cross-industry-invoice"
-            },
-            {
-              "name": "fnfe-mpe.org",
-              "version": "1.07.3",
-              "publishedDate": "2015-05-03T00:00:00.000Z",
-              "url": "https://fnfe-mpe.org/factur-x/factur-x_en/"
-            }
-          ]
-        }
-      },
-      "lastUpdated": "2024-07-01"
+      "lastUpdated": "2024-08-26"
     }
   },
   {
@@ -439,26 +550,6 @@
             {
               "name": "OpenPeppol",
               "url": "https://openpeppol.org/what-is-peppol/peppol-specifications/"
-            },
-            {
-              "name": "peppol.org",
-              "url": "https://peppol.org/document-type/peppol-bis/"
-            },
-            {
-              "name": "docs.oasis-open.org",
-              "version": "1.79.1",
-              "publishedDate": "2017-05-26T00:00:00.000Z",
-              "url": "https://docs.oasis-open.org/ubl/os-UBL-2.3/UBL-2.3.html"
-            },
-            {
-              "name": "unece.org",
-              "url": "https://unece.org/trade/uncefact/uncefact-cross-industry-invoice"
-            },
-            {
-              "name": "fnfe-mpe.org",
-              "version": "1.07.3",
-              "publishedDate": "2015-05-03T00:00:00.000Z",
-              "url": "https://fnfe-mpe.org/factur-x/factur-x_en/"
             }
           ]
         }
@@ -470,218 +561,74 @@
           {
             "name": "Peppol BIS",
             "type": "UBL",
-            "isHybrid": false,
-            "specUrl": "https://openpeppol.org/what-is-peppol/peppol-specifications/",
-            "specVersion": "BIS Billing 3",
-            "specPublishedDate": "2024-01-15T00:00:00.000Z"
+            "isHybrid": false
           },
           {
             "name": "UBL",
             "type": "UBL",
-            "isHybrid": false,
-            "specUrl": "https://docs.oasis-open.org/ubl/os-UBL-2.3/UBL-2.3.html",
-            "specVersion": "2.3",
-            "specPublishedDate": "2021-11-24T00:00:00.000Z"
+            "isHybrid": false
           }
         ],
         "legislation": {
           "name": "Belgium B2B e-invoicing mandate",
-          "specifications": [
-            {
-              "name": "OpenPeppol",
-              "url": "https://openpeppol.org/what-is-peppol/peppol-specifications/"
-            },
-            {
-              "name": "The Invoicing Hub – Belgium",
-              "url": "https://www.theinvoicinghub.com/"
-            },
-            {
-              "name": "peppol.org",
-              "version": "21.0",
-              "url": "https://peppol.org/document-type/peppol-bis/"
-            },
-            {
-              "name": "docs.oasis-open.org",
-              "version": "1.79.1",
-              "publishedDate": "2017-05-26T00:00:00.000Z",
-              "url": "https://docs.oasis-open.org/ubl/os-UBL-2.3/UBL-2.3.html"
-            },
-            {
-              "name": "unece.org",
-              "url": "https://unece.org/trade/uncefact/uncefact-cross-industry-invoice"
-            },
-            {
-              "name": "fnfe-mpe.org",
-              "version": "1.07.3",
-              "publishedDate": "2015-05-03T00:00:00.000Z",
-              "url": "https://fnfe-mpe.org/factur-x/factur-x_en/"
-            }
-          ]
-        },
-        "phases": [
-          {
-            "name": "Large enterprises",
-            "startDate": "2026-01-01T00:00:00.000Z",
-            "criteria": "Issuance + reception via Peppol/UBL"
-          },
-          {
-            "name": "Medium/SME roll‑out",
-            "startDate": "2026-07-01T00:00:00.000Z",
-            "criteria": "Progressive on-boarding as per government plan"
-          }
-        ]
-      },
-      "b2c": {
-        "status": "none",
-        "formats": [],
-        "legislation": {
-          "name": "",
-          "specifications": [
-            {
-              "name": "peppol.org",
-              "version": "21.0",
-              "url": "https://peppol.org/document-type/peppol-bis/"
-            },
-            {
-              "name": "openpeppol.org",
-              "url": "https://openpeppol.org/what-is-peppol/peppol-specifications/"
-            },
-            {
-              "name": "docs.oasis-open.org",
-              "version": "1.79.1",
-              "publishedDate": "2017-05-26T00:00:00.000Z",
-              "url": "https://docs.oasis-open.org/ubl/os-UBL-2.3/UBL-2.3.html"
-            },
-            {
-              "name": "unece.org",
-              "url": "https://unece.org/trade/uncefact/uncefact-cross-industry-invoice"
-            },
-            {
-              "name": "fnfe-mpe.org",
-              "version": "1.07.3",
-              "publishedDate": "2015-05-03T00:00:00.000Z",
-              "url": "https://fnfe-mpe.org/factur-x/factur-x_en/"
-            }
-          ]
+          "summary": "Phased B2B e-invoicing introduction starting January 2026."
         }
       },
-      "lastUpdated": "2024-07-01"
+      "b2c": {
+        "status": "permitted",
+        "formats": [],
+        "legislation": {
+          "name": ""
+        }
+      },
+      "lastUpdated": "2024-08-26"
     }
   },
   {
-    "id": "ESP",
-    "name": "Spain",
-    "isoCode2": "ES",
-    "isoCode3": "ESP",
-    "continent": "Europe",
+    "id": "CHL",
+    "name": "Chile",
+    "isoCode2": "CL",
+    "isoCode3": "CHL",
+    "continent": "Americas",
     "eInvoicing": {
       "b2g": {
         "status": "mandated",
-        "implementationDate": "2015-01-01",
+        "implementationDate": "2003-01-01",
         "formats": [
           {
-            "name": "Facturae",
+            "name": "DTE",
             "type": "XML",
-            "isHybrid": false
-          },
-          {
-            "name": "UBL",
-            "type": "UBL",
             "isHybrid": false
           }
         ],
         "legislation": {
-          "name": "Ley 25/2013",
-          "specifications": [
-            {
-              "name": "facturae.gob.es",
-              "url": "https://www.facturae.gob.es/"
-            },
-            {
-              "name": "docs.oasis-open.org",
-              "version": "1.79.1",
-              "publishedDate": "2017-05-26T00:00:00.000Z",
-              "url": "https://docs.oasis-open.org/ubl/os-UBL-2.3/UBL-2.3.html"
-            },
-            {
-              "name": "unece.org",
-              "url": "https://unece.org/trade/uncefact/uncefact-cross-industry-invoice"
-            },
-            {
-              "name": "fnfe-mpe.org",
-              "version": "1.07.3",
-              "publishedDate": "2015-05-03T00:00:00.000Z",
-              "url": "https://fnfe-mpe.org/factur-x/factur-x_en/"
-            }
-          ]
+          "name": "Servicio de Impuestos Internos",
+          "summary": "Electronic invoicing mandatory for public administrations."
         }
       },
       "b2b": {
-        "status": "planned",
-        "implementationDate": "2027-01-01",
+        "status": "mandated",
+        "implementationDate": "2003-01-01",
         "formats": [
           {
-            "name": "UBL",
-            "type": "UBL",
+            "name": "DTE",
+            "type": "XML",
             "isHybrid": false
           }
         ],
         "legislation": {
-          "name": "Ley Crea y Crece",
-          "specifications": [
-            {
-              "name": "facturae.gob.es",
-              "url": "https://www.facturae.gob.es/"
-            },
-            {
-              "name": "docs.oasis-open.org",
-              "version": "1.79.1",
-              "publishedDate": "2017-05-26T00:00:00.000Z",
-              "url": "https://docs.oasis-open.org/ubl/os-UBL-2.3/UBL-2.3.html"
-            },
-            {
-              "name": "unece.org",
-              "url": "https://unece.org/trade/uncefact/uncefact-cross-industry-invoice"
-            },
-            {
-              "name": "fnfe-mpe.org",
-              "version": "1.07.3",
-              "publishedDate": "2015-05-03T00:00:00.000Z",
-              "url": "https://fnfe-mpe.org/factur-x/factur-x_en/"
-            }
-          ]
+          "name": "Servicio de Impuestos Internos",
+          "summary": "Comprehensive B2B e-invoicing mandate with pre-clearance model."
         }
       },
       "b2c": {
-        "status": "none",
+        "status": "permitted",
         "formats": [],
         "legislation": {
-          "name": "",
-          "specifications": [
-            {
-              "name": "facturae.gob.es",
-              "url": "https://www.facturae.gob.es/"
-            },
-            {
-              "name": "docs.oasis-open.org",
-              "version": "1.79.1",
-              "publishedDate": "2017-05-26T00:00:00.000Z",
-              "url": "https://docs.oasis-open.org/ubl/os-UBL-2.3/UBL-2.3.html"
-            },
-            {
-              "name": "unece.org",
-              "url": "https://unece.org/trade/uncefact/uncefact-cross-industry-invoice"
-            },
-            {
-              "name": "fnfe-mpe.org",
-              "version": "1.07.3",
-              "publishedDate": "2015-05-03T00:00:00.000Z",
-              "url": "https://fnfe-mpe.org/factur-x/factur-x_en/"
-            }
-          ]
+          "name": ""
         }
       },
-      "lastUpdated": "2024-07-01"
+      "lastUpdated": "2024-08-26"
     }
   },
   {
@@ -707,24 +654,7 @@
         ],
         "legislation": {
           "name": "Nota Fiscal Eletrônica",
-          "specifications": [
-            {
-              "name": "docs.oasis-open.org",
-              "version": "1.79.1",
-              "publishedDate": "2017-05-26T00:00:00.000Z",
-              "url": "https://docs.oasis-open.org/ubl/os-UBL-2.3/UBL-2.3.html"
-            },
-            {
-              "name": "unece.org",
-              "url": "https://unece.org/trade/uncefact/uncefact-cross-industry-invoice"
-            },
-            {
-              "name": "fnfe-mpe.org",
-              "version": "1.07.3",
-              "publishedDate": "2015-05-03T00:00:00.000Z",
-              "url": "https://fnfe-mpe.org/factur-x/factur-x_en/"
-            }
-          ]
+          "summary": "Comprehensive e-invoicing system for B2G transactions."
         }
       },
       "b2b": {
@@ -738,511 +668,126 @@
         ],
         "legislation": {
           "name": "Nota Fiscal Eletrônica",
-          "specifications": [
-            {
-              "name": "docs.oasis-open.org",
-              "version": "1.79.1",
-              "publishedDate": "2017-05-26T00:00:00.000Z",
-              "url": "https://docs.oasis-open.org/ubl/os-UBL-2.3/UBL-2.3.html"
-            },
-            {
-              "name": "unece.org",
-              "url": "https://unece.org/trade/uncefact/uncefact-cross-industry-invoice"
-            },
-            {
-              "name": "fnfe-mpe.org",
-              "version": "1.07.3",
-              "publishedDate": "2015-05-03T00:00:00.000Z",
-              "url": "https://fnfe-mpe.org/factur-x/factur-x_en/"
-            }
-          ]
+          "summary": "Mandatory B2B e-invoicing through comprehensive NF-e system."
         }
       },
       "b2c": {
-        "status": "none",
+        "status": "permitted",
         "formats": [],
         "legislation": {
-          "name": "",
-          "specifications": [
-            {
-              "name": "docs.oasis-open.org",
-              "version": "1.79.1",
-              "publishedDate": "2017-05-26T00:00:00.000Z",
-              "url": "https://docs.oasis-open.org/ubl/os-UBL-2.3/UBL-2.3.html"
-            },
-            {
-              "name": "unece.org",
-              "url": "https://unece.org/trade/uncefact/uncefact-cross-industry-invoice"
-            },
-            {
-              "name": "fnfe-mpe.org",
-              "version": "1.07.3",
-              "publishedDate": "2015-05-03T00:00:00.000Z",
-              "url": "https://fnfe-mpe.org/factur-x/factur-x_en/"
-            }
-          ]
+          "name": ""
         }
       },
-      "lastUpdated": "2024-07-01"
+      "lastUpdated": "2024-08-26"
     }
   },
   {
-    "id": "MEX",
-    "name": "Mexico",
-    "isoCode2": "MX",
-    "isoCode3": "MEX",
-    "continent": "Americas",
+    "id": "NZL",
+    "name": "New Zealand",
+    "isoCode2": "NZ",
+    "isoCode3": "NZL",
+    "continent": "Oceania",
     "eInvoicing": {
       "b2g": {
         "status": "mandated",
-        "implementationDate": "2011-01-01",
+        "implementationDate": "2022-03-01",
         "formats": [
           {
-            "name": "CFDI",
-            "type": "XML",
-            "isHybrid": false
-          }
-        ],
-        "legislation": {
-          "name": "SAT CFDI",
-          "specifications": [
-            {
-              "name": "docs.oasis-open.org",
-              "version": "1.79.1",
-              "publishedDate": "2017-05-26T00:00:00.000Z",
-              "url": "https://docs.oasis-open.org/ubl/os-UBL-2.3/UBL-2.3.html"
-            },
-            {
-              "name": "unece.org",
-              "url": "https://unece.org/trade/uncefact/uncefact-cross-industry-invoice"
-            },
-            {
-              "name": "fnfe-mpe.org",
-              "version": "1.07.3",
-              "publishedDate": "2015-05-03T00:00:00.000Z",
-              "url": "https://fnfe-mpe.org/factur-x/factur-x_en/"
-            }
-          ]
-        }
-      },
-      "b2b": {
-        "status": "mandated",
-        "implementationDate": "2011-01-01",
-        "formats": [
-          {
-            "name": "CFDI",
-            "type": "XML",
-            "isHybrid": false
-          }
-        ],
-        "legislation": {
-          "name": "SAT CFDI",
-          "specifications": [
-            {
-              "name": "docs.oasis-open.org",
-              "version": "1.79.1",
-              "publishedDate": "2017-05-26T00:00:00.000Z",
-              "url": "https://docs.oasis-open.org/ubl/os-UBL-2.3/UBL-2.3.html"
-            },
-            {
-              "name": "unece.org",
-              "url": "https://unece.org/trade/uncefact/uncefact-cross-industry-invoice"
-            },
-            {
-              "name": "fnfe-mpe.org",
-              "version": "1.07.3",
-              "publishedDate": "2015-05-03T00:00:00.000Z",
-              "url": "https://fnfe-mpe.org/factur-x/factur-x_en/"
-            }
-          ]
-        }
-      },
-      "b2c": {
-        "status": "none",
-        "formats": [],
-        "legislation": {
-          "name": "",
-          "specifications": [
-            {
-              "name": "docs.oasis-open.org",
-              "version": "1.79.1",
-              "publishedDate": "2017-05-26T00:00:00.000Z",
-              "url": "https://docs.oasis-open.org/ubl/os-UBL-2.3/UBL-2.3.html"
-            },
-            {
-              "name": "unece.org",
-              "url": "https://unece.org/trade/uncefact/uncefact-cross-industry-invoice"
-            },
-            {
-              "name": "fnfe-mpe.org",
-              "version": "1.07.3",
-              "publishedDate": "2015-05-03T00:00:00.000Z",
-              "url": "https://fnfe-mpe.org/factur-x/factur-x_en/"
-            }
-          ]
-        }
-      },
-      "lastUpdated": "2024-07-01"
-    }
-  },
-  {
-    "id": "CHL",
-    "name": "Chile",
-    "isoCode2": "CL",
-    "isoCode3": "CHL",
-    "continent": "Americas",
-    "eInvoicing": {
-      "b2g": {
-        "status": "mandated",
-        "implementationDate": "2003-01-01",
-        "formats": [
-          {
-            "name": "DTE",
-            "type": "XML",
-            "isHybrid": false
-          }
-        ],
-        "legislation": {
-          "name": "Servicio de Impuestos Internos",
-          "specifications": [
-            {
-              "name": "docs.oasis-open.org",
-              "version": "1.79.1",
-              "publishedDate": "2017-05-26T00:00:00.000Z",
-              "url": "https://docs.oasis-open.org/ubl/os-UBL-2.3/UBL-2.3.html"
-            },
-            {
-              "name": "unece.org",
-              "url": "https://unece.org/trade/uncefact/uncefact-cross-industry-invoice"
-            },
-            {
-              "name": "fnfe-mpe.org",
-              "version": "1.07.3",
-              "publishedDate": "2015-05-03T00:00:00.000Z",
-              "url": "https://fnfe-mpe.org/factur-x/factur-x_en/"
-            }
-          ]
-        }
-      },
-      "b2b": {
-        "status": "mandated",
-        "implementationDate": "2003-01-01",
-        "formats": [
-          {
-            "name": "DTE",
-            "type": "XML",
-            "isHybrid": false
-          }
-        ],
-        "legislation": {
-          "name": "Servicio de Impuestos Internos",
-          "specifications": [
-            {
-              "name": "docs.oasis-open.org",
-              "version": "1.79.1",
-              "publishedDate": "2017-05-26T00:00:00.000Z",
-              "url": "https://docs.oasis-open.org/ubl/os-UBL-2.3/UBL-2.3.html"
-            },
-            {
-              "name": "unece.org",
-              "url": "https://unece.org/trade/uncefact/uncefact-cross-industry-invoice"
-            },
-            {
-              "name": "fnfe-mpe.org",
-              "version": "1.07.3",
-              "publishedDate": "2015-05-03T00:00:00.000Z",
-              "url": "https://fnfe-mpe.org/factur-x/factur-x_en/"
-            }
-          ]
-        }
-      },
-      "b2c": {
-        "status": "none",
-        "formats": [],
-        "legislation": {
-          "name": "",
-          "specifications": [
-            {
-              "name": "docs.oasis-open.org",
-              "version": "1.79.1",
-              "publishedDate": "2017-05-26T00:00:00.000Z",
-              "url": "https://docs.oasis-open.org/ubl/os-UBL-2.3/UBL-2.3.html"
-            },
-            {
-              "name": "unece.org",
-              "url": "https://unece.org/trade/uncefact/uncefact-cross-industry-invoice"
-            },
-            {
-              "name": "fnfe-mpe.org",
-              "version": "1.07.3",
-              "publishedDate": "2015-05-03T00:00:00.000Z",
-              "url": "https://fnfe-mpe.org/factur-x/factur-x_en/"
-            }
-          ]
-        }
-      },
-      "lastUpdated": "2024-07-01"
-    }
-  },
-  {
-    "id": "COL",
-    "name": "Colombia",
-    "isoCode2": "CO",
-    "isoCode3": "COL",
-    "continent": "Americas",
-    "eInvoicing": {
-      "b2g": {
-        "status": "mandated",
-        "formats": [
-          {
-            "name": "UBL",
+            "name": "Peppol BIS",
             "type": "UBL",
             "isHybrid": false
           }
         ],
         "legislation": {
-          "name": "DIAN",
-          "specifications": [
-            {
-              "name": "docs.oasis-open.org",
-              "version": "1.79.1",
-              "publishedDate": "2017-05-26T00:00:00.000Z",
-              "url": "https://docs.oasis-open.org/ubl/os-UBL-2.3/UBL-2.3.html"
-            },
-            {
-              "name": "unece.org",
-              "url": "https://unece.org/trade/uncefact/uncefact-cross-industry-invoice"
-            },
-            {
-              "name": "fnfe-mpe.org",
-              "version": "1.07.3",
-              "publishedDate": "2015-05-03T00:00:00.000Z",
-              "url": "https://fnfe-mpe.org/factur-x/factur-x_en/"
-            }
-          ]
-        }
-      },
-      "b2b": {
-        "status": "mandated",
-        "implementationDate": "2020-01-01",
-        "formats": [
-          {
-            "name": "UBL",
-            "type": "UBL",
-            "isHybrid": false
-          }
-        ],
-        "legislation": {
-          "name": "DIAN",
-          "specifications": [
-            {
-              "name": "docs.oasis-open.org",
-              "version": "1.79.1",
-              "publishedDate": "2017-05-26T00:00:00.000Z",
-              "url": "https://docs.oasis-open.org/ubl/os-UBL-2.3/UBL-2.3.html"
-            },
-            {
-              "name": "unece.org",
-              "url": "https://unece.org/trade/uncefact/uncefact-cross-industry-invoice"
-            },
-            {
-              "name": "fnfe-mpe.org",
-              "version": "1.07.3",
-              "publishedDate": "2015-05-03T00:00:00.000Z",
-              "url": "https://fnfe-mpe.org/factur-x/factur-x_en/"
-            }
-          ]
-        }
-      },
-      "b2c": {
-        "status": "none",
-        "formats": [],
-        "legislation": {
-          "name": "",
-          "specifications": [
-            {
-              "name": "docs.oasis-open.org",
-              "version": "1.79.1",
-              "publishedDate": "2017-05-26T00:00:00.000Z",
-              "url": "https://docs.oasis-open.org/ubl/os-UBL-2.3/UBL-2.3.html"
-            },
-            {
-              "name": "unece.org",
-              "url": "https://unece.org/trade/uncefact/uncefact-cross-industry-invoice"
-            },
-            {
-              "name": "fnfe-mpe.org",
-              "version": "1.07.3",
-              "publishedDate": "2015-05-03T00:00:00.000Z",
-              "url": "https://fnfe-mpe.org/factur-x/factur-x_en/"
-            }
-          ]
-        }
-      },
-      "lastUpdated": "2024-07-01"
-    }
-  },
-  {
-    "id": "IND",
-    "name": "India",
-    "isoCode2": "IN",
-    "isoCode3": "IND",
-    "continent": "Asia",
-    "eInvoicing": {
-      "b2g": {
-        "status": "none",
-        "formats": [],
-        "legislation": {
-          "name": "",
-          "specifications": [
-            {
-              "name": "einvoice.gst.gov.in",
-              "url": "https://einvoice.gst.gov.in/"
-            },
-            {
-              "name": "docs.oasis-open.org",
-              "version": "1.79.1",
-              "publishedDate": "2017-05-26T00:00:00.000Z",
-              "url": "https://docs.oasis-open.org/ubl/os-UBL-2.3/UBL-2.3.html"
-            },
-            {
-              "name": "unece.org",
-              "url": "https://unece.org/trade/uncefact/uncefact-cross-industry-invoice"
-            },
-            {
-              "name": "fnfe-mpe.org",
-              "version": "1.07.3",
-              "publishedDate": "2015-05-03T00:00:00.000Z",
-              "url": "https://fnfe-mpe.org/factur-x/factur-x_en/"
-            }
-          ]
-        }
-      },
-      "b2b": {
-        "status": "mandated",
-        "formats": [
-          {
-            "name": "GST e-invoice",
-            "type": "XML",
-            "isHybrid": false,
-            "specUrl": "https://einvoice.gst.gov.in/",
-            "specVersion": "1.1",
-            "specPublishedDate": "2023-01-01T00:00:00.000Z"
-          }
-        ],
-        "legislation": {
-          "name": "CBIC GST e-invoicing",
-          "specifications": [
-            {
-              "name": "einvoice.gst.gov.in",
-              "url": "https://einvoice.gst.gov.in/"
-            },
-            {
-              "name": "cbic-gst.gov.in",
-              "url": "https://cbic-gst.gov.in/"
-            },
-            {
-              "name": "docs.oasis-open.org",
-              "version": "1.79.1",
-              "publishedDate": "2017-05-26T00:00:00.000Z",
-              "url": "https://docs.oasis-open.org/ubl/os-UBL-2.3/UBL-2.3.html"
-            },
-            {
-              "name": "unece.org",
-              "url": "https://unece.org/trade/uncefact/uncefact-cross-industry-invoice"
-            },
-            {
-              "name": "fnfe-mpe.org",
-              "version": "1.07.3",
-              "publishedDate": "2015-05-03T00:00:00.000Z",
-              "url": "https://fnfe-mpe.org/factur-x/factur-x_en/"
-            }
-          ]
-        }
-      },
-      "b2c": {
-        "status": "none",
-        "formats": [],
-        "legislation": {
-          "name": "",
-          "specifications": [
-            {
-              "name": "einvoice.gst.gov.in",
-              "url": "https://einvoice.gst.gov.in/"
-            },
-            {
-              "name": "docs.oasis-open.org",
-              "version": "1.79.1",
-              "publishedDate": "2017-05-26T00:00:00.000Z",
-              "url": "https://docs.oasis-open.org/ubl/os-UBL-2.3/UBL-2.3.html"
-            },
-            {
-              "name": "unece.org",
-              "url": "https://unece.org/trade/uncefact/uncefact-cross-industry-invoice"
-            },
-            {
-              "name": "fnfe-mpe.org",
-              "version": "1.07.3",
-              "publishedDate": "2015-05-03T00:00:00.000Z",
-              "url": "https://fnfe-mpe.org/factur-x/factur-x_en/"
-            }
-          ]
-        }
-      },
-      "lastUpdated": "2024-07-01"
-    }
-  },
-  {
-    "id": "SGP",
-    "name": "Singapore",
-    "isoCode2": "SG",
-    "isoCode3": "SGP",
-    "continent": "Asia",
-    "eInvoicing": {
-      "b2g": {
-        "status": "mandated",
-        "formats": [
-          {
-            "name": "Peppol",
-            "type": "UBL",
-            "isHybrid": false
-          },
-          {
-            "name": "UBL",
-            "type": "UBL",
-            "isHybrid": false
-          }
-        ],
-        "legislation": {
-          "name": "IMDA",
-          "specifications": [
-            {
-              "name": "docs.oasis-open.org",
-              "version": "1.79.1",
-              "publishedDate": "2017-05-26T00:00:00.000Z",
-              "url": "https://docs.oasis-open.org/ubl/os-UBL-2.3/UBL-2.3.html"
-            },
-            {
-              "name": "unece.org",
-              "url": "https://unece.org/trade/uncefact/uncefact-cross-industry-invoice"
-            },
-            {
-              "name": "fnfe-mpe.org",
-              "version": "1.07.3",
-              "publishedDate": "2015-05-03T00:00:00.000Z",
-              "url": "https://fnfe-mpe.org/factur-x/factur-x_en/"
-            }
-          ]
+          "name": "New Zealand B2G PEPPOL E-invoicing",
+          "summary": "B2G PEPPOL-based e-invoicing mandatory since March 2022."
         }
       },
       "b2b": {
         "status": "permitted",
         "formats": [
           {
-            "name": "Peppol",
+            "name": "Peppol BIS",
             "type": "UBL",
             "isHybrid": false
-          },
+          }
+        ],
+        "legislation": {
+          "name": ""
+        }
+      },
+      "b2c": {
+        "status": "permitted",
+        "formats": [],
+        "legislation": {
+          "name": ""
+        }
+      },
+      "lastUpdated": "2024-08-26"
+    }
+  },
+  {
+    "id": "AUS",
+    "name": "Australia",
+    "isoCode2": "AU",
+    "isoCode3": "AUS",
+    "continent": "Oceania",
+    "eInvoicing": {
+      "b2g": {
+        "status": "mandated",
+        "formats": [
+          {
+            "name": "Peppol BIS",
+            "type": "UBL",
+            "isHybrid": false
+          }
+        ],
+        "legislation": {
+          "name": "Australian Government B2G E-invoicing",
+          "summary": "Government agencies required to accept Peppol e-invoices."
+        }
+      },
+      "b2b": {
+        "status": "permitted",
+        "formats": [
+          {
+            "name": "Peppol BIS",
+            "type": "UBL",
+            "isHybrid": false
+          }
+        ],
+        "legislation": {
+          "name": ""
+        }
+      },
+      "b2c": {
+        "status": "permitted",
+        "formats": [],
+        "legislation": {
+          "name": ""
+        }
+      },
+      "lastUpdated": "2024-08-26"
+    }
+  },
+  {
+    "id": "HRV",
+    "name": "Croatia",
+    "isoCode2": "HR",
+    "isoCode3": "HRV",
+    "continent": "Europe",
+    "eInvoicing": {
+      "b2g": {
+        "status": "permitted",
+        "formats": [],
+        "legislation": {
+          "name": ""
+        }
+      },
+      "b2b": {
+        "status": "planned",
+        "implementationDate": "2026-01-01",
+        "formats": [
           {
             "name": "UBL",
             "type": "UBL",
@@ -1250,344 +795,18 @@
           }
         ],
         "legislation": {
-          "name": "IMDA",
-          "specifications": [
-            {
-              "name": "docs.oasis-open.org",
-              "version": "1.79.1",
-              "publishedDate": "2017-05-26T00:00:00.000Z",
-              "url": "https://docs.oasis-open.org/ubl/os-UBL-2.3/UBL-2.3.html"
-            },
-            {
-              "name": "unece.org",
-              "url": "https://unece.org/trade/uncefact/uncefact-cross-industry-invoice"
-            },
-            {
-              "name": "fnfe-mpe.org",
-              "version": "1.07.3",
-              "publishedDate": "2015-05-03T00:00:00.000Z",
-              "url": "https://fnfe-mpe.org/factur-x/factur-x_en/"
-            }
-          ]
+          "name": "Croatian B2B E-invoicing Mandate",
+          "summary": "Mandatory B2B e-invoicing from January 2026."
         }
       },
       "b2c": {
-        "status": "none",
+        "status": "permitted",
         "formats": [],
         "legislation": {
-          "name": "",
-          "specifications": [
-            {
-              "name": "docs.oasis-open.org",
-              "version": "1.79.1",
-              "publishedDate": "2017-05-26T00:00:00.000Z",
-              "url": "https://docs.oasis-open.org/ubl/os-UBL-2.3/UBL-2.3.html"
-            },
-            {
-              "name": "unece.org",
-              "url": "https://unece.org/trade/uncefact/uncefact-cross-industry-invoice"
-            },
-            {
-              "name": "fnfe-mpe.org",
-              "version": "1.07.3",
-              "publishedDate": "2015-05-03T00:00:00.000Z",
-              "url": "https://fnfe-mpe.org/factur-x/factur-x_en/"
-            }
-          ]
+          "name": ""
         }
       },
-      "lastUpdated": "2024-07-01"
-    }
-  },
-  {
-    "id": "MYS",
-    "name": "Malaysia",
-    "isoCode2": "MY",
-    "isoCode3": "MYS",
-    "continent": "Asia",
-    "eInvoicing": {
-      "b2g": {
-        "status": "mandated",
-        "formats": [
-          {
-            "name": "MyInvois",
-            "type": "XML",
-            "isHybrid": false
-          }
-        ],
-        "legislation": {
-          "name": "IRBM",
-          "specifications": [
-            {
-              "name": "docs.oasis-open.org",
-              "version": "1.79.1",
-              "publishedDate": "2017-05-26T00:00:00.000Z",
-              "url": "https://docs.oasis-open.org/ubl/os-UBL-2.3/UBL-2.3.html"
-            },
-            {
-              "name": "unece.org",
-              "url": "https://unece.org/trade/uncefact/uncefact-cross-industry-invoice"
-            },
-            {
-              "name": "fnfe-mpe.org",
-              "version": "1.07.3",
-              "publishedDate": "2015-05-03T00:00:00.000Z",
-              "url": "https://fnfe-mpe.org/factur-x/factur-x_en/"
-            }
-          ]
-        }
-      },
-      "b2b": {
-        "status": "mandated",
-        "formats": [
-          {
-            "name": "MyInvois",
-            "type": "XML",
-            "isHybrid": false
-          }
-        ],
-        "legislation": {
-          "name": "IRBM",
-          "specifications": [
-            {
-              "name": "docs.oasis-open.org",
-              "version": "1.79.1",
-              "publishedDate": "2017-05-26T00:00:00.000Z",
-              "url": "https://docs.oasis-open.org/ubl/os-UBL-2.3/UBL-2.3.html"
-            },
-            {
-              "name": "unece.org",
-              "url": "https://unece.org/trade/uncefact/uncefact-cross-industry-invoice"
-            },
-            {
-              "name": "fnfe-mpe.org",
-              "version": "1.07.3",
-              "publishedDate": "2015-05-03T00:00:00.000Z",
-              "url": "https://fnfe-mpe.org/factur-x/factur-x_en/"
-            }
-          ]
-        }
-      },
-      "b2c": {
-        "status": "none",
-        "formats": [],
-        "legislation": {
-          "name": "",
-          "specifications": [
-            {
-              "name": "docs.oasis-open.org",
-              "version": "1.79.1",
-              "publishedDate": "2017-05-26T00:00:00.000Z",
-              "url": "https://docs.oasis-open.org/ubl/os-UBL-2.3/UBL-2.3.html"
-            },
-            {
-              "name": "unece.org",
-              "url": "https://unece.org/trade/uncefact/uncefact-cross-industry-invoice"
-            },
-            {
-              "name": "fnfe-mpe.org",
-              "version": "1.07.3",
-              "publishedDate": "2015-05-03T00:00:00.000Z",
-              "url": "https://fnfe-mpe.org/factur-x/factur-x_en/"
-            }
-          ]
-        }
-      },
-      "lastUpdated": "2024-07-01"
-    }
-  },
-  {
-    "id": "SAU",
-    "name": "Saudi Arabia",
-    "isoCode2": "SA",
-    "isoCode3": "SAU",
-    "continent": "Asia",
-    "eInvoicing": {
-      "b2g": {
-        "status": "mandated",
-        "formats": [
-          {
-            "name": "ZATCA",
-            "type": "XML",
-            "isHybrid": false
-          }
-        ],
-        "legislation": {
-          "name": "ZATCA",
-          "specifications": [
-            {
-              "name": "docs.oasis-open.org",
-              "version": "1.79.1",
-              "publishedDate": "2017-05-26T00:00:00.000Z",
-              "url": "https://docs.oasis-open.org/ubl/os-UBL-2.3/UBL-2.3.html"
-            },
-            {
-              "name": "unece.org",
-              "url": "https://unece.org/trade/uncefact/uncefact-cross-industry-invoice"
-            },
-            {
-              "name": "fnfe-mpe.org",
-              "version": "1.07.3",
-              "publishedDate": "2015-05-03T00:00:00.000Z",
-              "url": "https://fnfe-mpe.org/factur-x/factur-x_en/"
-            }
-          ]
-        }
-      },
-      "b2b": {
-        "status": "mandated",
-        "formats": [
-          {
-            "name": "ZATCA",
-            "type": "XML",
-            "isHybrid": false
-          }
-        ],
-        "legislation": {
-          "name": "ZATCA",
-          "specifications": [
-            {
-              "name": "docs.oasis-open.org",
-              "version": "1.79.1",
-              "publishedDate": "2017-05-26T00:00:00.000Z",
-              "url": "https://docs.oasis-open.org/ubl/os-UBL-2.3/UBL-2.3.html"
-            },
-            {
-              "name": "unece.org",
-              "url": "https://unece.org/trade/uncefact/uncefact-cross-industry-invoice"
-            },
-            {
-              "name": "fnfe-mpe.org",
-              "version": "1.07.3",
-              "publishedDate": "2015-05-03T00:00:00.000Z",
-              "url": "https://fnfe-mpe.org/factur-x/factur-x_en/"
-            }
-          ]
-        }
-      },
-      "b2c": {
-        "status": "none",
-        "formats": [],
-        "legislation": {
-          "name": "",
-          "specifications": [
-            {
-              "name": "docs.oasis-open.org",
-              "version": "1.79.1",
-              "publishedDate": "2017-05-26T00:00:00.000Z",
-              "url": "https://docs.oasis-open.org/ubl/os-UBL-2.3/UBL-2.3.html"
-            },
-            {
-              "name": "unece.org",
-              "url": "https://unece.org/trade/uncefact/uncefact-cross-industry-invoice"
-            },
-            {
-              "name": "fnfe-mpe.org",
-              "version": "1.07.3",
-              "publishedDate": "2015-05-03T00:00:00.000Z",
-              "url": "https://fnfe-mpe.org/factur-x/factur-x_en/"
-            }
-          ]
-        }
-      },
-      "lastUpdated": "2024-07-01"
-    }
-  },
-  {
-    "id": "ARE",
-    "name": "United Arab Emirates",
-    "isoCode2": "AE",
-    "isoCode3": "ARE",
-    "continent": "Asia",
-    "eInvoicing": {
-      "b2g": {
-        "status": "planned",
-        "formats": [
-          {
-            "name": "VAT e-invoicing",
-            "type": "XML",
-            "isHybrid": false
-          }
-        ],
-        "legislation": {
-          "name": "FTA",
-          "specifications": [
-            {
-              "name": "docs.oasis-open.org",
-              "version": "1.79.1",
-              "publishedDate": "2017-05-26T00:00:00.000Z",
-              "url": "https://docs.oasis-open.org/ubl/os-UBL-2.3/UBL-2.3.html"
-            },
-            {
-              "name": "unece.org",
-              "url": "https://unece.org/trade/uncefact/uncefact-cross-industry-invoice"
-            },
-            {
-              "name": "fnfe-mpe.org",
-              "version": "1.07.3",
-              "publishedDate": "2015-05-03T00:00:00.000Z",
-              "url": "https://fnfe-mpe.org/factur-x/factur-x_en/"
-            }
-          ]
-        }
-      },
-      "b2b": {
-        "status": "planned",
-        "formats": [
-          {
-            "name": "VAT e-invoicing",
-            "type": "XML",
-            "isHybrid": false
-          }
-        ],
-        "legislation": {
-          "name": "FTA",
-          "specifications": [
-            {
-              "name": "docs.oasis-open.org",
-              "version": "1.79.1",
-              "publishedDate": "2017-05-26T00:00:00.000Z",
-              "url": "https://docs.oasis-open.org/ubl/os-UBL-2.3/UBL-2.3.html"
-            },
-            {
-              "name": "unece.org",
-              "url": "https://unece.org/trade/uncefact/uncefact-cross-industry-invoice"
-            },
-            {
-              "name": "fnfe-mpe.org",
-              "version": "1.07.3",
-              "publishedDate": "2015-05-03T00:00:00.000Z",
-              "url": "https://fnfe-mpe.org/factur-x/factur-x_en/"
-            }
-          ]
-        }
-      },
-      "b2c": {
-        "status": "none",
-        "formats": [],
-        "legislation": {
-          "name": "",
-          "specifications": [
-            {
-              "name": "docs.oasis-open.org",
-              "version": "1.79.1",
-              "publishedDate": "2017-05-26T00:00:00.000Z",
-              "url": "https://docs.oasis-open.org/ubl/os-UBL-2.3/UBL-2.3.html"
-            },
-            {
-              "name": "unece.org",
-              "url": "https://unece.org/trade/uncefact/uncefact-cross-industry-invoice"
-            },
-            {
-              "name": "fnfe-mpe.org",
-              "version": "1.07.3",
-              "publishedDate": "2015-05-03T00:00:00.000Z",
-              "url": "https://fnfe-mpe.org/factur-x/factur-x_en/"
-            }
-          ]
-        }
-      },
-      "lastUpdated": "2024-07-01"
+      "lastUpdated": "2024-08-26"
     }
   }
 ]

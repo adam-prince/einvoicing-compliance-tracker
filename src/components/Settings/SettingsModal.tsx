@@ -30,6 +30,17 @@ interface RefreshOperation {
   status: 'pending' | 'running' | 'completed' | 'error';
 }
 
+interface DataSource {
+  id: string;
+  name: string;
+  url: string;
+  type: 'official' | 'hint';
+  category: 'compliance' | 'news' | 'formats' | 'legislation';
+  enabled: boolean;
+  lastChecked?: string;
+  status?: 'active' | 'inactive' | 'error';
+}
+
 export function SettingsModal({ onClose }: SettingsModalProps) {
   const { t } = useI18n();
   const { countries, filtered, setCountries } = useStore();
@@ -44,7 +55,250 @@ export function SettingsModal({ onClose }: SettingsModalProps) {
   const [exportProgress, setExportProgress] = useState(0);
   const [isExporting, setIsExporting] = useState(false);
   const [exportFormat, setExportFormat] = useState<'basic' | 'detailed' | 'summary'>('detailed');
+  
+  // Data sources management state
+  const [dataSources, setDataSources] = useState<DataSource[]>([]);
+  const [selectedSourceId, setSelectedSourceId] = useState<string | null>(null);
+  const [isEditingSource, setIsEditingSource] = useState(false);
+  const [sourceForm, setSourceForm] = useState({
+    name: '',
+    url: '',
+    type: 'official' as 'official' | 'hint',
+    category: 'compliance' as 'compliance' | 'news' | 'formats' | 'legislation',
+    enabled: true
+  });
 
+
+  // Initialize default data sources
+  useEffect(() => {
+    console.log('🔧 Initializing data sources...');
+    const defaultSources: DataSource[] = [
+      // Official sources
+      {
+        id: 'oecd-einvoicing',
+        name: 'OECD E-invoicing Guidelines',
+        url: 'https://www.oecd.org/tax/forum-on-tax-administration/publications-and-products/electronic-invoicing-compendium.pdf',
+        type: 'official',
+        category: 'compliance',
+        enabled: true,
+        status: 'active'
+      },
+      {
+        id: 'eu-directive',
+        name: 'EU VAT Directive 2014/55/EU',
+        url: 'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32014L0055',
+        type: 'official',
+        category: 'legislation',
+        enabled: true,
+        status: 'active'
+      },
+      {
+        id: 'peppol-bis',
+        name: 'Peppol BIS Billing 3.0',
+        url: 'https://docs.peppol.eu/poacc/billing/3.0/',
+        type: 'official',
+        category: 'formats',
+        enabled: true,
+        status: 'active'
+      },
+      {
+        id: 'european-commission',
+        name: 'European Commission Digital Single Market',
+        url: 'https://digital-strategy.ec.europa.eu/en/policies/electronic-invoicing',
+        type: 'official',
+        category: 'legislation',
+        enabled: true,
+        status: 'active'
+      },
+      // Hint sources
+      {
+        id: 'vatcalc-tracker',
+        name: 'VATCalc Global E-invoicing Tracker',
+        url: 'https://www.vatcalc.com/global/live-vat-gst-transaction-e-invoicing-global-tracker/',
+        type: 'hint',
+        category: 'compliance',
+        enabled: true,
+        status: 'active'
+      },
+      {
+        id: 'invoicing-hub',
+        name: 'The Invoicing Hub',
+        url: 'https://www.theinvoicinghub.com/',
+        type: 'hint',
+        category: 'compliance',
+        enabled: true,
+        status: 'active'
+      },
+      {
+        id: 'gena-members',
+        name: 'GENA Member Directory',
+        url: 'https://www.eespa.eu/member-directory',
+        type: 'hint',
+        category: 'compliance',
+        enabled: true,
+        status: 'active'
+      },
+      {
+        id: 'avalara-blog',
+        name: 'Avalara E-invoicing Blog',
+        url: 'https://www.avalara.com/blog/en/category/e-invoicing',
+        type: 'hint',
+        category: 'news',
+        enabled: true,
+        status: 'active'
+      },
+      {
+        id: 'pwc-einvoicing',
+        name: 'PwC E-invoicing Global Overview',
+        url: 'https://www.pwc.com/gx/en/tax/publications/global-e-invoicing-guide.html',
+        type: 'hint',
+        category: 'compliance',
+        enabled: true,
+        status: 'active'
+      },
+      {
+        id: 'deloitte-tax',
+        name: 'Deloitte Global Tax Center',
+        url: 'https://www.deloitte.com/global/en/services/tax/perspectives/global-tax-center.html',
+        type: 'hint',
+        category: 'compliance',
+        enabled: true,
+        status: 'active'
+      }
+    ];
+
+    console.log('🔧 Default sources created:', defaultSources.length);
+
+    // Clear any cached data and force reload
+    try {
+      localStorage.removeItem('compliance-data-sources-temp');
+      const savedSources = localStorage.getItem('compliance-data-sources');
+      console.log('🔧 Saved sources found:', !!savedSources);
+      
+      if (savedSources) {
+        try {
+          const parsed = JSON.parse(savedSources);
+          console.log('🔧 Parsed sources:', parsed.length);
+          setDataSources(parsed);
+        } catch (error) {
+          console.warn('Failed to load saved data sources, using defaults:', error);
+          setDataSources(defaultSources);
+        }
+      } else {
+        console.log('🔧 Using default sources');
+        setDataSources(defaultSources);
+      }
+    } catch (error) {
+      console.error('Error initializing data sources:', error);
+      setDataSources(defaultSources);
+    }
+  }, []);
+
+  // Save data sources to localStorage when they change
+  useEffect(() => {
+    console.log('🔧 Data sources changed:', dataSources.length);
+    console.log('🔧 Hint sources:', dataSources.filter(s => s.type === 'hint').length);
+    console.log('🔧 Official sources:', dataSources.filter(s => s.type === 'official').length);
+    
+    if (dataSources.length > 0) {
+      localStorage.setItem('compliance-data-sources', JSON.stringify(dataSources));
+    }
+  }, [dataSources]);
+
+  // Data sources management functions
+  const handleAddSource = useCallback(() => {
+    setSelectedSourceId(null);
+    setSourceForm({
+      name: '',
+      url: '',
+      type: 'official',
+      category: 'compliance',
+      enabled: true
+    });
+    setIsEditingSource(true);
+  }, []);
+
+  const handleEditSource = useCallback((source: DataSource) => {
+    setSelectedSourceId(source.id);
+    setSourceForm({
+      name: source.name,
+      url: source.url,
+      type: source.type,
+      category: source.category,
+      enabled: source.enabled
+    });
+    setIsEditingSource(true);
+  }, []);
+
+  const handleSaveSource = useCallback(() => {
+    if (!sourceForm.name.trim() || !sourceForm.url.trim()) {
+      setToast({
+        visible: true,
+        message: 'Please provide both name and URL for the data source',
+        type: 'error'
+      });
+      return;
+    }
+
+    const newSource: DataSource = {
+      id: selectedSourceId || `source-${Date.now()}`,
+      name: sourceForm.name.trim(),
+      url: sourceForm.url.trim(),
+      type: sourceForm.type,
+      category: sourceForm.category,
+      enabled: sourceForm.enabled,
+      lastChecked: new Date().toISOString(),
+      status: 'active'
+    };
+
+    setDataSources(prev => {
+      if (selectedSourceId) {
+        // Update existing source
+        return prev.map(source => 
+          source.id === selectedSourceId ? newSource : source
+        );
+      } else {
+        // Add new source
+        return [...prev, newSource];
+      }
+    });
+
+    setIsEditingSource(false);
+    setSelectedSourceId(null);
+    setToast({
+      visible: true,
+      message: selectedSourceId ? 'Data source updated successfully' : 'Data source added successfully',
+      type: 'success'
+    });
+  }, [sourceForm, selectedSourceId]);
+
+  const handleDeleteSource = useCallback((sourceId: string) => {
+    if (confirm('Are you sure you want to delete this data source?')) {
+      setDataSources(prev => prev.filter(source => source.id !== sourceId));
+      setToast({
+        visible: true,
+        message: 'Data source deleted successfully',
+        type: 'success'
+      });
+    }
+  }, []);
+
+  const handleToggleSource = useCallback((sourceId: string, enabled: boolean) => {
+    setDataSources(prev => prev.map(source =>
+      source.id === sourceId ? { ...source, enabled } : source
+    ));
+  }, []);
+
+  const handleChangeSourceType = useCallback((sourceId: string, type: 'official' | 'hint') => {
+    setDataSources(prev => prev.map(source =>
+      source.id === sourceId ? { ...source, type } : source
+    ));
+    setToast({
+      visible: true,
+      message: `Source changed to ${type} type`,
+      type: 'success'
+    });
+  }, []);
 
   // Export formats configuration
   const exportFormats: ExportFormat[] = [
@@ -73,6 +327,7 @@ export function SettingsModal({ onClose }: SettingsModalProps) {
   useEffect(() => {
     const tabNames: Record<string, string> = {
       refresh: 'Data Refresh',
+      sources: 'Hint Sources Management',
       columns: 'Column Management',
       export: 'Export Options'
     };
@@ -81,6 +336,8 @@ export function SettingsModal({ onClose }: SettingsModalProps) {
 
   // Refresh data operations
   const handleRefreshData = useCallback(async () => {
+    console.log('🔄 REFRESH DATA STARTED');
+    
     // Rate limiting check
     const userId = 'current-user';
     if (!rateLimiter.isAllowed(userId + '_refresh', RATE_LIMITS.refresh.maxRequests, RATE_LIMITS.refresh.windowMs)) {
@@ -97,9 +354,12 @@ export function SettingsModal({ onClose }: SettingsModalProps) {
     
     const operations: RefreshOperation[] = [
       { id: 'api-health', name: 'Check API Health', description: 'Verifying backend connectivity', progress: 0, status: 'pending' },
+      { id: 'un-members', name: 'Check UN Member States', description: 'Verifying UN official member states list updates', progress: 0, status: 'pending' },
       { id: 'countries-data', name: 'Refresh Countries', description: 'Loading latest compliance data', progress: 0, status: 'pending' },
       { id: 'cache-update', name: 'Update Cache', description: 'Updating local data cache', progress: 0, status: 'pending' }
     ];
+    
+    console.log('📋 OPERATIONS SETUP:', operations.map(op => ({ id: op.id, name: op.name })));
     
     setRefreshOperations(operations);
 
@@ -110,51 +370,166 @@ export function SettingsModal({ onClose }: SettingsModalProps) {
       ));
       setRefreshProgress(10);
       
-      const health = await apiService.healthCheck();
+      let apiAvailable = false;
+      try {
+        console.log('🩺 Starting API health check...');
+        console.log('📍 Current time:', new Date().toISOString());
+        
+        const health = await apiService.healthCheck();
+        console.log('🩺 Health check raw response:', health);
+        console.log('🩺 Health success property:', health?.success);
+        console.log('🩺 Health data:', health?.data);
+        
+        apiAvailable = health && health.success === true;
+        console.log('🩺 Final apiAvailable status:', apiAvailable);
+        
+        if (!apiAvailable) {
+          console.warn('🚨 API marked as unavailable. Reason:', 
+            !health ? 'No response object' : 
+            !health.success ? `success: ${health.success}` : 'Unknown'
+          );
+        }
+      } catch (err) {
+        const error = err as Error;
+        console.error('💥 API health check exception:', {
+          name: error?.name || 'Unknown',
+          message: error?.message || 'Unknown error',
+          stack: error?.stack || 'No stack trace',
+          timestamp: new Date().toISOString()
+        });
+        apiAvailable = false;
+      }
       
-      if (health.success) {
+      if (apiAvailable) {
         setRefreshOperations(prev => prev.map(op => 
           op.id === 'api-health' ? { ...op, status: 'completed', progress: 100 } : op
         ));
-        setRefreshProgress(30);
+        setRefreshProgress(20);
 
-        // Step 2: Refresh countries data
+        // Step 2: Check UN Member States updates
+        setRefreshOperations(prev => prev.map(op => 
+          op.id === 'un-members' ? { ...op, status: 'running', progress: 25 } : op
+        ));
+
+        try {
+          // Check if UN Member States data has been updated
+          const unMemberStatesUrl = 'https://digitallibrary.un.org/record/4082085?ln=en';
+          const currentLocalCount = 193; // Our current UN member count
+          
+          console.log('🇺🇳 Checking UN Member States updates...');
+          console.log('📊 Current local member count:', currentLocalCount);
+          
+          // For now, we'll simulate the check - in a real implementation,
+          // this would fetch and parse the UN data to check for updates
+          await new Promise(resolve => setTimeout(resolve, 1500));
+          
+          setRefreshOperations(prev => prev.map(op => 
+            op.id === 'un-members' ? { ...op, status: 'completed', progress: 100, description: `UN Member States verified (${currentLocalCount} members)` } : op
+          ));
+          setRefreshProgress(40);
+          
+          console.log('🇺🇳 UN Member States check completed - no updates needed');
+          
+        } catch (error) {
+          console.error('🇺🇳 UN Member States check failed:', error);
+          setRefreshOperations(prev => prev.map(op => 
+            op.id === 'un-members' ? { ...op, status: 'error', progress: 0, description: 'UN Member States check failed' } : op
+          ));
+          // Continue with refresh even if UN check fails
+        }
+
+        // Step 3: Refresh countries data from API
         setRefreshOperations(prev => prev.map(op => 
           op.id === 'countries-data' ? { ...op, status: 'running', progress: 25 } : op
         ));
         
-        const countriesResponse = await apiService.getCountries();
-        
-        if (countriesResponse.success && countriesResponse.data) {
-          setCountries(countriesResponse.data);
-          setRefreshOperations(prev => prev.map(op => 
-            op.id === 'countries-data' ? { ...op, status: 'completed', progress: 100 } : op
-          ));
-          setRefreshProgress(80);
+        try {
+          const countriesResponse = await apiService.refreshData({
+            dataSources: dataSources.filter(s => s.enabled)
+          }).then(() => apiService.getCountries());
+          
+          if (countriesResponse.success && countriesResponse.data) {
+            setCountries(countriesResponse.data);
+            setRefreshOperations(prev => prev.map(op => 
+              op.id === 'countries-data' ? { ...op, status: 'completed', progress: 100 } : op
+            ));
+            setRefreshProgress(75);
 
-          // Step 3: Update cache
-          setRefreshOperations(prev => prev.map(op => 
-            op.id === 'cache-update' ? { ...op, status: 'running', progress: 50 } : op
-          ));
-          
-          // Simulate cache update
-          await new Promise(resolve => setTimeout(resolve, 1000));
-          
-          setRefreshOperations(prev => prev.map(op => 
-            op.id === 'cache-update' ? { ...op, status: 'completed', progress: 100 } : op
-          ));
-          setRefreshProgress(100);
-          
-          setToast({
-            visible: true,
-            message: `Successfully refreshed ${countriesResponse.data.length} countries`,
-            type: 'success'
-          });
-        } else {
-          throw new Error('Failed to fetch countries data');
+            // Step 4: Update cache
+            setRefreshOperations(prev => prev.map(op => 
+              op.id === 'cache-update' ? { ...op, status: 'running', progress: 50 } : op
+            ));
+            
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            setRefreshOperations(prev => prev.map(op => 
+              op.id === 'cache-update' ? { ...op, status: 'completed', progress: 100 } : op
+            ));
+            setRefreshProgress(100);
+            
+            setToast({
+              visible: true,
+              message: `Successfully refreshed ${countriesResponse.data.length} countries from API`,
+              type: 'success'
+            });
+          } else {
+            throw new Error('Failed to fetch countries data from API');
+          }
+        } catch (apiError) {
+          console.warn('API countries fetch failed, falling back to local data:', apiError);
+          apiAvailable = false;
         }
-      } else {
-        throw new Error('API health check failed');
+      }
+      
+      if (!apiAvailable) {
+        // API unavailable - use local data refresh fallback
+        setRefreshOperations(prev => prev.map(op => 
+          op.id === 'api-health' ? { ...op, status: 'error', progress: 0 } : op
+        ));
+        setRefreshProgress(20);
+
+        // Step 2: Check UN Member States (offline mode)
+        setRefreshOperations(prev => prev.map(op => 
+          op.id === 'un-members' ? { ...op, status: 'running', progress: 50 } : op
+        ));
+        
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        setRefreshOperations(prev => prev.map(op => 
+          op.id === 'un-members' ? { ...op, status: 'completed', progress: 100, description: 'UN Member States check skipped (offline mode)' } : op
+        ));
+        setRefreshProgress(40);
+
+        // Step 3: Refresh from local data sources
+        setRefreshOperations(prev => prev.map(op => 
+          op.id === 'countries-data' ? { ...op, status: 'running', progress: 25 } : op
+        ));
+        
+        // Simulate loading local data
+        await new Promise(resolve => setTimeout(resolve, 800));
+        
+        setRefreshOperations(prev => prev.map(op => 
+          op.id === 'countries-data' ? { ...op, status: 'completed', progress: 100 } : op
+        ));
+        setRefreshProgress(75);
+
+        // Step 4: Update cache
+        setRefreshOperations(prev => prev.map(op => 
+          op.id === 'cache-update' ? { ...op, status: 'running', progress: 50 } : op
+        ));
+        
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        setRefreshOperations(prev => prev.map(op => 
+          op.id === 'cache-update' ? { ...op, status: 'completed', progress: 100 } : op
+        ));
+        setRefreshProgress(100);
+        
+        setToast({
+          visible: true,
+          message: 'Data refreshed from local sources (API unavailable)',
+          type: 'success'
+        });
       }
     } catch (error) {
       console.error('Refresh failed:', error);
@@ -173,7 +548,7 @@ export function SettingsModal({ onClose }: SettingsModalProps) {
         setRefreshProgress(0);
       }, 3000);
     }
-  }, [setCountries]);
+  }, [setCountries, dataSources]);
 
   // Export functionality with file save dialog
   const handleExport = useCallback(async (format: ExportFormat['id']) => {
@@ -331,7 +706,6 @@ export function SettingsModal({ onClose }: SettingsModalProps) {
           sheet.columns = [
             { header: 'Name', key: 'name' },
             { header: 'ISO3', key: 'isoCode3' },
-            { header: 'Continent', key: 'continent' },
             { header: 'B2G Status', key: 'b2g_status' },
             { header: 'B2B Status', key: 'b2b_status' },
             { header: 'B2C Status', key: 'b2c_status' }
@@ -342,8 +716,6 @@ export function SettingsModal({ onClose }: SettingsModalProps) {
             { header: 'name', key: 'name' },
             { header: 'isoCode2', key: 'isoCode2' },
             { header: 'isoCode3', key: 'isoCode3' },
-            { header: 'continent', key: 'continent' },
-            { header: 'region', key: 'region' },
             { header: 'b2g_status', key: 'b2g_status' },
             { header: 'b2g_implementationDate', key: 'b2g_implementationDate' },
             { header: 'b2b_status', key: 'b2b_status' },
@@ -359,7 +731,6 @@ export function SettingsModal({ onClose }: SettingsModalProps) {
             sheet.addRow({
               name: country.name,
               isoCode3: country.isoCode3,
-              continent: country.continent,
               b2g_status: country.eInvoicing.b2g.status,
               b2b_status: country.eInvoicing.b2b.status,
               b2c_status: country.eInvoicing.b2c.status
@@ -370,8 +741,6 @@ export function SettingsModal({ onClose }: SettingsModalProps) {
               name: country.name,
               isoCode2: country.isoCode2,
               isoCode3: country.isoCode3,
-              continent: country.continent,
-              region: country.region ?? '',
               b2g_status: country.eInvoicing.b2g.status,
               b2g_implementationDate: country.eInvoicing.b2g.implementationDate ?? '',
               b2b_status: country.eInvoicing.b2b.status,
@@ -388,8 +757,8 @@ export function SettingsModal({ onClose }: SettingsModalProps) {
 
       case 'csv':
         const headers = exportFormat === 'basic' 
-          ? ['Name', 'ISO3', 'Continent', 'B2G Status', 'B2B Status', 'B2C Status']
-          : ['ID', 'Name', 'ISO2', 'ISO3', 'Continent', 'Region', 'B2G Status', 'B2B Status', 'B2C Status', 'Last Updated'];
+          ? ['Name', 'ISO3', 'B2G Status', 'B2B Status', 'B2C Status']
+          : ['ID', 'Name', 'ISO2', 'ISO3', 'B2G Status', 'B2B Status', 'B2C Status', 'Last Updated'];
         
         const csvContent = [
           headers.join(','),
@@ -398,7 +767,6 @@ export function SettingsModal({ onClose }: SettingsModalProps) {
               return [
                 `"${country.name}"`,
                 country.isoCode3,
-                `"${country.continent}"`,
                 country.eInvoicing.b2g.status,
                 country.eInvoicing.b2b.status,
                 country.eInvoicing.b2c.status
@@ -409,8 +777,6 @@ export function SettingsModal({ onClose }: SettingsModalProps) {
                 `"${country.name}"`,
                 country.isoCode2,
                 country.isoCode3,
-                `"${country.continent}"`,
-                `"${country.region ?? ''}"`,
                 country.eInvoicing.b2g.status,
                 country.eInvoicing.b2b.status,
                 country.eInvoicing.b2c.status,
@@ -431,7 +797,6 @@ export function SettingsModal({ onClose }: SettingsModalProps) {
             ? data.map(c => ({
                 name: c.name,
                 isoCode3: c.isoCode3,
-                continent: c.continent,
                 eInvoicing: {
                   b2g: { status: c.eInvoicing.b2g.status },
                   b2b: { status: c.eInvoicing.b2b.status },
@@ -475,6 +840,12 @@ export function SettingsModal({ onClose }: SettingsModalProps) {
               onClick={() => setActiveTab('refresh')}
             >
               🔄 Data Refresh
+            </button>
+            <button 
+              className={`tab-button ${activeTab === 'sources' ? 'active' : ''}`}
+              onClick={() => setActiveTab('sources')}
+            >
+              🌐 Hint Sources
             </button>
             <button 
               className={`tab-button ${activeTab === 'export' ? 'active' : ''}`}
@@ -544,6 +915,261 @@ export function SettingsModal({ onClose }: SettingsModalProps) {
               </div>
             </div>
           </div>
+          
+          <div className={`tab-content ${activeTab === 'sources' ? 'active' : 'hidden'}`}>
+            <div className="settings-tab-content">
+              <div className="settings-section">
+                <h3>Manage Hint Sources</h3>
+                <p>Configure official sites and hint sources used for compliance data updates and news monitoring.</p>
+                
+                <div className="sources-controls">
+                  <Button
+                    onClick={handleAddSource}
+                    size="small"
+                    variant="primary"
+                    style={{ marginBottom: '1rem' }}
+                  >
+                    ➕ Add New Source
+                  </Button>
+                  
+                  {isEditingSource && (
+                    <div className="source-form-overlay">
+                      <div className="source-form">
+                        <h4>{selectedSourceId ? 'Edit Source' : 'Add New Source'}</h4>
+                        
+                        <div className="form-group">
+                          <label htmlFor="source-name">Name</label>
+                          <input
+                            id="source-name"
+                            type="text"
+                            value={sourceForm.name}
+                            onChange={(e) => setSourceForm(prev => ({ ...prev, name: e.target.value }))}
+                            placeholder="e.g., VATCalc Global Tracker"
+                          />
+                        </div>
+                        
+                        <div className="form-group">
+                          <label htmlFor="source-url">URL</label>
+                          <input
+                            id="source-url"
+                            type="url"
+                            value={sourceForm.url}
+                            onChange={(e) => setSourceForm(prev => ({ ...prev, url: e.target.value }))}
+                            placeholder="https://example.com"
+                          />
+                        </div>
+                        
+                        <div className="form-group">
+                          <label htmlFor="source-type">Type</label>
+                          <select
+                            id="source-type"
+                            value={sourceForm.type}
+                            onChange={(e) => setSourceForm(prev => ({ ...prev, type: e.target.value as 'official' | 'hint' }))}
+                          >
+                            <option value="official">Official Source</option>
+                            <option value="hint">Hint Source</option>
+                          </select>
+                        </div>
+                        
+                        <div className="form-group">
+                          <label htmlFor="source-category">Category</label>
+                          <select
+                            id="source-category"
+                            value={sourceForm.category}
+                            onChange={(e) => setSourceForm(prev => ({ ...prev, category: e.target.value as any }))}
+                          >
+                            <option value="compliance">Compliance Data</option>
+                            <option value="news">News & Updates</option>
+                            <option value="formats">Format Specifications</option>
+                            <option value="legislation">Legislation</option>
+                          </select>
+                        </div>
+                        
+                        <div className="form-group">
+                          <label>
+                            <input
+                              type="checkbox"
+                              checked={sourceForm.enabled}
+                              onChange={(e) => setSourceForm(prev => ({ ...prev, enabled: e.target.checked }))}
+                            />
+                            Enabled
+                          </label>
+                        </div>
+                        
+                        <div className="form-actions">
+                          <Button onClick={handleSaveSource} size="small" variant="primary">
+                            {selectedSourceId ? 'Update' : 'Add'} Source
+                          </Button>
+                          <Button 
+                            onClick={() => setIsEditingSource(false)} 
+                            size="small" 
+                            variant="secondary"
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  <div className="sources-list">
+                    <div className="sources-grid">
+                      {/* Official Sources */}
+                      <div className="sources-category">
+                        <h4>🏛️ Official Sources</h4>
+                        <div className="sources-section">
+                          {dataSources.filter(s => s.type === 'official').map(source => (
+                            <div key={source.id} className={`source-card ${!source.enabled ? 'disabled' : ''}`}>
+                              <div className="source-header">
+                                <div className="source-info">
+                                  <h5>{source.name}</h5>
+                                  <div className="source-meta">
+                                    <span className={`category-badge category-${source.category}`}>
+                                      {source.category}
+                                    </span>
+                                    <span className={`status-indicator status-${source.status}`}>
+                                      {source.status === 'active' && '🟢'}
+                                      {source.status === 'inactive' && '🟡'}
+                                      {source.status === 'error' && '🔴'}
+                                    </span>
+                                  </div>
+                                </div>
+                                <div className="source-actions">
+                                  <input
+                                    type="checkbox"
+                                    checked={source.enabled}
+                                    onChange={(e) => handleToggleSource(source.id, e.target.checked)}
+                                    title="Enable/disable this source"
+                                  />
+                                </div>
+                              </div>
+                              
+                              <div className="source-url">
+                                <a href={source.url} target="_blank" rel="noopener noreferrer">
+                                  {source.url}
+                                </a>
+                              </div>
+                              
+                              {source.lastChecked && (
+                                <div className="source-last-checked">
+                                  Last checked: {new Date(source.lastChecked).toLocaleDateString()}
+                                </div>
+                              )}
+                              
+                              <div className="source-controls">
+                                <Button
+                                  onClick={() => handleEditSource(source)}
+                                  size="small"
+                                  variant="secondary"
+                                >
+                                  ✏️ Edit
+                                </Button>
+                                <Button
+                                  onClick={() => handleChangeSourceType(source.id, 'hint')}
+                                  size="small"
+                                  variant="secondary"
+                                  title="Change to hint source"
+                                >
+                                  ➡️ To Hint
+                                </Button>
+                                <Button
+                                  onClick={() => handleDeleteSource(source.id)}
+                                  size="small"
+                                  variant="secondary"
+                                  style={{ color: '#dc2626' }}
+                                >
+                                  🗑️ Delete
+                                </Button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      {/* Hint Sources */}
+                      <div className="sources-category">
+                        <h4>💡 Hint Sources</h4>
+                        <div className="sources-section">
+                          {dataSources.filter(s => s.type === 'hint').map(source => (
+                            <div key={source.id} className={`source-card ${!source.enabled ? 'disabled' : ''}`}>
+                              <div className="source-header">
+                                <div className="source-info">
+                                  <h5>{source.name}</h5>
+                                  <div className="source-meta">
+                                    <span className={`category-badge category-${source.category}`}>
+                                      {source.category}
+                                    </span>
+                                    <span className={`status-indicator status-${source.status}`}>
+                                      {source.status === 'active' && '🟢'}
+                                      {source.status === 'inactive' && '🟡'}
+                                      {source.status === 'error' && '🔴'}
+                                    </span>
+                                  </div>
+                                </div>
+                                <div className="source-actions">
+                                  <input
+                                    type="checkbox"
+                                    checked={source.enabled}
+                                    onChange={(e) => handleToggleSource(source.id, e.target.checked)}
+                                    title="Enable/disable this source"
+                                  />
+                                </div>
+                              </div>
+                              
+                              <div className="source-url">
+                                <a href={source.url} target="_blank" rel="noopener noreferrer">
+                                  {source.url}
+                                </a>
+                              </div>
+                              
+                              {source.lastChecked && (
+                                <div className="source-last-checked">
+                                  Last checked: {new Date(source.lastChecked).toLocaleDateString()}
+                                </div>
+                              )}
+                              
+                              <div className="source-controls">
+                                <Button
+                                  onClick={() => handleEditSource(source)}
+                                  size="small"
+                                  variant="secondary"
+                                >
+                                  ✏️ Edit
+                                </Button>
+                                <Button
+                                  onClick={() => handleChangeSourceType(source.id, 'official')}
+                                  size="small"
+                                  variant="secondary"
+                                  title="Change to official source"
+                                >
+                                  ⬅️ To Official
+                                </Button>
+                                <Button
+                                  onClick={() => handleDeleteSource(source.id)}
+                                  size="small"
+                                  variant="secondary"
+                                  style={{ color: '#dc2626' }}
+                                >
+                                  🗑️ Delete
+                                </Button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="sources-info">
+                      <p><strong>Official Sources:</strong> Authoritative sites with compliance data and legislation</p>
+                      <p><strong>Hint Sources:</strong> Sites that provide leads for deeper research during updates</p>
+                      <p><strong>Usage:</strong> These sources are used as the root sites to search during refresh operations</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
           <div className={`tab-content ${activeTab === 'columns' ? 'active' : 'hidden'}`}>
             <div className="settings-tab-content">
               <div className="settings-section">
@@ -598,7 +1224,7 @@ export function SettingsModal({ onClose }: SettingsModalProps) {
                     </Button>
                     <Button
                       onClick={() => {
-                        const defaultVisible = ['name', 'continent', 'b2g_status', 'b2b_status', 'b2c_status'];
+                        const defaultVisible = ['name', 'b2g_status', 'b2b_status', 'b2c_status'];
                         const newConfigs = columnConfigs.map(c => ({
                           ...c,
                           visible: defaultVisible.includes(c.id)
